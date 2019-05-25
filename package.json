@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "description": "mock工具",
   "repository": "",
-  "keywords": ["mock", "api"],
+  "keywords": [
+    "mock",
+    "api"
+  ],
   "main": "",
   "author": "fenghen",
   "license": "MIT",
   "scripts": {
+    "server": "nodemon --watch 'lib/**/*.ts' --ignore 'test/**/*.test.ts' --exec 'ts-node' ./lib/server.ts",
     "example": "parcel ./example/example.html",
     "test:watch": "jest --watch",
     "test": "jest",
@@ -16,6 +20,7 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
+    "http-proxy": "^1.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
@@ -28,7 +33,9 @@
     "babel-plugin-module-resolver": "^3.2.0",
     "eslint-plugin-jest": "^22.5.1",
     "jest": "^24.8.0",
+    "nodemon": "^1.19.0",
     "parcel-bundler": "^1.12.3",
+    "ts-node": "^8.1.1",
     "typescript": "^3.4.5"
   }
 }
