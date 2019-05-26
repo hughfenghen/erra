@@ -20,7 +20,10 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
-    "http-proxy": "^1.17.0"
+    "http-proxy": "^1.17.0",
+    "koa": "^2.7.0",
+    "koa-router": "^7.4.0",
+    "node-http-proxy-json": "^0.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",

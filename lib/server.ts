@@ -1,16 +1,44 @@
+const Koa = require('koa');
 const http = require('http')
 const httpProxy = require('http-proxy')
-//
-// Create your proxy server and set the target in the options.
-//
-const proxy = httpProxy.createProxyServer({})
+const Router = require('koa-router')
+const modifyResponse = require('node-http-proxy-json')
 
-//
-// Create your target server
-//
-http.createServer(function (req, res) {
-  // res.writeHead(200, { 'Content-Type': 'text/plain' });
-  // res.write('request successfully proxied!' + '\n' + JSON.stringify(req.headers, null, 2));
-  // res.end();
-  proxy.web(req, res, { target: 'http://yapi.sankuai.com', changeOrigin: true });
-}).listen(9000);
+const app = new Koa();
+const router = new Router()
+
+function sleep(millisecond) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, millisecond);
+  })
+}
+
+const proxy = httpProxy.createProxyServer({})
+proxy.on('proxyRes', function (proxyRes, req, res) {
+  modifyResponse(res, proxyRes, async function (body) {
+    console.log(4444, body);
+    await sleep(1000)
+    body.code = 401
+    return body; // return value can be a promise
+  });
+});
+
+router.get('/erra/enable-breakpoint', (ctx, next) => {
+  // ctx.router available
+});
+
+router.get('*', async (ctx, next) => {
+  ctx.respond = false
+  await sleep(1000)
+  proxy.web(ctx.req, ctx.res, { 
+    target: 'http://yapi.sankuai.com', 
+    changeOrigin: true,
+    // selfHandleResponse: true,
+  });
+});
+
+app
+  .use(router.routes())
+  .use(router.allowedMethods());
+
+app.listen(3344);
