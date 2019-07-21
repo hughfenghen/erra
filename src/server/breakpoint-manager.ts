@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash/fp';
 import { sleep } from './utils';
+import { listenOnline } from './socket-server';
 
 type BPType = 'request' | 'response'
 interface BreakPoint {
@@ -20,9 +21,7 @@ export function enableBreakpoint (url: string, type: BPType) {
 }
 
 export function disableBreakpoint(url: string, type: BPType) {
-  console.log(1111, BPS, url, type);
   BPS = BPS.filter((it) => !it.match.test(url) || it.type !== type)
-  console.log(1112, BPS);
 }
 
 export async function throughBP4Req(req: object) {
@@ -31,6 +30,9 @@ export async function throughBP4Req(req: object) {
 export async function throughBP4Resp(resp: object, body: object) {
   console.log('------th resp-------', BPS);
   if (!isEmpty(BPS)) {
-    await sleep(2000)
+    const data = await listenOnline('breakpoint-tamper-reponse')
+    console.log(44444, data);
+    return JSON.parse(data.code);
   }
+  return body
 }
