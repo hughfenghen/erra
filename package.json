@@ -11,8 +11,8 @@
   "author": "fenghen",
   "license": "MIT",
   "scripts": {
-    "server": "nodemon --watch 'lib/**/*.ts' --ignore 'test/**/*.test.ts' --exec 'ts-node' ./lib/server.ts",
-    "example": "parcel ./example/example.html",
+    "server": "nodemon --watch 'src/server/**/*.ts' --ignore 'test/**/*.test.ts' --exec 'ts-node' ./src/server/index.ts",
+    "client": "parcel ./src/client/index.html",
     "test:watch": "jest --watch",
     "test": "jest",
     "prebuild": "yarn run test",
@@ -20,10 +20,19 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
+    "@koa/cors": "2",
+    "@types/lodash": "^4.14.132",
+    "antd": "^3.20.5",
     "http-proxy": "^1.17.0",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
-    "node-http-proxy-json": "^0.1.6"
+    "lodash": "^4.17.11",
+    "mockjs": "^1.0.1-beta3",
+    "node-http-proxy-json": "^0.1.6",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
