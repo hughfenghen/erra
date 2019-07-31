@@ -43,47 +43,50 @@ test('`parse` return a fn', () => {
 
 test('parse to fixed value', () => {
   const concatFn = parse({
-    body: 'success',
-    __body_desc__: 'fixed',
+    __bicycle_desc__: {
+      strategy: 'fixed',
+      value: 'success'
+    },
   })
 
-  expect(concatFn(bodyTpl)).toBe({
-    body: 'success'
-  })
+  expect(concatFn(bodyTpl).bicycle).toBe('success')
 })
 
 test('parse to origin value (default)', () => {
-  const concatFn = parse({
-    __body_desc__: {
-      strategy: 'origin',
-    }
-  })
-
-  expect(concatFn(bodyTpl)).toBe({
-    body: JSON.parse(JSON.stringify(bodyTpl))
-  })
-  // default origin
-  expect(parse({})(bodyTpl)).toBe(JSON.parse(JSON.stringify(bodyTpl)))
+  expect(parse({})(bodyTpl)).toEqual(JSON.parse(JSON.stringify(bodyTpl)))
 })
 
-test('generate value by mockjs', () => {
+
+test('merge snippet and origin value', () => {
+  expect(parse({ a: 1, book: 2 })(bodyTpl)).toEqual(Object.assign({}, bodyTpl, { a: 1, book: 2 }))
+})
+
+test('generate `string` value by mockjs', () => {
   const concatFn = parse({
-    body: {
-      store: {
-        'book|2': [{
-          category: 'reference',
-          author: 'Nigel Rees',
-          title: 'Sayings of the Century',
-          price: 8.95
-        }],
-        '__book|2_desc__': {
-          strategy: 'mockjs',
-        },
-      }
+    store: {
+      '__book_desc__': {
+        strategy: 'mockjs',
+        value: '@string',
+      },
     }
   })
 
-  expect(concatFn(bodyTpl).body.store.book.length).toBe(10)
+  expect(typeof concatFn(bodyTpl).store.book).toBe('string')
+})
+
+test('generate `Array` value by mockjs', () => {
+  const concatFn = parse({
+    store: {
+      '__book_desc__': {
+        strategy: 'mockjs',
+        value: [{ a: 1 }],
+        keyModifier: '10',
+      },
+    }
+  })
+
+  expect(concatFn(bodyTpl).store.book).toBeInstanceOf(Array)
+  expect(concatFn(bodyTpl).store.book.length).toBe(10)
 })
 
 test('link snippet', () => {
