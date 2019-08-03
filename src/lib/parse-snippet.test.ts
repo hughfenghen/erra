@@ -1,4 +1,7 @@
-import parse from './parse-snippet';
+import config from './config-manager';
+import parse, { getSnippet } from './parse-snippet';
+
+// jest.mock('./config-manager')
 
 const bodyTpl = {
   store: {
@@ -91,28 +94,36 @@ test('generate `Array` value by mockjs', () => {
 
 test('link snippet', () => {
   const snippets = {
-    'oqif-aiiw-kj1n-j32j-232d': {
-      strategy: 'mockjs',
-      value: ['@ARRAY', {
-        category: 'reference',
-        author: 'Nigel Rees',
-        title: 'Sayings of the Century',
-        price: 8.95
-      }, 1, 4]
+    snippetIdaaa: {
+      '__book_desc__': {
+        strategy: 'mockjs',
+        value: [{ a: 1 }],
+        keyModifier: '10',
+      },
+      '__code_desc__': {
+        strategy: 'snippet',
+        snippetId: 'snippetIdCode200',
+      },
+      hasCode: {
+        strategy: 'snippet',
+        snippetId: 'snippetIdHasCode',
+      },
+    },
+    snippetIdHasCode: {
+      code: 500,
+    },
+    snippetIdCode200: {
+      strategy: 'fixed',
+      value: 200,
     }
   }
-  const concatFn = parse({
-    body: {
-      store: {
-        bicycle: [],
-        '__bicycle_desc__': {
-          strategy: 'snippet|oqif-aiiw-kj1n-j32j-232d',
-        },
-      }
-    }
-  })
-  expect(concatFn(bodyTpl).store.bicycle).toBe({
-    color: 'red',
-    price: 19.95
-  })
+  const spyGet = jest.spyOn(config, 'get')
+  spyGet.mockImplementation(() => snippets)
+  config.emit('afterConfitInit')
+
+  const linkSnippet = getSnippet('snippetIdaaa')({ ttt: 111 })
+  expect(linkSnippet.ttt).toBe(111)
+  expect(linkSnippet.book.length).toBe(10)
+  expect(linkSnippet.code).toBe(200)
+  expect(linkSnippet.hasCode).toEqual({ code: 500 })
 })

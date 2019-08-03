@@ -23,6 +23,7 @@
     "@koa/cors": "2",
     "@types/lodash": "^4.14.132",
     "antd": "^3.20.5",
+    "events": "^3.0.0",
     "http-proxy": "^1.17.0",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",

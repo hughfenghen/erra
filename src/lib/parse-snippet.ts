@@ -1,10 +1,26 @@
-import { constant, fromPairs, identity, isArray, isFunction, isPlainObject, keys, map, mergeWith, omitBy, pipe, toPairs } from 'lodash/fp';
-
+import { constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs } from 'lodash/fp';
 import { mock } from 'mockjs';
 
-export type VALUE_PARSE_STRATEGY = 'fixed' | 'origin' | 'mockjs' | 'snippet'
+import config from './config-manager';
 
-function transDesc({ strategy = 'fixed', value, keyModifier = null }) {
+const snippets = new Map<string, Function>()
+
+config.on('afterConfitInit', () => {
+  Object.entries(config.get('snippet') || {})
+    .forEach(([key, val]) => {
+      snippets.set(key, parse(val))
+    })
+})
+
+export enum VALUE_PARSE_STRATEGY {
+  fixed,
+  origin,
+  mockjs,
+  snippet,
+}
+
+// 将策略解析成函数
+function transDesc({ strategy = 'fixed', value, keyModifier = null, snippetId = null }): Function {
   switch (strategy) {
     case 'fixed':
       return value == null ? identity : constant(value)
@@ -19,12 +35,32 @@ function transDesc({ strategy = 'fixed', value, keyModifier = null }) {
         )
       }
       return constant(mock(value))
+    case 'snippet':
+      // snippet 是否被解析过，如果没有则解析后更新snippets
+      const parsed = snippets.get(snippetId)
+      if (parsed) return parsed
+      
+      const source = config.get('snippet')[snippetId]
+      if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${snippetId}`)
+
+      const ps = parseSnippet(source)
+      snippets.set(snippetId, ps)
+      return ps
   }
   return identity
 }
 
+// 判断对象是否是策略描述类型
+function isStrategyDesc (obj) {
+  return !!obj && obj.strategy in VALUE_PARSE_STRATEGY
+}
+
 function parseSnippet(snippet) {
   if (isPlainObject(snippet)) {
+    if (isStrategyDesc(snippet)) {
+      return transDesc(snippet)
+    }
+
     const reg = /__(.+)_desc__/
     return pipe(
       toPairs,
@@ -40,7 +76,7 @@ function parseSnippet(snippet) {
   return transDesc({ value: snippet })
 }
 
-export default function parse(snippet) {
+export default function parse(snippet): (data: any) => any {
   const snippeter = parseSnippet(snippet)
 
   return (data): any => {
@@ -51,7 +87,14 @@ export default function parse(snippet) {
       }
       return undefined
     }, data, snippeter)
-    console.log('------------', JSON.stringify(rs));
     return rs
   }
+}
+
+export function getSnippet (id: string): Function {
+  return snippets.get(id)
+}
+
+export function addSnippet (id: string, snippet: any): void {
+  snippets.set(id, parse(snippet))
 }
