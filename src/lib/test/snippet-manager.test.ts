@@ -1,7 +1,5 @@
-import config from './config-manager';
-import parse, { getSnippet } from './parse-snippet';
-
-// jest.mock('./config-manager')
+import config from '../config-manager';
+import { getSnippet, parse } from '../snippet-manager';
 
 const bodyTpl = {
   store: {
@@ -119,7 +117,7 @@ test('link snippet', () => {
   }
   const spyGet = jest.spyOn(config, 'get')
   spyGet.mockImplementation(() => snippets)
-  config.emit('afterConfitInit')
+  config.emit('afterConfigInit')
 
   const linkSnippet = getSnippet('snippetIdaaa')({ ttt: 111 })
   expect(linkSnippet.ttt).toBe(111)

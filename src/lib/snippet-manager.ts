@@ -5,7 +5,7 @@ import config from './config-manager';
 
 const snippets = new Map<string, Function>()
 
-config.on('afterConfitInit', () => {
+config.on('afterConfigInit', () => {
   Object.entries(config.get('snippet') || {})
     .forEach(([key, val]) => {
       snippets.set(key, parse(val))
@@ -76,7 +76,7 @@ function parseSnippet(snippet) {
   return transDesc({ value: snippet })
 }
 
-export default function parse(snippet): (data: any) => any {
+export function parse(snippet): (data: any) => any {
   const snippeter = parseSnippet(snippet)
 
   return (data): any => {
