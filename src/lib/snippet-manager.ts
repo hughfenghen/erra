@@ -1,12 +1,12 @@
 import { constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs } from 'lodash/fp';
 import { mock } from 'mockjs';
 
-import config from './config-manager';
+import configManager from './config-manager';
 
 const snippets = new Map<string, Function>()
 
-config.on('afterConfigInit', () => {
-  Object.entries(config.get('snippet') || {})
+configManager.on('afterConfigInit', () => {
+  Object.entries(configManager.get('snippets') || {})
     .forEach(([key, val]) => {
       snippets.set(key, parse(val))
     })
@@ -40,7 +40,7 @@ function transDesc({ strategy = 'fixed', value, keyModifier = null, snippetId = 
       const parsed = snippets.get(snippetId)
       if (parsed) return parsed
       
-      const source = config.get('snippet')[snippetId]
+      const source = configManager.get('snippets')[snippetId]
       if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${snippetId}`)
 
       const ps = parseSnippet(source)

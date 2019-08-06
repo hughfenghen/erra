@@ -1,18 +1,21 @@
-import Koa from 'koa';
+import './socket-server';
+
 import cors from '@koa/cors';
 import httpProxy from 'http-proxy';
+import Koa from 'koa';
 import Router from 'koa-router';
-// https://github.com/saskodh/http-proxy-response-rewrite
+import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-json';
 
-import './socket-server';
-import { throughBP4Resp, throughBP4Req, enableBreakpoint, disableBreakpoint } from './breakpoint-manager';
-import { broadcast } from './socket-server';
 import { handleReq, handleResp, SimpleResp } from '../lib/api-manager';
-import { pick } from 'lodash/fp';
+import configManager from '../lib/config-manager';
+import { disableBreakpoint, enableBreakpoint } from './breakpoint-manager';
 
+// https://github.com/saskodh/http-proxy-response-rewrite
 const app = new Koa();
 const router = new Router()
+
+configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 const proxy = httpProxy.createProxyServer({})
 

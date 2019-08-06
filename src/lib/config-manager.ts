@@ -1,11 +1,17 @@
 import EventEmitter from 'events';
+import path from 'path';
 
 const ee = new EventEmitter()
 const config = new Map<string, any>()
 
-function init () {
-  // 解析配置
-  // 内部lib初始化
+async function init (cfgUrl) {
+  const cfg = await import(path.resolve(process.cwd(), cfgUrl))
+  delete cfg.default
+
+  Object.entries(cfg)
+    .forEach(([key, val]) => {
+      config.set(key, val)
+    })
   ee.emit('afterConfigInit')
 }
 

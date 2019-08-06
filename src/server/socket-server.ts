@@ -24,7 +24,6 @@ export function broadcast(eventName: string, ...args) {
 export function listenOnline(eventName: string): Promise<{ url: string, code: string }> {
   return Promise.race(Array.from(onlineSocketSet).map((s) => new Promise<{ url: string, code: string }>((resolve) => {
     s.on(eventName, ({url, code}) => {
-      console.log(111111, url, code);
       resolve({ url, code })
     })
     // resolve({ url: '', code: '' })

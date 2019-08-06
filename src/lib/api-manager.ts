@@ -1,6 +1,6 @@
 import { broadcast } from '../server/socket-server';
-import { getSnippet } from './snippet-manager';
 import configManager from './config-manager';
+import { getSnippet } from './snippet-manager';
 
 interface SimpleReq {
   url: string,
@@ -28,11 +28,14 @@ const apiHistory: ApiRecord[] = []
 
 configManager.on('afterConfigInit', () => {
   // todo init apiSnippetPair
+  Object.entries(configManager.get('api-match-snippet') || {})
+    .forEach(([matcher, snippetId]) => {
+      connectApiSnippet(matcher, String(snippetId))
+    }) 
 })
 
 export function handleReq(req: SimpleReq) {
   // todo: cookie, formData, body 
-  console.log(3331, req.headers, req.url, req.method);
   const { headers, url, method } = req
   const simpleReq = {
     uuid: '',
@@ -43,7 +46,6 @@ export function handleReq(req: SimpleReq) {
 }
 
 export function handleResp(resp: SimpleResp): SimpleResp {
-  console.log(3332, resp);
   const snippetId = (apiSnippetPair.find(([match]) => match(resp.url)) || [])[1]
   const rs = snippetId ? getSnippet(snippetId)(resp) : resp
   
@@ -60,5 +62,5 @@ export function connectApiSnippet(matcher: string, snippetId: string) {
 }
 
 function noticeApiUpdate (type: 'req' | 'resp', content) {
-  console.log(99999999, broadcast(`api-manager_${type}`, content));
+  broadcast(`api-manager_${type}`, content)
 }

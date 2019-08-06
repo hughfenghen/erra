@@ -1,0 +1,35 @@
+{
+  "api-match-snippet": {
+    "/.*/": "snippetIdaaa"
+  },
+  "snippets": {
+    "snippetIdaaa": {
+      "body": {
+        "__book_desc__": {
+          "strategy": "mockjs",
+          "value": [
+            {
+              "a": 1
+            }
+          ],
+          "keyModifier": "10"
+        },
+        "__code_desc__": {
+          "strategy": "snippet",
+          "snippetId": "snippetIdCode200"
+        },
+        "hasCode": {
+          "strategy": "snippet",
+          "snippetId": "snippetIdHasCode"
+        }
+      }
+    },
+    "snippetIdHasCode": {
+      "code": 500
+    },
+    "snippetIdCode200": {
+      "strategy": "fixed",
+      "value": 200
+    }
+  }
+}
