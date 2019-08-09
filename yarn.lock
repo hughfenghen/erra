@@ -8313,8 +8313,8 @@ util@^0.11.0:
 
 uuid@^3.3.2:
   version "3.3.2"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
-  integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
+  resolved "https://registry.npm.taobao.org/uuid/download/uuid-3.3.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fuuid%2Fdownload%2Fuuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
+  integrity sha1-G0r0lV6zB3xQHCOHL8ZROBFYcTE=
 
 v8-compile-cache@^2.0.0:
   version "2.0.3"

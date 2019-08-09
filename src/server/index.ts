@@ -35,7 +35,8 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
       Object.assign(
         pick(['statusCode', 'headers',])(proxyRes), 
         { url: req.url, uuid: req.uuid, body: originBody }
-      )
+      ),
+      req
     )
 
     resp.writeHead = (code, orignHeaders) => {

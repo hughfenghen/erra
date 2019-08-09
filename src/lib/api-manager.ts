@@ -1,12 +1,24 @@
+import { find } from 'lodash/fp';
+import genUUID from 'uuid';
+
 import { broadcast } from '../server/socket-server';
 import configManager from './config-manager';
 import { getSnippet } from './snippet-manager';
 
+interface StrObj {
+  [x: string]: string,
+}
+
 interface SimpleReq {
+  [x: string]: any;
   url: string,
-  method: string,
-  headers: Object,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS',
+  headers: StrObj,
   body?: any,
+}
+
+function noticeApiUpdate(type: string, content = {}) {
+  broadcast(`api-manager_${type}`, content)
 }
 
 export interface SimpleResp {
@@ -24,7 +36,7 @@ interface ApiRecord {
 }
 
 const apiSnippetPair: [((url: string) => boolean), string][] = []
-const apiHistory: ApiRecord[] = []
+let apiRecords: ApiRecord[] = []
 
 configManager.on('afterConfigInit', () => {
   // todo init apiSnippetPair
@@ -37,19 +49,27 @@ configManager.on('afterConfigInit', () => {
 export function handleReq(req: SimpleReq) {
   // todo: cookie, formData, body 
   const { headers, url, method } = req
-  const simpleReq = {
-    uuid: '',
+  const record = {
+    uuid: genUUID(),
     req: { headers, url, method },
   }
-  apiHistory.push(simpleReq)
-  noticeApiUpdate('req', simpleReq)
+  req._erra_uuid = record.uuid
+  apiRecords.push(record)
+  noticeApiUpdate('new', record)
 }
 
-export function handleResp(resp: SimpleResp): SimpleResp {
+export function handleResp(resp: SimpleResp, req: SimpleReq): SimpleResp {
   const snippetId = (apiSnippetPair.find(([match]) => match(resp.url)) || [])[1]
   const rs = snippetId ? getSnippet(snippetId)(resp) : resp
   
-  noticeApiUpdate('resp', rs)
+  const record = <ApiRecord>find({ uuid: req._erra_uuid })(apiRecords)
+  if (record) {
+    record.resp = rs
+  } else {
+    console.error('【handleResp】找不到匹配的request');
+  }
+  
+  noticeApiUpdate('replace', rs)
   return rs
 }
 
@@ -61,6 +81,11 @@ export function connectApiSnippet(matcher: string, snippetId: string) {
   ])
 }
 
-function noticeApiUpdate (type: 'req' | 'resp', content) {
-  broadcast(`api-manager_${type}`, content)
+export function getApiHistory(): ApiRecord[] {
+  return apiRecords
+}
+
+export function clearApiHistory () {
+  apiRecords = []
+  noticeApiUpdate('clear')
 }
