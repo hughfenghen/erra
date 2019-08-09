@@ -1,23 +1,33 @@
 import genUUID from 'uuid';
 
-import { clearApiHistory, connectApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
+import * as ss from '../../server/socket-server';
+import {
+  clearApiHistory,
+  connectApiSnippet,
+  getApiHistory,
+  handleReq,
+  handleResp,
+  SimpleReq,
+  SimpleResp,
+} from '../api-manager';
 import * as snippetManager from '../snippet-manager';
 
 jest.mock('uuid');
+genUUID.mockReturnValue('mock_uuid')
 
 jest.mock('../../server/socket-server')
 
-let reqTpl
-let respTpl
+let reqTpl: SimpleReq
+let respTpl: SimpleResp
 
 beforeEach(() => {
-  genUUID.mockReturnValue('mock_uuid')
   reqTpl = {
     _erra_uuid: genUUID(),
     url: 'url',
-    method: 'gET',
+    method: 'GET',
     headers: {},
   }
+
   respTpl = {
     statusCode: 200,
     headers: {},
@@ -45,4 +55,16 @@ test('snippet修改statusCode', () => {
 
   handleReq(reqTpl)
   expect(handleResp(respTpl, reqTpl).statusCode).toBe(500)
+})
+
+test('api记录更新时，广播消息通知client', () => {
+  const broadcast = jest.spyOn(ss, 'broadcast')
+  broadcast.mockClear()
+  
+  handleReq(reqTpl)
+  expect(handleResp(respTpl, reqTpl)).toEqual(respTpl)
+  
+  clearApiHistory()
+
+  expect(broadcast).toBeCalledTimes(3)
 })

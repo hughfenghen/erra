@@ -9,7 +9,7 @@ interface StrObj {
   [x: string]: string,
 }
 
-interface SimpleReq {
+export interface SimpleReq {
   [x: string]: any;
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS',
@@ -17,16 +17,15 @@ interface SimpleReq {
   body?: any,
 }
 
-function noticeApiUpdate(type: string, content = {}) {
-  broadcast(`api-manager_${type}`, content)
-}
-
 export interface SimpleResp {
-  uuid: string,
   url: string,
   statusCode?: number,
   headers: Object,
   body?: any,
+}
+
+function noticeApiUpdate(type: string, content = {}) {
+  broadcast(`api-manager_${type}`, content)
 }
 
 interface ApiRecord {
@@ -59,7 +58,7 @@ export function handleReq(req: SimpleReq) {
 }
 
 export function handleResp(resp: SimpleResp, req: SimpleReq): SimpleResp {
-  const snippetId = (apiSnippetPair.find(([match]) => match(resp.url)) || [])[1]
+  const snippetId = (apiSnippetPair.find(([match]) => match(req.url)) || [])[1]
   const rs = snippetId ? getSnippet(snippetId)(resp) : resp
   
   const record = <ApiRecord>find({ uuid: req._erra_uuid })(apiRecords)
