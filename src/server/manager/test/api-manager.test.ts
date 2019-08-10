@@ -1,6 +1,6 @@
 import genUUID from 'uuid';
 
-import * as ss from '../../server/socket-server';
+import * as ss from '../../socket-server';
 import {
   clearApiHistory,
   connectApiSnippet,
@@ -15,7 +15,7 @@ import * as snippetManager from '../snippet-manager';
 jest.mock('uuid');
 genUUID.mockReturnValue('mock_uuid')
 
-jest.mock('../../server/socket-server')
+jest.mock('../../socket-server')
 
 let reqTpl: SimpleReq
 let respTpl: SimpleResp

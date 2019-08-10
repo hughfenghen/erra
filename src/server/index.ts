@@ -7,9 +7,9 @@ import Router from 'koa-router';
 import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-json';
 
-import { handleReq, handleResp, SimpleResp } from '../lib/api-manager';
-import configManager from '../lib/config-manager';
-import { disableBreakpoint, enableBreakpoint } from './breakpoint-manager';
+import { handleReq, handleResp, SimpleResp } from './manager/api-manager';
+import { disableBreakpoint, enableBreakpoint } from './manager/breakpoint-manager';
+import configManager from './manager/config-manager';
 
 // https://github.com/saskodh/http-proxy-response-rewrite
 const app = new Koa();

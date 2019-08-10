@@ -1,7 +1,7 @@
 import { find } from 'lodash/fp';
 import genUUID from 'uuid';
 
-import { broadcast } from '../server/socket-server';
+import { broadcast } from '../socket-server';
 import configManager from './config-manager';
 import { getSnippet } from './snippet-manager';
 
