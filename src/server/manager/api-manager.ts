@@ -1,37 +1,14 @@
 import { find } from 'lodash/fp';
 import genUUID from 'uuid';
 
+import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import { broadcast } from '../socket-server';
 import configManager from './config-manager';
 import { getSnippet } from './snippet-manager';
 
-interface StrObj {
-  [x: string]: string,
-}
 
-export interface SimpleReq {
-  [x: string]: any;
-  url: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS',
-  headers: StrObj,
-  body?: any,
-}
-
-export interface SimpleResp {
-  url: string,
-  statusCode?: number,
-  headers: Object,
-  body?: any,
-}
-
-function noticeApiUpdate(type: string, content = {}) {
-  broadcast(`api-manager_${type}`, content)
-}
-
-interface ApiRecord {
-  uuid: string,
-  req: SimpleReq,
-  resp?: SimpleResp,
+function noticeApiUpdate(tag: string, content = {}) {
+  broadcast(tag, content)
 }
 
 const apiSnippetPair: [((url: string) => boolean), string][] = []
@@ -54,7 +31,7 @@ export function handleReq(req: SimpleReq) {
   }
   req._erra_uuid = record.uuid
   apiRecords.push(record)
-  noticeApiUpdate('new', record)
+  noticeApiUpdate(SOCKET_MSG_TAG_API.NEW_RECORD, record)
 }
 
 export function handleResp(resp: SimpleResp, req: SimpleReq): SimpleResp {
@@ -68,7 +45,7 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): SimpleResp {
     console.error('【handleResp】找不到匹配的request');
   }
   
-  noticeApiUpdate('replace', rs)
+  noticeApiUpdate(SOCKET_MSG_TAG_API.REPLACE_RECORD, rs)
   return rs
 }
 
@@ -86,5 +63,4 @@ export function getApiHistory(): ApiRecord[] {
 
 export function clearApiHistory () {
   apiRecords = []
-  noticeApiUpdate('clear')
 }

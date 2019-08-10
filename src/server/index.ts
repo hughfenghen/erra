@@ -7,7 +7,8 @@ import Router from 'koa-router';
 import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-json';
 
-import { handleReq, handleResp, SimpleResp } from './manager/api-manager';
+import { SimpleResp } from '../lib/interface';
+import { handleReq, handleResp } from './manager/api-manager';
 import { disableBreakpoint, enableBreakpoint } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 

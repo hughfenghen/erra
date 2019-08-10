@@ -1,15 +1,8 @@
 import genUUID from 'uuid';
 
+import { SimpleReq, SimpleResp } from '../../../lib/interface';
 import * as ss from '../../socket-server';
-import {
-  clearApiHistory,
-  connectApiSnippet,
-  getApiHistory,
-  handleReq,
-  handleResp,
-  SimpleReq,
-  SimpleResp,
-} from '../api-manager';
+import { clearApiHistory, connectApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
 import * as snippetManager from '../snippet-manager';
 
 jest.mock('uuid');
