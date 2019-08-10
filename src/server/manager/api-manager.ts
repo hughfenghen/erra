@@ -2,13 +2,13 @@ import { find } from 'lodash/fp';
 import genUUID from 'uuid';
 
 import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
-import { broadcast } from '../socket-server';
+import ss from '../socket-server';
 import configManager from './config-manager';
 import { getSnippet } from './snippet-manager';
 
 
 function noticeApiUpdate(tag: string, content = {}) {
-  broadcast(tag, content)
+  ss.broadcast(tag, content)
 }
 
 const apiSnippetPair: [((url: string) => boolean), string][] = []
@@ -20,6 +20,10 @@ configManager.on('afterConfigInit', () => {
     .forEach(([matcher, snippetId]) => {
       connectApiSnippet(matcher, String(snippetId))
     }) 
+})
+
+ss.on(SOCKET_MSG_TAG_API.GET_HISTORY, (cb) => {
+  cb(apiRecords)
 })
 
 export function handleReq(req: SimpleReq) {

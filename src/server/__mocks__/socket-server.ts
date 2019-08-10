@@ -1,7 +1,18 @@
+import { SocketListener } from '../../lib/interface';
 
-export function broadcast(eventName: string, ...args) {
+function broadcast(evtName: string, ...args) {
 }
 
-export function listenOnline(eventName: string) {
+function once(evtName: string) {
   
+}
+
+function on(evtName: string, cb: SocketListener) {
+  
+}
+
+export default {
+  broadcast,
+  once,
+  on,
 }

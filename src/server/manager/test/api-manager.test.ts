@@ -1,7 +1,7 @@
 import genUUID from 'uuid';
 
 import { SimpleReq, SimpleResp } from '../../../lib/interface';
-import * as ss from '../../socket-server';
+import ss from '../../socket-server';
 import { clearApiHistory, connectApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
 import * as snippetManager from '../snippet-manager';
 
@@ -59,5 +59,5 @@ test('api记录更新时，广播消息通知client', () => {
   
   clearApiHistory()
 
-  expect(broadcast).toBeCalledTimes(3)
+  expect(broadcast).toBeCalledTimes(2)
 })

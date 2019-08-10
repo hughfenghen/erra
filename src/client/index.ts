@@ -1,4 +1,3 @@
-import './socket-client'
 import './app';
 
 const host = 'http://localhost:3344'

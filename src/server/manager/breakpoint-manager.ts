@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash/fp';
 
-import { listenOnline } from '../socket-server';
+import ss from '../socket-server';
 
 type BPType = 'request' | 'response'
 interface BreakPoint {
@@ -30,7 +30,7 @@ export async function throughBP4Req(req: object) {
 export async function throughBP4Resp(resp: object, body: object) {
   console.log('------th resp-------', BPS);
   if (!isEmpty(BPS)) {
-    const data = await listenOnline('breakpoint-tamper-reponse')
+    const data = await ss.once('breakpoint-tamper-reponse')
     console.log(44444, data);
     return JSON.parse(data.code);
   }

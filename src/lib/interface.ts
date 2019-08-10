@@ -24,6 +24,8 @@ export interface ApiRecord {
   resp?: SimpleResp,
 }
 
+export type SocketListener = (...args: any[]) => void
+
 export const SOCKET_MSG_TAG_API = {
   GET_HISTORY: 'api_manager-get_history',
   NEW_RECORD: 'api_manager-new_record',
