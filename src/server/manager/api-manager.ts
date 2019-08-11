@@ -45,11 +45,11 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): SimpleResp {
   const record = <ApiRecord>find({ uuid: req._erra_uuid })(apiRecords)
   if (record) {
     record.resp = rs
+    noticeApiUpdate(SOCKET_MSG_TAG_API.REPLACE_RECORD, record)
   } else {
     console.error('【handleResp】找不到匹配的request');
   }
   
-  noticeApiUpdate(SOCKET_MSG_TAG_API.REPLACE_RECORD, rs)
   return rs
 }
 

@@ -21,4 +21,7 @@ function emit (eventName: string, ...args) {
 export default {
   emit,
   on,
+  off(evtName: string, fn?: Function) {
+    socket.off(evtName, fn)
+  },
 }
