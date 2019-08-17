@@ -1,11 +1,14 @@
-import { List, Tag } from 'antd';
+import { Button, List, Tag } from 'antd';
+import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ApiRecord, SOCKET_MSG_TAG_API } from '../lib/interface';
+import HttpContentPanel from './http-content-panel';
 import sc from './socket-client';
 
 export default function ApiRecords() {
-  const [apiList, setApiList]: [ApiRecord[], (records: ApiRecord[]) => void] = useState([])
+  const [apiList, setApiList]: [ApiRecord[], (r: ApiRecord[]) => void] = useState([])
+  const [httpDetail, setHttpDetail] = useState(null)
 
   useEffect(() => {
     sc.emit(SOCKET_MSG_TAG_API.GET_HISTORY, (records) => {
@@ -36,23 +39,18 @@ export default function ApiRecords() {
   }, [apiList])
 
   return <section>
-    <List dataSource={apiList} renderItem={(it: ApiRecord) => <>
+    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div>
       <Tag>{it.req.method}</Tag>
       <span>{it.req.url}</span>
-    </>}></List>
+      <span>
+        <Button onClick={() => {
+          setHttpDetail(it.req)
+        }}>Request</Button>
+        <Button onClick={() => {
+          setHttpDetail(it.resp)
+        }} disabled={isEmpty(it.resp)}>Response</Button>
+      </span>
+    </div>}></List>
+    <HttpContentPanel content={httpDetail}></HttpContentPanel>
   </section>
-}
-
-function usePrevious(value) {
-  // The ref object is a generic container whose current property is mutable ...
-  // ... and can hold any value, similar to an instance property on a class
-  const ref = useRef();
-
-  // Store current value in ref
-  useEffect(() => {
-    ref.current = value;
-  }, [value]); // Only re-run if value changes
-
-  // Return previous value (happens before update in useEffect above)
-  return ref.current;
 }
