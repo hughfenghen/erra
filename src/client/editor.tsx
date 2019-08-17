@@ -12,7 +12,6 @@ export default function Editor({
   const eInstance = useRef(null)
 
   useEffect(() => {
-    console.log(4444, value);
     if (isEmpty(value) || !eInstance.current) return
 
     eInstance.current.setValue(yaml.safeDump(value))

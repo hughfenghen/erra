@@ -1,3 +1,4 @@
+import './manager/breakpoint-manager';
 import './socket-server';
 
 import cors from '@koa/cors';
@@ -9,7 +10,6 @@ import modifyResponse from 'node-http-proxy-json';
 
 import { SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
-import { disableBreakpoint, enableBreakpoint } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 
 // https://github.com/saskodh/http-proxy-response-rewrite
@@ -49,20 +49,6 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
     return body; // return value can be a promise
   });
 });
-
-router.get('/erra/enable-breakpoint', (ctx, next) => {
-  const { url, type } = ctx.query
-  // ctx.router available
-  enableBreakpoint(url, type)
-  ctx.body = 'success'
-})
-
-router.get('/erra/disable-breakpoint', (ctx, next) => {
-  const { url, type } = ctx.query
-  // ctx.router available
-  disableBreakpoint(url, type)
-  ctx.body = 'success'
-})
 
 router.get('*', async (ctx, next) => {
   ctx.respond = false
