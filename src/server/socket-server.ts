@@ -8,11 +8,11 @@ app.listen(63236);
 const io = socketIO(app);
 
 const onlineSocketSet = new Set<socketIO.Socket>()
-const eventListeners: { [x: string]: SocketListener} = {}
+const eventListeners: { [x: string]: SocketListener } = {}
 
 io.on('connection', socket => {
   onlineSocketSet.add(socket)
-  
+
   socket.on('test', (arg) => {
     console.log('------ test', arg);
   })
@@ -30,18 +30,25 @@ function broadcast(eventName: string, ...args) {
   onlineSocketSet.forEach((s) => { s.emit(eventName, ...args) })
 }
 
-function once(eventName: string): Promise<{ url: string, code: string }> {
-  return Promise.race(Array.from(onlineSocketSet).map((s) => new Promise<{ url: string, code: string }>((resolve) => {
-    // todo: off event
-    s.once(eventName, ({url, code}) => {
-      resolve({ url, code })
-    })
-  })))
+function once(eventName: string): Promise<any> {
+  return Promise.race(
+    Array.from(onlineSocketSet).map((s) => new Promise((resolve) => {
+      function listener(data) {
+        resolve(data)
+        offEvtListener()
+      }
+      function offEvtListener() {
+        Array.from(onlineSocketSet).forEach((s) => { s.removeListener(eventName, listener) })
+      }
+
+      s.once(eventName, listener)
+    }))
+  )
 }
 
 function on(evtName: string, cb: SocketListener) {
   if (eventListeners[evtName]) return
-  
+
   eventListeners[evtName] = cb
   Array.from(onlineSocketSet)
     .forEach((socket) => {

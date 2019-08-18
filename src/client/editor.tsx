@@ -1,5 +1,4 @@
-import yaml from 'js-yaml';
-import { isEmpty } from 'lodash/fp';
+import { isEmpty, noop } from 'lodash/fp';
 import { editor } from 'monaco-editor';
 import React, { useEffect, useRef } from 'react';
 
@@ -7,22 +6,34 @@ export default function Editor({
   value = {},
   width = '100%',
   height = '100vh',
+  onChange = noop,
+  language,
+  readOnly = false,
 }) {
   const editorRef = useRef(null)
-  const eInstance = useRef(null)
+  const eInstanceRef = useRef(null)
 
   useEffect(() => {
-    if (isEmpty(value) || !eInstance.current) return
-
-    eInstance.current.setValue(yaml.safeDump(value))
-  }, [value])
-
-  useEffect(() => {
-    eInstance.current = editor.create(editorRef.current, {
-      language: "yaml",
+    eInstanceRef.current = editor.create(editorRef.current, {
+      language,
+      readOnly,
     })
-    // eInstance.current.updateOptions({ readOnly: true })
+
+    const { dispose } = eInstanceRef.current.onDidChangeModelContent(() => {
+      onChange(eInstanceRef.current.getValue())
+    })
+    return () => { dispose() }
   }, [])
+
+  useEffect(() => {
+    eInstanceRef.current.updateOptions({ readOnly })
+  }, [readOnly])
+
+  useEffect(() => {
+    if (isEmpty(value) || !eInstanceRef.current) return
+
+    eInstanceRef.current.setValue(value)
+  }, [value])
 
   return <div ref={editorRef} style={{ width, height }}></div>
 }

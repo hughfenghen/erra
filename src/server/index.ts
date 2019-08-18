@@ -1,4 +1,3 @@
-import './manager/breakpoint-manager';
 import './socket-server';
 
 import cors from '@koa/cors';
@@ -10,6 +9,7 @@ import modifyResponse from 'node-http-proxy-json';
 
 import { SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
+import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 
 // https://github.com/saskodh/http-proxy-response-rewrite
@@ -22,7 +22,9 @@ const proxy = httpProxy.createProxyServer({})
 
 proxy.on('proxyReq', function (proxyReq, req, res, options) {
   proxyReq.setHeader('X-Special-Proxy-Header', 'foobar');
+  // todo: modify request
   handleReq(req)
+  throughBP4Req(req)
 });
 
 proxy.on('proxyRes', function (proxyRes, req, resp) {
@@ -31,14 +33,16 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
   // resp 是原始的response，statusCode：404，没有headers、body
   // proxyRes是代理服务强请求的response，是目标服务器返回的内容
   modifyResponse(resp, proxyRes, async function (originBody) {
-    const { statusCode, body, headers } = handleResp(
+    const mResp = handleResp(
       <SimpleResp><unknown>
       Object.assign(
         pick(['statusCode', 'headers',])(proxyRes), 
         { url: req.url, uuid: req.uuid, body: originBody }
       ),
       req
-    )
+    );
+
+    const { statusCode, body, headers } = await throughBP4Resp(mResp)
 
     resp.writeHead = (code, orignHeaders) => {
       _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))

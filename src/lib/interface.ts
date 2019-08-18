@@ -31,9 +31,11 @@ export enum SOCKET_MSG_TAG_API {
   NEW_RECORD = 'api_manager-new_record',
   REPLACE_RECORD = 'api_manager-replace_record',
   CLEAR_RECORD = 'api_manager-clear_record',
-  GET_BREAKPOINTS = 'breakpoint_manager-get',
-  UPDATE_BREAKPOINTS = 'breakpoint_manager-update',
-  UPDATE_BREAKPOINT_BY_URL = 'breakpoint_manager-update_by_url',
+  BP_GET = 'breakpoint_manager-get',
+  BP_UPDATE = 'breakpoint_manager-update',
+  BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',
+  BP_RESP_DONE = 'breakpoint_manager-resp_done',
+  BP_RESP_START = 'breakpoint_manager-resp_start'
 }
 
 export enum API_DATA_TYPE {

@@ -10,23 +10,30 @@ export default function ApiRecords() {
   const [apiList, setApiList]: [ApiRecord[], (r: ApiRecord[]) => void] = useState([])
   const [httpDetail, setHttpDetail] = useState(null)
   const [breakpoints, setBreakpoints]: [BreakPoint[], (r: BreakPoint[]) => void] = useState([])
+  const [debugHttp, setDebugHttp] = useState(false)
 
   const enableBP = useCallback((rUrl, rType) => {
-    return breakpoints.some(({type, url}) => rType === type && rUrl === url)
+    return breakpoints.some(({ type, url }) => rType === type && rUrl === url)
   }, [breakpoints])
 
   useEffect(() => {
     sc.emit(SOCKET_MSG_TAG_API.GET_HISTORY, (records) => {
       setApiList(records)
     })
-    sc.emit(SOCKET_MSG_TAG_API.GET_BREAKPOINTS, (bps) => {
+    sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps) => {
       setBreakpoints(bps)
     })
-    sc.on(SOCKET_MSG_TAG_API.UPDATE_BREAKPOINTS, (bps) => {
+    sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps) => {
       setBreakpoints(bps)
     })
+    sc.on(SOCKET_MSG_TAG_API.BP_RESP_START, (resp) => {
+      setDebugHttp(true)
+      setHttpDetail(resp)
+    })
+
     return () => {
-      sc.off(SOCKET_MSG_TAG_API.UPDATE_BREAKPOINTS)
+      sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
+      sc.off(SOCKET_MSG_TAG_API.BP_RESP_START)
     }
   }, [])
 
@@ -56,15 +63,15 @@ export default function ApiRecords() {
       <Divider type="vertical"></Divider>
       <span>
         <Icon type="bug" />
-        <Checkbox.Group 
+        <Checkbox.Group
           value={Object.values(API_DATA_TYPE)
             .filter((type) => enableBP(it.req.url, type))
           }
           onChange={(vals) => {
-            sc.emit(SOCKET_MSG_TAG_API.UPDATE_BREAKPOINT_BY_URL, it.req.url, vals)
+            sc.emit(SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL, it.req.url, vals)
           }}
         >
-          {Object.values(API_DATA_TYPE).map((val) => 
+          {Object.values(API_DATA_TYPE).map((val) =>
             <Checkbox value={val} key={val}>{val}</Checkbox>)}
         </Checkbox.Group>
       </span>
@@ -78,6 +85,13 @@ export default function ApiRecords() {
         }} disabled={isEmpty(it.resp)}>Response</Button>
       </span>
     </div>}></List>
-    <HttpContentPanel content={httpDetail}></HttpContentPanel>
+    <HttpContentPanel
+      content={httpDetail}
+      debug={debugHttp}
+      onDone={(httpContent) => {
+        setDebugHttp(false)
+        sc.emit(SOCKET_MSG_TAG_API.BP_RESP_DONE, httpContent)
+      }}
+    ></HttpContentPanel>
   </section>
 }
