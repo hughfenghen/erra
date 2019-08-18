@@ -13,7 +13,7 @@ export interface SimpleReq {
 
 export interface SimpleResp {
   url: string,
-  statusCode?: number,
+  statusCode: number,
   headers: Object,
   body?: any,
 }
@@ -26,6 +26,7 @@ export interface ApiRecord {
 
 export type SocketListener = (...args: any[]) => void
 
+// socket.io 消息 tag定义
 export enum SOCKET_MSG_TAG_API {
   GET_HISTORY = 'api_manager-get_history',
   NEW_RECORD = 'api_manager-new_record',
@@ -34,8 +35,8 @@ export enum SOCKET_MSG_TAG_API {
   BP_GET = 'breakpoint_manager-get',
   BP_UPDATE = 'breakpoint_manager-update',
   BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',
-  BP_RESP_DONE = 'breakpoint_manager-resp_done',
-  BP_RESP_START = 'breakpoint_manager-resp_start'
+  BP_DONE = 'breakpoint_manager-done',
+  BP_START = 'breakpoint_manager-start'
 }
 
 export enum API_DATA_TYPE {

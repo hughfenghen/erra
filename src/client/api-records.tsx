@@ -26,14 +26,14 @@ export default function ApiRecords() {
     sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps) => {
       setBreakpoints(bps)
     })
-    sc.on(SOCKET_MSG_TAG_API.BP_RESP_START, (resp) => {
+    sc.on(SOCKET_MSG_TAG_API.BP_START, (resp) => {
       setDebugHttp(true)
       setHttpDetail(resp)
     })
 
     return () => {
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
-      sc.off(SOCKET_MSG_TAG_API.BP_RESP_START)
+      sc.off(SOCKET_MSG_TAG_API.BP_START)
     }
   }, [])
 
@@ -90,7 +90,7 @@ export default function ApiRecords() {
       debug={debugHttp}
       onDone={(httpContent) => {
         setDebugHttp(false)
-        sc.emit(SOCKET_MSG_TAG_API.BP_RESP_DONE, httpContent)
+        sc.emit(SOCKET_MSG_TAG_API.BP_DONE, httpContent)
       }}
     ></HttpContentPanel>
   </section>

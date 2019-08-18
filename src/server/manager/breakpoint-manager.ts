@@ -1,7 +1,8 @@
 import { concat, find, pipe, pullAllBy } from 'lodash/fp';
 
-import { API_DATA_TYPE, BreakPoint, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
+import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import ss from '../socket-server';
+import { replaceRecord } from './api-manager';
 
 let BPS: BreakPoint[] = []
 
@@ -21,18 +22,37 @@ ss.on(
   }
 )
 
-export async function throughBP4Req(req: object) {
-  console.log('------th req--------');
+export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
+  const { req, uuid } = record
+
+  if (find({ url: req.url, type: API_DATA_TYPE.REQUEST })(BPS)) {
+    // 通知客户端，弹窗编辑框
+    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, req)
+    // 等待UI界面修改resp
+    const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
+    const newRecord = { uuid, req: data }
+    // 修改后的数据 同步到客户端
+    replaceRecord(newRecord)
+    return newRecord;
+  }
+  
+  return record
 }
 
-export async function throughBP4Resp(resp: SimpleResp) {
-  console.log('------th resp-------', BPS);
+export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
+  const { resp } = record
+  
   if (find({ url: resp.url, type: API_DATA_TYPE.RESPONSE })(BPS)) {
     // 通知客户端，弹窗编辑框
-    ss.broadcast(SOCKET_MSG_TAG_API.BP_RESP_START, resp)
+    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, resp)
     // 等待UI界面修改resp
-    const data = await ss.once(SOCKET_MSG_TAG_API.BP_RESP_DONE)
-    return data;
+    const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
+    const newRecord = Object.assign({}, record, { resp: data })
+    
+    replaceRecord(newRecord)
+   
+    return newRecord;
   }
-  return resp
+  
+  return record
 }

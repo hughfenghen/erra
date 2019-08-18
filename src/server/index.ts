@@ -20,12 +20,6 @@ configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 const proxy = httpProxy.createProxyServer({})
 
-proxy.on('proxyReq', function (proxyReq, req, res, options) {
-  proxyReq.setHeader('X-Special-Proxy-Header', 'foobar');
-  // todo: modify request
-  handleReq(req)
-  throughBP4Req(req)
-});
 
 proxy.on('proxyRes', function (proxyRes, req, resp) {
   const _writeHead = resp.writeHead;
@@ -33,31 +27,33 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
   // resp 是原始的response，statusCode：404，没有headers、body
   // proxyRes是代理服务强请求的response，是目标服务器返回的内容
   modifyResponse(resp, proxyRes, async function (originBody) {
-    const mResp = handleResp(
+    const record = handleResp(
       <SimpleResp><unknown>
       Object.assign(
         pick(['statusCode', 'headers',])(proxyRes), 
-        { url: req.url, uuid: req.uuid, body: originBody }
+        { url: req.url, body: originBody }
       ),
       req
     );
 
-    const { statusCode, body, headers } = await throughBP4Resp(mResp)
+    const { resp: { statusCode, body, headers } } = await throughBP4Resp(record);
 
     resp.writeHead = (code, orignHeaders) => {
       _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
 
-    // const mbody = await throughBP4Resp(resp, body)
-    // await sleep(3000)
     return body; // return value can be a promise
   });
 });
 
 router.get('*', async (ctx, next) => {
   ctx.respond = false
-  // await sleep(3000)
-  // await throughBP4Req(ctx.req)
+
+  const record = handleReq(ctx.req)
+
+  const { req: mReq } = await throughBP4Req(record)
+  Object.assign(ctx.req, mReq)
+  
   proxy.web(ctx.req, ctx.res, {
     // RoutingProxy
     target: 'http://www.mocky.io',
