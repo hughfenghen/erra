@@ -30,6 +30,9 @@ export default function ApiRecords() {
       setDebugHttp(true)
       setHttpDetail(resp)
     })
+    sc.on(SOCKET_MSG_TAG_API.UPDATE_RECORD, (records) => {
+      setApiList(records)
+    })
 
     return () => {
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)

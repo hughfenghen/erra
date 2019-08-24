@@ -5463,10 +5463,9 @@ node-forge@^0.7.1:
   resolved "https://registry.npmjs.org/node-forge/-/node-forge-0.7.6.tgz#fdf3b418aee1f94f0ef642cd63486c77ca9724ac"
   integrity sha512-sol30LUpz1jQFBjOKwbjxijiE3b6pjd74YwfD0fJOKPjF+fONKb2Yg8rYgS6+bK6VDl+/wfr4IYpC7jDzLUIfw==
 
-node-http-proxy-json@^0.1.6:
+"node-http-proxy-text@git+https://github.com/hughfenghen/node-http-proxy-text.git":
   version "0.1.6"
-  resolved "https://registry.npmjs.org/node-http-proxy-json/-/node-http-proxy-json-0.1.6.tgz#4b554befd04e607f3726092d67b60bf888906849"
-  integrity sha1-S1VL79BOYH83JgktZ7YL+IiQaEk=
+  resolved "git+https://github.com/hughfenghen/node-http-proxy-text.git#3717b4d372530f937d125e8bbaa2efe613c5b0d0"
   dependencies:
     bufferhelper "^0.2.1"
     concat-stream "^1.5.1"

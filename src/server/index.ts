@@ -1,18 +1,18 @@
 import './socket-server';
+import URL from 'url';
 
 import cors from '@koa/cors';
 import httpProxy from 'http-proxy';
 import Koa from 'koa';
 import Router from 'koa-router';
 import { pick } from 'lodash/fp';
-import modifyResponse from 'node-http-proxy-json';
+import modifyResponse from 'node-http-proxy-text';
 
 import { SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 
-// https://github.com/saskodh/http-proxy-response-rewrite
 const app = new Koa();
 const router = new Router()
 
@@ -30,7 +30,7 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
     const record = handleResp(
       <SimpleResp><unknown>
       Object.assign(
-        pick(['statusCode', 'headers',])(proxyRes), 
+        pick(['statusCode', 'headers',])(proxyRes),
         { url: req.url, body: originBody }
       ),
       req
@@ -41,23 +41,28 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
     resp.writeHead = (code, orignHeaders) => {
       _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
-
-    return body; // return value can be a promise
+    return typeof body === 'string' ? body : JSON.stringify(body);
   });
 });
 
 router.get('*', async (ctx, next) => {
   ctx.respond = false
 
-  const record = handleReq(ctx.req)
+  const url = URL.parse(ctx.req.url)
 
-  const { req: mReq } = await throughBP4Req(record)
-  Object.assign(ctx.req, mReq)
-  
+  // 不记录map请求
+  if (!/\.map$/.test(ctx.req.url)) {
+    const record = handleReq(ctx.req)
+
+    const { req: mReq } = await throughBP4Req(record)
+    Object.assign(ctx.req, mReq)
+  }
+
   proxy.web(ctx.req, ctx.res, {
     // RoutingProxy
-    target: 'http://www.mocky.io',
-    changeOrigin: true,
+    // target: 'http://www.mocky.io',
+    target: `${url.protocol}//${url.host}`,
+    // changeOrigin: true,
     // selfHandleResponse: true,
   });
 });

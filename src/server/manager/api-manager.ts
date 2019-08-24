@@ -26,6 +26,10 @@ ss.on(SOCKET_MSG_TAG_API.GET_HISTORY, (cb) => {
   cb(apiRecords)
 })
 
+ss.on(SOCKET_MSG_TAG_API.CLEAR_RECORD, () => {
+  clearApiHistory()
+})
+
 export function handleReq(req): ApiRecord {
   // todo: cookie, formData, body 
   const { headers, url, method } = req
@@ -77,4 +81,5 @@ export function getApiHistory(): ApiRecord[] {
 
 export function clearApiHistory () {
   apiRecords = []
+  ss.broadcast(SOCKET_MSG_TAG_API.UPDATE_RECORD, [])
 }

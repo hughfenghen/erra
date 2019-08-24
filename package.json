@@ -31,7 +31,7 @@
     "lodash": "^4.17.11",
     "mockjs": "^1.0.1-beta3",
     "monaco-editor": "^0.17.1",
-    "node-http-proxy-json": "^0.1.6",
+    "node-http-proxy-text": "git+https://github.com/hughfenghen/node-http-proxy-text.git",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "socket.io": "^2.2.0",

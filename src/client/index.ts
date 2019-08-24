@@ -1,6 +1,6 @@
 import './app';
 
-const host = 'http://localhost:3344'
+const host = 'http://www.mocky.io'
 
 ;(function() {
   document.getElementById('action')
