@@ -19,7 +19,7 @@ configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get('api-match-snippet') || {})
     .forEach(([matcher, snippetId]) => {
       connectApiSnippet(matcher, String(snippetId))
-    }) 
+    })
 })
 
 ss.on(SOCKET_MSG_TAG_API.GET_HISTORY, (cb) => {
@@ -40,29 +40,31 @@ export function handleReq(req): ApiRecord {
   req._erra_uuid = record.uuid
   apiRecords.push(record)
   noticeApiUpdate(SOCKET_MSG_TAG_API.NEW_RECORD, record)
-  
+
   return record
 }
 
 export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
   const snippetId = (apiSnippetPair.find(([match]) => match(req.url)) || [])[1]
   const rs = snippetId ? getSnippet(snippetId)(resp) : resp
-  
-  const record = <ApiRecord>find({ uuid: req._erra_uuid })(apiRecords)
-  if (record) {
-    record.resp = rs
-    replaceRecord(record)
-  } else {
-    console.error('【handleResp】找不到匹配的request');
+
+  const record = <ApiRecord>find({ uuid: req._erra_uuid }, apiRecords)
+
+  if (record == null) {
+    console.warn(`【handleResp】找不到匹配的request，url: ${req.url}`);
+    return null
   }
-  
+
+  record.resp = rs
+  replaceRecord(record)
+
   return record
 }
 
 export function replaceRecord(record: ApiRecord) {
   const oldRecord = <ApiRecord>find({ uuid: record.uuid })(apiRecords)
   if (!oldRecord) throw new Error('找不到需要替换的record');
-  
+
   const newRecord = Object.assign(oldRecord, record)
   noticeApiUpdate(SOCKET_MSG_TAG_API.REPLACE_RECORD, newRecord)
 }
@@ -70,7 +72,7 @@ export function replaceRecord(record: ApiRecord) {
 export function connectApiSnippet(matcher: string, snippetId: string) {
   apiSnippetPair.push([
     // 正则反序列化，需要替换前后'/'
-    (url) => RegExp(matcher.slice(1, matcher.length - 1)).test(url), 
+    (url) => RegExp(matcher.slice(1, matcher.length - 1)).test(url),
     snippetId
   ])
 }
@@ -79,7 +81,7 @@ export function getApiHistory(): ApiRecord[] {
   return apiRecords
 }
 
-export function clearApiHistory () {
+export function clearApiHistory() {
   apiRecords = []
   ss.broadcast(SOCKET_MSG_TAG_API.UPDATE_RECORD, [])
 }

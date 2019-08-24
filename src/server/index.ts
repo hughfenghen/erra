@@ -35,6 +35,7 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
       ),
       req
     );
+    if (!record) return originBody
 
     const { resp: { statusCode, body, headers } } = await throughBP4Resp(record);
 
