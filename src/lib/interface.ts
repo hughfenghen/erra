@@ -28,11 +28,14 @@ export type SocketListener = (...args: any[]) => void
 
 // socket.io 消息 tag定义
 export enum SOCKET_MSG_TAG_API {
-  GET_HISTORY = 'api_manager-get_history',
-  NEW_RECORD = 'api_manager-new_record',
-  REPLACE_RECORD = 'api_manager-replace_record',
-  CLEAR_RECORD = 'api_manager-clear_record',
-  UPDATE_RECORD = 'api_manager-update_record',
+  API_GET_HISTORY = 'api_manager-get_history',
+  API_NEW_RECORD = 'api_manager-new_record',
+  API_REPLACE_RECORD = 'api_manager-replace_record',
+  API_CLEAR_RECORD = 'api_manager-clear_record',
+  API_UPDATE_RECORD = 'api_manager-update_record',
+  API_BIND_SNIPPET = 'api_manager-bind_snippet',
+  API_GET_SNIPPET_RELATION = 'api_manager-get_snippet-relation',
+  API_UPDATE_SNIPPET_RELATION = 'api_manager-update_snippet-relation',
   BP_GET = 'breakpoint_manager-get',
   BP_UPDATE = 'breakpoint_manager-update',
   BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',

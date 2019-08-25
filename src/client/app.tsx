@@ -15,8 +15,8 @@ function App() {
     <Button onClick={() => {
       fetch('http://www.mocky.io/v2/5185415ba171ea3a00704eed')
     }}>Send mocky request</Button>
-    <Button onClick={() => { sc.emit(SOCKET_MSG_TAG_API.CLEAR_RECORD)}}>Clear Record</Button>
-    <Tabs defaultActiveKey="snippet">
+    <Button onClick={() => { sc.emit(SOCKET_MSG_TAG_API.API_CLEAR_RECORD)}}>Clear Record</Button>
+    <Tabs defaultActiveKey="network">
       <Tabs.TabPane tab="Network" key="network">
         <ApiRecords></ApiRecords>
       </Tabs.TabPane>

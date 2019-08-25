@@ -2,41 +2,66 @@ import { Button, Checkbox, Divider, Icon, List, Tag, Select } from 'antd';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API } from '../lib/interface';
+import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet } from '../lib/interface';
 import HttpContentPanel from './http-content-panel';
 import sc from './socket-client';
 
 export default function ApiRecords() {
-  const [apiList, setApiList]: [ApiRecord[], (r: ApiRecord[]) => void] = useState([])
+  const [apiList, setApiList]: [ApiRecord[], Function] = useState([])
+  const [breakpoints, setBreakpoints]: [BreakPoint[], Function] = useState([])
+  const [snippets, setSnippets]: [Snippet[], Function] = useState([])
+  
   const [httpDetail, setHttpDetail] = useState(null)
-  const [breakpoints, setBreakpoints]: [BreakPoint[], (r: BreakPoint[]) => void] = useState([])
   const [debugHttp, setDebugHttp] = useState(false)
+  const [apiSnippetPair, setApiSnippetPair] = useState({})
 
   const enableBP = useCallback((rUrl, rType) => {
     return breakpoints.some(({ type, url }) => rType === type && rUrl === url)
   }, [breakpoints])
 
   useEffect(() => {
-    sc.emit(SOCKET_MSG_TAG_API.GET_HISTORY, (records) => {
+    // 获取请求列表
+    sc.emit(SOCKET_MSG_TAG_API.API_GET_HISTORY, (records: ApiRecord[]) => {
       setApiList(records)
     })
-    sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps) => {
+    // 获取断点数据
+    sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps: BreakPoint[]) => {
       setBreakpoints(bps)
     })
-    sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps) => {
+    // 获取snippet配置
+    sc.emit(SOCKET_MSG_TAG_API.SP_GET, (sps: Snippet[]) => {
+      setSnippets(sps)
+    })
+    // 获取请求与snippet关联配置
+    sc.emit(SOCKET_MSG_TAG_API.API_GET_SNIPPET_RELATION, (asp) => {
+      setApiSnippetPair(asp)
+    })
+    // 监听请求与snippet关联配置
+    sc.on(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, (asp) => {
+      setApiSnippetPair(asp)
+    })
+    // 监听snippet更新
+    sc.on(SOCKET_MSG_TAG_API.SP_UPDATE, (sps: Snippet[]) => {
+      setSnippets(sps)
+    })
+    // 监听断点更新
+    sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps: BreakPoint[]) => {
       setBreakpoints(bps)
     })
+    // 断点开始，弹出code编辑框，可查看编辑requst、response
     sc.on(SOCKET_MSG_TAG_API.BP_START, (resp) => {
       setDebugHttp(true)
       setHttpDetail(resp)
     })
-    sc.on(SOCKET_MSG_TAG_API.UPDATE_RECORD, (records) => {
+    // 更新、重置请求列表
+    sc.on(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, (records) => {
       setApiList(records)
     })
 
     return () => {
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
       sc.off(SOCKET_MSG_TAG_API.BP_START)
+      sc.off(SOCKET_MSG_TAG_API.SP_UPDATE)
     }
   }, [])
 
@@ -44,17 +69,17 @@ export default function ApiRecords() {
     function onNewRecord(record: ApiRecord) {
       setApiList(apiList.concat(record))
     }
-    sc.off(SOCKET_MSG_TAG_API.NEW_RECORD)
-    sc.on(SOCKET_MSG_TAG_API.NEW_RECORD, onNewRecord)
+    sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
+    sc.on(SOCKET_MSG_TAG_API.API_NEW_RECORD, onNewRecord)
 
     function onReplaceRecord(record: ApiRecord) {
       setApiList(apiList.map((r) => r.uuid === record.uuid ? record : r))
     }
-    sc.off(SOCKET_MSG_TAG_API.REPLACE_RECORD)
-    sc.on(SOCKET_MSG_TAG_API.REPLACE_RECORD, onReplaceRecord)
+    sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
+    sc.on(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, onReplaceRecord)
     return () => {
-      sc.off(SOCKET_MSG_TAG_API.NEW_RECORD)
-      sc.off(SOCKET_MSG_TAG_API.REPLACE_RECORD)
+      sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
+      sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
     }
   }, [apiList])
 
@@ -79,8 +104,17 @@ export default function ApiRecords() {
         </Checkbox.Group>
       </span>
       <Divider type="vertical"></Divider>
-      <Select>
-        <Select.Option value="111">snippet</Select.Option>
+      <Select 
+        value={apiSnippetPair[it.req.url]}
+        onChange={(spId) => {
+          sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.req.url, spId)
+        }}
+        style={{ width: '200px' }}
+      >
+        {snippets.map((it) => <Select.Option 
+          value={it.id}
+          key={it.id}
+        >{it.name}</Select.Option>)}
       </Select>
       <Divider type="vertical"></Divider>
       <span>

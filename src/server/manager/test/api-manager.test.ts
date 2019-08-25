@@ -2,7 +2,7 @@ import genUUID from 'uuid';
 
 import { SimpleReq, SimpleResp } from '../../../lib/interface';
 import ss from '../../socket-server';
-import { clearApiHistory, connectApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
+import { clearApiHistory, bindApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
 import * as snippetManager from '../snippet-manager';
 
 jest.mock('uuid');
@@ -41,13 +41,13 @@ test('没有匹配到snippet时, 返回原值', () => {
 })
 
 test('snippet修改statusCode', () => {
-  connectApiSnippet('/.*/', 'snippetId')
+  bindApiSnippet('/.*/', 'snippetId')
 
   const spyGetSnippet = jest.spyOn(snippetManager, 'getSnippet')
   spyGetSnippet.mockImplementation(() => (s) => Object.assign(s, { statusCode: 500 }))
 
   handleReq(reqTpl)
-  expect(handleResp(respTpl, reqTpl).statusCode).toBe(500)
+  expect(handleResp(respTpl, reqTpl).resp.statusCode).toBe(500)
 })
 
 test('api记录更新时，广播消息通知client', () => {

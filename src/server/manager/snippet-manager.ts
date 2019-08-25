@@ -26,13 +26,14 @@ ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
 })
 
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
-  const sp = yaml.load(code)
+  const { name, content } = yaml.load(code)
   const spId = id || genUUID()
   snippetsMeta.set(spId, {
-    id,
-    ...sp
+    id: spId,
+    name,
+    content,
   })
-  snippetsFn.set(spId, parse(sp.content))
+  snippetsFn.set(spId, parse(content))
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetList())
 })
 

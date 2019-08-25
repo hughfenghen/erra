@@ -11,23 +11,32 @@ function noticeApiUpdate(tag: string, content = {}) {
   ss.broadcast(tag, content)
 }
 
-const apiSnippetPair: [((url: string) => boolean), string][] = []
+const apiSnippetPair: { [x: string]: string } = {}
 let apiRecords: ApiRecord[] = []
 
 configManager.on('afterConfigInit', () => {
   // todo init apiSnippetPair
   Object.entries(configManager.get('api-match-snippet') || {})
     .forEach(([matcher, snippetId]) => {
-      connectApiSnippet(matcher, String(snippetId))
+      bindApiSnippet(matcher, String(snippetId))
     })
 })
 
-ss.on(SOCKET_MSG_TAG_API.GET_HISTORY, (cb) => {
+ss.on(SOCKET_MSG_TAG_API.API_GET_HISTORY, (cb) => {
   cb(apiRecords)
 })
 
-ss.on(SOCKET_MSG_TAG_API.CLEAR_RECORD, () => {
+ss.on(SOCKET_MSG_TAG_API.API_CLEAR_RECORD, () => {
   clearApiHistory()
+})
+
+ss.on(SOCKET_MSG_TAG_API.API_GET_SNIPPET_RELATION, (cb) => {
+  cb(apiSnippetPair)
+})
+
+ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
+  bindApiSnippet(url, snippetId)
+  ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, apiSnippetPair)
 })
 
 export function handleReq(req): ApiRecord {
@@ -39,13 +48,13 @@ export function handleReq(req): ApiRecord {
   }
   req._erra_uuid = record.uuid
   apiRecords.push(record)
-  noticeApiUpdate(SOCKET_MSG_TAG_API.NEW_RECORD, record)
+  noticeApiUpdate(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
 
   return record
 }
 
 export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
-  const snippetId = (apiSnippetPair.find(([match]) => match(req.url)) || [])[1]
+  const snippetId = apiSnippetPair[req.url]
   const rs = snippetId ? getSnippet(snippetId)(resp) : resp
 
   const record = <ApiRecord>find({ uuid: req._erra_uuid }, apiRecords)
@@ -66,15 +75,11 @@ export function replaceRecord(record: ApiRecord) {
   if (!oldRecord) throw new Error('找不到需要替换的record');
 
   const newRecord = Object.assign(oldRecord, record)
-  noticeApiUpdate(SOCKET_MSG_TAG_API.REPLACE_RECORD, newRecord)
+  noticeApiUpdate(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, newRecord)
 }
 
-export function connectApiSnippet(matcher: string, snippetId: string) {
-  apiSnippetPair.push([
-    // 正则反序列化，需要替换前后'/'
-    (url) => RegExp(matcher.slice(1, matcher.length - 1)).test(url),
-    snippetId
-  ])
+export function bindApiSnippet(url: string, snippetId: string) {
+  apiSnippetPair[url] = snippetId
 }
 
 export function getApiHistory(): ApiRecord[] {
@@ -83,5 +88,5 @@ export function getApiHistory(): ApiRecord[] {
 
 export function clearApiHistory() {
   apiRecords = []
-  ss.broadcast(SOCKET_MSG_TAG_API.UPDATE_RECORD, [])
+  ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, [])
 }
