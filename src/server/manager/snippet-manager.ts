@@ -1,15 +1,39 @@
-import { constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs } from 'lodash/fp';
+import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs } from 'lodash/fp';
 import { mock } from 'mockjs';
+import yaml from 'js-yaml'
+import genUUID from 'uuid';
 
 import configManager from './config-manager';
+import ss from '../socket-server'
+import { SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
 
-const snippets = new Map<string, Function>()
+const snippetsFn = new Map<string, Function>()
+const snippetsMeta = new Map<string, Snippet>()
 
 configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get('snippets') || {})
     .forEach(([key, val]) => {
-      snippets.set(key, parse(val))
+      snippetsFn.set(key, parse(val))
     })
+})
+
+function getSnippetList () {
+  return map(pick(['id', 'name', 'correlationApi']), [...snippetsMeta.values()])
+}
+
+ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
+  cb(getSnippetList())
+})
+
+ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
+  const sp = yaml.load(code)
+  const spId = id || genUUID()
+  snippetsMeta.set(spId, {
+    id,
+    ...sp
+  })
+  snippetsFn.set(spId, parse(sp.content))
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetList())
 })
 
 export enum VALUE_PARSE_STRATEGY {
@@ -37,14 +61,14 @@ function transDesc({ strategy = 'fixed', value, keyModifier = null, snippetId = 
       return constant(mock(value))
     case 'snippet':
       // snippet 是否被解析过，如果没有则解析后更新snippets
-      const parsed = snippets.get(snippetId)
+      const parsed = snippetsFn.get(snippetId)
       if (parsed) return parsed
       
       const source = configManager.get('snippets')[snippetId]
       if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${snippetId}`)
 
       const ps = parseSnippet(source)
-      snippets.set(snippetId, ps)
+      snippetsFn.set(snippetId, ps)
       return ps
   }
   return identity
@@ -92,9 +116,9 @@ export function parse(snippet): (data: any) => any {
 }
 
 export function getSnippet (id: string): Function {
-  return snippets.get(id)
+  return snippetsFn.get(id)
 }
 
 export function addSnippet (id: string, snippet: any): void {
-  snippets.set(id, parse(snippet))
+  snippetsFn.set(id, parse(snippet))
 }

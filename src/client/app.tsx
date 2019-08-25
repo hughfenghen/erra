@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import ApiRecords from './api-records';
 import { SOCKET_MSG_TAG_API } from '../lib/interface';
+import Snippets from './snippets';
 
 
 function App() {
@@ -15,12 +16,12 @@ function App() {
       fetch('http://www.mocky.io/v2/5185415ba171ea3a00704eed')
     }}>Send mocky request</Button>
     <Button onClick={() => { sc.emit(SOCKET_MSG_TAG_API.CLEAR_RECORD)}}>Clear Record</Button>
-    <Tabs defaultActiveKey="network">
+    <Tabs defaultActiveKey="snippet">
       <Tabs.TabPane tab="Network" key="network">
         <ApiRecords></ApiRecords>
       </Tabs.TabPane>
       <Tabs.TabPane tab="Snippet" key="snippet">
-        1111
+        <Snippets></Snippets>
       </Tabs.TabPane>
     </Tabs>
   </div>

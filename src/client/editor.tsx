@@ -19,6 +19,10 @@ export default function Editor({
       readOnly,
     })
 
+    eInstanceRef.current.getModel().updateOptions({
+      tabSize: 2,
+    })
+
     const { dispose } = eInstanceRef.current.onDidChangeModelContent(() => {
       onChange(eInstanceRef.current.getValue())
     })

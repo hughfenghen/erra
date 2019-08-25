@@ -37,7 +37,10 @@ export enum SOCKET_MSG_TAG_API {
   BP_UPDATE = 'breakpoint_manager-update',
   BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',
   BP_DONE = 'breakpoint_manager-done',
-  BP_START = 'breakpoint_manager-start'
+  BP_START = 'breakpoint_manager-start',
+  SP_GET = 'snippet_manager-get',
+  SP_SAVE = 'snippet_manager-save',
+  SP_UPDATE = 'snippet_manager-update',
 }
 
 export enum API_DATA_TYPE {
@@ -48,4 +51,11 @@ export enum API_DATA_TYPE {
 export interface BreakPoint {
   url: string,
   type: API_DATA_TYPE,
+}
+
+export interface Snippet {
+  id: string,
+  name: string,
+  content: any,
+  correlationApi?: RegExp,
 }

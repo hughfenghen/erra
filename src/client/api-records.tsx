@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Icon, List, Tag } from 'antd';
+import { Button, Checkbox, Divider, Icon, List, Tag, Select } from 'antd';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -78,6 +78,10 @@ export default function ApiRecords() {
             <Checkbox value={val} key={val}>{val}</Checkbox>)}
         </Checkbox.Group>
       </span>
+      <Divider type="vertical"></Divider>
+      <Select>
+        <Select.Option value="111">snippet</Select.Option>
+      </Select>
       <Divider type="vertical"></Divider>
       <span>
         <Button onClick={() => {

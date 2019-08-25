@@ -2,6 +2,7 @@
   "compilerOptions": {
     "plugins": [{ "name": "typescript-plugin-css-modules" }],
     "esModuleInterop": true,
+    "downlevelIteration": true,
     "jsx": "react"
   }
 }
