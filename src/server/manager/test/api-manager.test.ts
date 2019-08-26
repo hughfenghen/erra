@@ -5,10 +5,10 @@ import ss from '../../socket-server';
 import { clearApiHistory, bindApiSnippet, getApiHistory, handleReq, handleResp } from '../api-manager';
 import * as snippetManager from '../snippet-manager';
 
+jest.mock('../../socket-server')
 jest.mock('uuid');
 genUUID.mockReturnValue('mock_uuid')
 
-jest.mock('../../socket-server')
 
 let reqTpl: SimpleReq
 let respTpl: SimpleResp

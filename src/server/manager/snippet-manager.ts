@@ -1,4 +1,4 @@
-import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs } from 'lodash/fp';
+import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs, values } from 'lodash/fp';
 import { mock } from 'mockjs';
 import yaml from 'js-yaml'
 import genUUID from 'uuid';
@@ -17,7 +17,7 @@ configManager.on('afterConfigInit', () => {
     })
 })
 
-function getSnippetList () {
+function getSnippetList() {
   return map(pick(['id', 'name', 'correlationApi']), [...snippetsMeta.values()])
 }
 
@@ -37,68 +37,79 @@ ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetList())
 })
 
-export enum VALUE_PARSE_STRATEGY {
-  fixed,
-  origin,
-  mockjs,
-  snippet,
+export enum PARSE_STRATEGY {
+  FIXED = 'fixed',
+  MOCKJS = 'mockjs',
+  SNIPPET = 'snippet',
 }
 
 // 将策略解析成函数
-function transDesc({ strategy = 'fixed', value, keyModifier = null, snippetId = null }): Function {
+function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
   switch (strategy) {
-    case 'fixed':
-      return value == null ? identity : constant(value)
-    case 'origin':
-      return identity
-    case 'mockjs':
-      if (keyModifier) {
+    case PARSE_STRATEGY.FIXED:
+      return constant(value)
+    case PARSE_STRATEGY.MOCKJS:
+      if (key) {
         return constant(
-          mock({
-            [`placeholder|${keyModifier}`]: value
-          }).placeholder
+          // transDesc是一个`返回value的函数`，所以此处只取mock的值
+          // key 与 该函数 在上层关联
+          values(mock({ [key]: value }))[0]
         )
       }
       return constant(mock(value))
-    case 'snippet':
+    case PARSE_STRATEGY.SNIPPET:
       // snippet 是否被解析过，如果没有则解析后更新snippets
-      const parsed = snippetsFn.get(snippetId)
+      const parsed = snippetsFn.get(value)
       if (parsed) return parsed
-      
-      const source = configManager.get('snippets')[snippetId]
-      if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${snippetId}`)
+
+      const source = configManager.get('snippets')[value]
+      if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${value}`)
 
       const ps = parseSnippet(source)
-      snippetsFn.set(snippetId, ps)
+      snippetsFn.set(value, ps)
       return ps
   }
   return identity
 }
 
-// 判断对象是否是策略描述类型
-function isStrategyDesc (obj) {
-  return !!obj && obj.strategy in VALUE_PARSE_STRATEGY
-}
-
 function parseSnippet(snippet) {
   if (isPlainObject(snippet)) {
-    if (isStrategyDesc(snippet)) {
-      return transDesc(snippet)
-    }
+    const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
+    const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
+    const snippetRegx = new RegExp(`^\\$${PARSE_STRATEGY.SNIPPET}\\s+`)
 
-    const reg = /__(.+)_desc__/
     return pipe(
       toPairs,
-      map(([key, val]) => {
-        if (!reg.test(key)) return [key, parseSnippet(val)]
-        return [key.replace(reg, '$1'), transDesc(val)]
+      map(([key, value]) => {
+        if (fixedRegx.test(key)) {
+          return [key.replace(fixedRegx, ''), parseStrategy({
+            strategy: PARSE_STRATEGY.FIXED,
+            value,
+          })]
+        } else if (mockjsRegx.test(key)) {
+          return [
+            // 去除掉mockjs key中包含的修饰符
+            key.replace(mockjsRegx, '').replace(/\|.+$/, ''),
+            parseStrategy({
+              strategy: PARSE_STRATEGY.MOCKJS,
+              key: key.replace(mockjsRegx, ''),
+              value,
+            })]
+        } else if (snippetRegx.test(key)) {
+          return [key.replace(snippetRegx, ''), parseStrategy({
+            strategy: PARSE_STRATEGY.SNIPPET,
+            value,
+          })]
+        }
+
+        return [key, parseSnippet(value)]
       }),
       fromPairs,
     )(snippet)
   } else if (isArray(snippet)) {
     return map(parseSnippet)(snippet)
   }
-  return transDesc({ value: snippet })
+  return parseStrategy({ value: snippet })
 }
 
 export function parse(snippet): (data: any) => any {
@@ -116,10 +127,10 @@ export function parse(snippet): (data: any) => any {
   }
 }
 
-export function getSnippet (id: string): Function {
+export function getSnippet(id: string): Function {
   return snippetsFn.get(id)
 }
 
-export function addSnippet (id: string, snippet: any): void {
+export function addSnippet(id: string, snippet: any): void {
   snippetsFn.set(id, parse(snippet))
 }

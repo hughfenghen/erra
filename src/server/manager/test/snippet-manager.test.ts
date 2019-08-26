@@ -1,5 +1,8 @@
-import config from '../config-manager';
+import yaml from 'js-yaml';
+import configManager from '../config-manager';
 import { getSnippet, parse } from '../snippet-manager';
+
+jest.mock('../../socket-server')
 
 const bodyTpl = {
   store: {
@@ -38,90 +41,61 @@ const bodyTpl = {
   }
 }
 
-test('`parse` return a fn', () => {
+test('parse 返回一个函数', () => {
   expect(parse({})).toBeInstanceOf(Function);
 })
 
-test('parse to fixed value', () => {
-  const concatFn = parse({
-    __bicycle_desc__: {
-      strategy: 'fixed',
-      value: 'success'
-    },
-  })
+test('fixed会覆盖原值', () => {
+  const mergeFn = parse(yaml.load(`
+    $fixed store: null
+  `))
 
-  expect(concatFn(bodyTpl).bicycle).toBe('success')
+  expect(mergeFn(bodyTpl).store).toBe(null)
 })
 
-test('parse to origin value (default)', () => {
+test('默认使用原值', () => {
   expect(parse({})(bodyTpl)).toEqual(JSON.parse(JSON.stringify(bodyTpl)))
 })
 
 
-test('merge snippet and origin value', () => {
+test('未冲突的情况下，snippet与原值合并', () => {
   expect(parse({ a: 1, book: 2 })(bodyTpl)).toEqual(Object.assign({}, bodyTpl, { a: 1, book: 2 }))
 })
 
-test('generate `string` value by mockjs', () => {
-  const concatFn = parse({
-    store: {
-      '__book_desc__': {
-        strategy: 'mockjs',
-        value: '@string',
-      },
-    }
-  })
+test('使用mockjs生成string', () => {
+  const mergeFn = parse(yaml.load(`
+    store:
+      $mockjs book: '@string'
+  `))
 
-  expect(typeof concatFn(bodyTpl).store.book).toBe('string')
+  expect(typeof mergeFn(bodyTpl).store.book).toBe('string')
 })
 
-test('generate `Array` value by mockjs', () => {
-  const concatFn = parse({
-    store: {
-      '__book_desc__': {
-        strategy: 'mockjs',
-        value: [{ a: 1 }],
-        keyModifier: '10',
-      },
-    }
-  })
+test('mockjs生成数组', () => {
+  const mergeFn = parse(yaml.load(`
+    store:
+      $mockjs book|10:
+        - item
+  `))
 
-  expect(concatFn(bodyTpl).store.book).toBeInstanceOf(Array)
-  expect(concatFn(bodyTpl).store.book.length).toBe(10)
+  expect(mergeFn(bodyTpl).store.book).toBeInstanceOf(Array)
+  expect(mergeFn(bodyTpl).store.book.length).toBe(10)
 })
 
-test('link snippet', () => {
-  const snippets = {
-    snippetIdaaa: {
-      '__book_desc__': {
-        strategy: 'mockjs',
-        value: [{ a: 1 }],
-        keyModifier: '10',
-      },
-      '__code_desc__': {
-        strategy: 'snippet',
-        snippetId: 'snippetIdCode200',
-      },
-      hasCode: {
-        strategy: 'snippet',
-        snippetId: 'snippetIdHasCode',
-      },
-    },
-    snippetIdHasCode: {
-      code: 500,
-    },
-    snippetIdCode200: {
-      strategy: 'fixed',
-      value: 200,
-    }
-  }
-  const spyGet = jest.spyOn(config, 'get')
-  spyGet.mockImplementation(() => snippets)
-  config.emit('afterConfigInit')
+test('解析snippet引用', () => {
+  const snippets = yaml.load(`
+    snippetIdaaa:
+      $mockjs book|10:
+        - item
+      $snippet code: snippetIdCode200
+    snippetIdCode200: 200
+  `)
+
+  configManager.get = jest.fn(() => snippets)
+  configManager.emit('afterConfigInit')
 
   const linkSnippet = getSnippet('snippetIdaaa')({ ttt: 111 })
   expect(linkSnippet.ttt).toBe(111)
   expect(linkSnippet.book.length).toBe(10)
   expect(linkSnippet.code).toBe(200)
-  expect(linkSnippet.hasCode).toEqual({ code: 500 })
 })
