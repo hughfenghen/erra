@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-import { SocketListener } from '../lib/interface';
+import { SocketListener } from '../../lib/interface';
 
 const socket = io('http://localhost:63236');
 

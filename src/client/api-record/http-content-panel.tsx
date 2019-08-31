@@ -3,7 +3,7 @@ import yaml from 'js-yaml';
 import { noop } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import Editor from './editor';
+import Editor from '../common/editor';
 
 export default function HttpContentPanel({
   content,

@@ -31,7 +31,6 @@
     "koa-router": "^7.4.0",
     "lodash": "^4.17.11",
     "mockjs": "^1.0.1-beta3",
-    "monaco-editor": "^0.17.1",
     "node-http-proxy-text": "git+https://github.com/hughfenghen/node-http-proxy-text.git",
     "react": "^16.8.6",
     "react-ace": "^7.0.4",

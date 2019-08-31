@@ -1,13 +1,13 @@
 import 'antd/dist/antd.css';
-import s from './style.less';
-import sc from './socket-client';
 
 import { Tabs, Button } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import ApiRecords from './api-records';
+import ApiRecords from './api-record';
 import { SOCKET_MSG_TAG_API } from '../lib/interface';
-import Snippets from './snippets';
+import Snippets from './snippet-list';
+import s from './style.less';
+import sc from './common/socket-client';
 
 
 function App() {

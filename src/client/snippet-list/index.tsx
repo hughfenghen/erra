@@ -1,8 +1,8 @@
 import { Button, List, Icon } from "antd";
 import React, { useState, useEffect } from "react";
 import SnippetPanel from './snippet-panel';
-import { SOCKET_MSG_TAG_API, Snippet } from "../lib/interface";
-import sc from './socket-client'
+import { SOCKET_MSG_TAG_API, Snippet } from "../../lib/interface";
+import sc from '../common/socket-client'
 
 const snippetObjTpl = {
   name: '',

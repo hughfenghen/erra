@@ -2,9 +2,9 @@ import { Button, Checkbox, Divider, Icon, List, Tag, Select } from 'antd';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet } from '../lib/interface';
+import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
 import HttpContentPanel from './http-content-panel';
-import sc from './socket-client';
+import sc from '../common/socket-client';
 
 export default function ApiRecords() {
   const [apiList, setApiList]: [ApiRecord[], Function] = useState([])
