@@ -10,14 +10,17 @@ export default function HttpContentPanel({
   debug = false,
   onDone = noop
 }) {
-  const [value, setValue] = useState(null)
+  const [value, setValue] = useState('')
+  useEffect(() => {
+    setValue(content ? yaml.safeDump(content) : '')
+  }, [content])
 
   return <section>
     {debug && <div><Button onClick={() => {
       onDone(yaml.safeLoad(value));
     }}>完成</Button></div>}
     <Editor
-      value={content ? yaml.safeDump(content) : ''}
+      value={value}
       onChange={(val) => { setValue(val) }}
       language="yaml"
       readOnly={!debug}
