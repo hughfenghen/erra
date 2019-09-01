@@ -3,6 +3,7 @@ import { concat, find, pipe, pullAllBy } from 'lodash/fp';
 import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import ss from '../socket-server';
 import { replaceRecord } from './api-manager';
+import { parseSnippet } from './snippet-manager';
 
 let BPS: BreakPoint[] = []
 
@@ -47,7 +48,12 @@ export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
     ss.broadcast(SOCKET_MSG_TAG_API.BP_START, resp)
     // 等待UI界面修改resp
     const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
-    const newRecord = Object.assign({}, record, { resp: data })
+    const newRecord = Object.assign(
+      {}, 
+      record, 
+      // 断点的时候 支持用户输入 snippet
+      { resp: parseSnippet(data)(resp) }
+    )
     
     replaceRecord(newRecord)
    

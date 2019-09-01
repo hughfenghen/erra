@@ -7,6 +7,7 @@ import 'brace/theme/github';
 import { noop } from 'lodash/fp';
 import React, { useEffect, useRef } from 'react';
 import AceEditor from 'react-ace';
+import { useSnippets } from './custom-hooks';
 
 let langTools = ace.acequire('ace/ext/language_tools');
 const { snippetManager } = ace.acequire('ace/snippets');
@@ -22,30 +23,6 @@ const customSnippet = snippetManager.parseSnippetFile(customSnippetText);
 
 snippetManager.register(customSnippet, 'yaml');
 
-langTools.addCompleter({
-  getCompletions(editor, session, pos, prefix, cb) {
-    const lineStr = session.getLine(pos.row);
-    console.log(333, session, pos);
-    console.log(444, lineStr.indexOf(':'), pos.column);
-    if (
-      /^\s*\$snippet\s+/.test(lineStr)
-      && lineStr.includes(':')
-      && lineStr.indexOf(':') < pos.column
-    ) {
-      console.log(5566);
-      cb(null, [{
-        name: 'snippetId', 
-        value: 'xxxxx', 
-        score: 0, 
-        meta: "$snippet key: sid",
-      }])
-      editor.completer.openPopup(editor)
-      return
-    }
-    cb(null, [])
-  }
-})
-
 export default function Editor({
   value = '',
   width = '100%',
@@ -54,6 +31,41 @@ export default function Editor({
   language,
   readOnly = false,
 }) {
+  const snippets = useSnippets()
+  const snippetListRef = useRef(null)
+
+  useEffect(() => {
+    snippetListRef.current = snippets.map(s => ({
+      caption: s.name,
+      snippet: `${s.name}|${s.id}`,
+      meta: 'custom snippet',
+      score: 100,
+    }))
+  }, [snippets])
+
+  useEffect(() => {
+    langTools.addCompleter({
+      getCompletions(editor, session, pos, prefix, cb) {
+        const lineStr = session.getLine(pos.row);
+        // 以$snippet开头 且光标在冒号后面
+        if (
+          /^\s*\$snippet\s+/.test(lineStr)
+          && lineStr.includes(':')
+          && lineStr.indexOf(':') < pos.column
+        ) {
+          cb(null, snippetListRef.current || [])
+          return
+        }
+        cb(null, [])
+      },
+      insertMatch: function (editor, data) {
+        editor.forEachSelection(function () {
+          editor.insert(data.caption)
+        })
+      }
+    })
+  }, [])
+
   return <div>
     <div id="ace-el"></div>
     <AceEditor
@@ -70,6 +82,7 @@ export default function Editor({
         enableLiveAutocompletion: true,
         enableSnippets: true,
         tabSize: 2,
+        readOnly,
         // enableBasicAutocompletion: [this.yourCustomCompleter]
       }}
     ></AceEditor>

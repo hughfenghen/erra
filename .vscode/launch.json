@@ -9,14 +9,14 @@
       "type": "node",
       "request": "launch",
       "runtimeArgs": [
-        "--inspect-brk",
+        "--inspect-brk=127.0.0.1:9230",
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand",
         "--watch"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "port": 9229
+      "port": 9230
     },
     {
       "type": "node",
@@ -30,6 +30,7 @@
       "name": "debug client",
       "type": "chrome",
       "request": "launch",
+      "userDataDir": false,
       "url": "http://localhost:1234",
       "webRoot": "${workspaceRoot}/src"
     },

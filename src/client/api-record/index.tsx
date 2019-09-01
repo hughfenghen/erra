@@ -5,11 +5,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
 import HttpContentPanel from './http-content-panel';
 import sc from '../common/socket-client';
+import { useSnippets } from '../common/custom-hooks';
 
 export default function ApiRecords() {
   const [apiList, setApiList]: [ApiRecord[], Function] = useState([])
   const [breakpoints, setBreakpoints]: [BreakPoint[], Function] = useState([])
-  const [snippets, setSnippets]: [Snippet[], Function] = useState([])
+  const snippets = useSnippets()
   
   const [httpDetail, setHttpDetail] = useState(null)
   const [debugHttp, setDebugHttp] = useState(false)
@@ -28,10 +29,6 @@ export default function ApiRecords() {
     sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps: BreakPoint[]) => {
       setBreakpoints(bps)
     })
-    // 获取snippet配置
-    sc.emit(SOCKET_MSG_TAG_API.SP_GET, (sps: Snippet[]) => {
-      setSnippets(sps)
-    })
     // 获取请求与snippet关联配置
     sc.emit(SOCKET_MSG_TAG_API.API_GET_SNIPPET_RELATION, (asp) => {
       setApiSnippetPair(asp)
@@ -39,10 +36,6 @@ export default function ApiRecords() {
     // 监听请求与snippet关联配置
     sc.on(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, (asp) => {
       setApiSnippetPair(asp)
-    })
-    // 监听snippet更新
-    sc.on(SOCKET_MSG_TAG_API.SP_UPDATE, (sps: Snippet[]) => {
-      setSnippets(sps)
     })
     // 监听断点更新
     sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps: BreakPoint[]) => {
@@ -61,7 +54,6 @@ export default function ApiRecords() {
     return () => {
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
       sc.off(SOCKET_MSG_TAG_API.BP_START)
-      sc.off(SOCKET_MSG_TAG_API.SP_UPDATE)
     }
   }, [])
 

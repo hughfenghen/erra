@@ -42,7 +42,7 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
     resp.writeHead = (code, orignHeaders) => {
       _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
-    return typeof body === 'string' ? body : JSON.stringify(body);
+    return typeof body === 'string' ? body : JSON.stringify(body || null);
   });
 });
 

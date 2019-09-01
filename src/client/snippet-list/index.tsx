@@ -1,8 +1,9 @@
-import { Button, List, Icon } from "antd";
+import { Button, List, Icon, Divider } from "antd";
 import React, { useState, useEffect } from "react";
 import SnippetPanel from './snippet-panel';
 import { SOCKET_MSG_TAG_API, Snippet } from "../../lib/interface";
 import sc from '../common/socket-client'
+import { useSnippets } from "../common/custom-hooks";
 
 const snippetObjTpl = {
   name: '',
@@ -10,26 +11,18 @@ const snippetObjTpl = {
 }
 
 export default function Snippets() {
-  const [snippets, setSnippets] = useState([])
+  const snippets = useSnippets()
   const [activeSnippet, setActiveSnippet] = useState(null)
-
-  useEffect(() => {
-    sc.emit(SOCKET_MSG_TAG_API.SP_GET, (sps: Snippet[]) => {
-      setSnippets(sps)
-    })
-    sc.on(SOCKET_MSG_TAG_API.SP_UPDATE, (sps: Snippet[]) => {
-      setSnippets(sps)
-    })
-    return () => {
-      sc.off(SOCKET_MSG_TAG_API.SP_UPDATE)
-    }
-  }, [])
 
   return <section>
     <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
     <List dataSource={snippets} renderItem={(it) => <div>
       <span>{it.name}</span>
+      <Divider type="vertical"></Divider>
+      <span>{it.id}</span>
+      <Divider type="vertical"></Divider>
       <span>{it.correlationApi}</span>
+      <Divider type="vertical"></Divider>
       <Icon onClick={() => {
         // todo: delete snippet
         // sc.emit(SOCKET_MSG_TAG_API.SP_DELETE, it.id)

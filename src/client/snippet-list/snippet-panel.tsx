@@ -9,14 +9,17 @@ export default function SnippetPanel({
   snippet,
   onSave = noop,
 }) {
-  const [value, setValue] = useState(null)
+  const [value, setValue] = useState('')
+  useEffect(() => {
+    setValue(snippet ? yaml.safeDump(snippet) : '')
+  }, [snippet])
 
   return <section>
     {!snippet.id && <Button onClick={() => {
       onSave(value);
     }}>保存</Button>}
     <Editor
-      value={snippet ? yaml.safeDump(snippet) : ''}
+      value={value}
       onChange={(val) => { setValue(val) }}
       language="yaml"
     ></Editor>

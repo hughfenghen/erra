@@ -1,4 +1,4 @@
-import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs, values } from 'lodash/fp';
+import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs, values, mapValues } from 'lodash/fp';
 import { mock } from 'mockjs';
 import yaml from 'js-yaml'
 import genUUID from 'uuid';
@@ -13,7 +13,7 @@ const snippetsMeta = new Map<string, Snippet>()
 configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get('snippets') || {})
     .forEach(([key, val]) => {
-      snippetsFn.set(key, parse(val))
+      snippetsFn.set(key, parseSnippet(val))
     })
 })
 
@@ -33,7 +33,7 @@ ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
     name,
     content,
   })
-  snippetsFn.set(spId, parse(content))
+  snippetsFn.set(spId, parseSnippet(content))
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetList())
 })
 
@@ -58,21 +58,24 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
       }
       return constant(mock(value))
     case PARSE_STRATEGY.SNIPPET:
+      // 支持 ${name}|${snippetId} 这样的接口，方便阅读
+      const sId = value.split('|').slice(-1)[0]
+
       // snippet 是否被解析过，如果没有则解析后更新snippets
-      const parsed = snippetsFn.get(value)
+      const parsed = snippetsFn.get(sId)
       if (parsed) return parsed
 
-      const source = configManager.get('snippets')[value]
+      const source = configManager.get('snippets')[sId]
       if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${value}`)
 
-      const ps = parseSnippet(source)
-      snippetsFn.set(value, ps)
+      const ps = parse(source)
+      snippetsFn.set(sId, ps)
       return ps
   }
   return identity
 }
 
-function parseSnippet(snippet) {
+function parse(snippet) {
   if (isPlainObject(snippet)) {
     const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
     const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
@@ -102,28 +105,40 @@ function parseSnippet(snippet) {
           })]
         }
 
-        return [key, parseSnippet(value)]
+        return [key, parse(value)]
       }),
       fromPairs,
     )(snippet)
   } else if (isArray(snippet)) {
-    return map(parseSnippet)(snippet)
+    return map(parse)(snippet)
   }
   return parseStrategy({ value: snippet })
 }
 
-export function parse(snippet): (data: any) => any {
-  const snippeter = parseSnippet(snippet)
+// 当源数据 与 snippet层级匹配时，snippet中有些元素是一个Function
+// 递归将snippet中的所有函数执行，生成数据
+function expandSnippet(snippet) {
+  if (isFunction(snippet)) return snippet()
+  if (isArray(snippet)) return map(expandSnippet)(snippet)
+  if (isPlainObject(snippet)) return mapValues(expandSnippet)(snippet)
+  return snippet
+}
+
+export function parseSnippet(snippet): (data: any) => any {
+  const snippeter = parse(snippet)
 
   return (data): any => {
     if (isFunction(snippeter)) return snippeter(data)
-    const rs = mergeWith((objValue, srcValue) => {
-      if (isFunction(srcValue)) {
-        return srcValue(objValue)
-      }
-      return undefined
-    }, data, snippeter)
-    return rs
+    if (isPlainObject(data) && isPlainObject(snippeter)) {
+      const rs = mergeWith((objValue, srcValue) => {
+        if (isFunction(srcValue)) {
+          return srcValue(objValue)
+        }
+        return undefined
+      }, data, snippeter)
+      return rs
+    }
+    return expandSnippet(snippeter)
   }
 }
 
@@ -132,5 +147,5 @@ export function getSnippet(id: string): Function {
 }
 
 export function addSnippet(id: string, snippet: any): void {
-  snippetsFn.set(id, parse(snippet))
+  snippetsFn.set(id, parseSnippet(snippet))
 }
