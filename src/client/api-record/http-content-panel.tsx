@@ -4,15 +4,32 @@ import { noop } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Editor from '../common/editor';
+import { SimpleReq, SimpleResp } from '../../lib/interface';
 
 export default function HttpContentPanel({
   content,
   debug = false,
   onDone = noop
+} : {
+  content: SimpleReq | SimpleResp,
+  debug: boolean,
+  onDone: Function,
 }) {
   const [value, setValue] = useState('')
   useEffect(() => {
-    setValue(content ? yaml.safeDump(content) : '')
+    if (!content) {
+      setValue('')
+      return
+    }
+
+    if (
+      /application\/json/.test(content.headers['content-type'])
+      && content.body
+    ) {
+      setValue(yaml.safeDump({ ...content, body: JSON.parse(content.body) }))
+      return
+    }
+    setValue(yaml.safeDump(content))
   }, [content])
 
   return <section>

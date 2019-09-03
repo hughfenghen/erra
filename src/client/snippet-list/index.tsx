@@ -24,14 +24,14 @@ export default function Snippets() {
       <span>{it.correlationApi}</span>
       <Divider type="vertical"></Divider>
       <Icon onClick={() => {
-        // todo: delete snippet
-        // sc.emit(SOCKET_MSG_TAG_API.SP_DELETE, it.id)
+        sc.emit(SOCKET_MSG_TAG_API.SP_DELETE, it.id)
       }} type="delete" />
     </div>}></List>
     {!!activeSnippet && <SnippetPanel
       snippet={activeSnippet}
       onSave={async (code) => {
         sc.emit(SOCKET_MSG_TAG_API.SP_SAVE, { id: activeSnippet.id, code })
+        setActiveSnippet(null)
       }}
     ></SnippetPanel>}
   </section>

@@ -2,17 +2,17 @@ import { Button, Checkbox, Divider, Icon, List, Tag, Select } from 'antd';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
+import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet, SimpleReq, SimpleResp } from '../../lib/interface';
 import HttpContentPanel from './http-content-panel';
 import sc from '../common/socket-client';
 import { useSnippets } from '../common/custom-hooks';
 
 export default function ApiRecords() {
-  const [apiList, setApiList]: [ApiRecord[], Function] = useState([])
-  const [breakpoints, setBreakpoints]: [BreakPoint[], Function] = useState([])
+  const [apiList, setApiList] = useState<ApiRecord[]>([])
+  const [breakpoints, setBreakpoints] = useState<BreakPoint[]>([])
   const snippets = useSnippets()
   
-  const [httpDetail, setHttpDetail] = useState(null)
+  const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [debugHttp, setDebugHttp] = useState(false)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
 
@@ -102,6 +102,7 @@ export default function ApiRecords() {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.req.url, spId)
         }}
         style={{ width: '200px' }}
+        allowClear
       >
         {snippets.map((it) => <Select.Option 
           value={it.id}

@@ -17,12 +17,12 @@ configManager.on('afterConfigInit', () => {
     })
 })
 
-function getSnippetList() {
+function getSnippetMetaList() {
   return map(pick(['id', 'name', 'correlationApi']), [...snippetsMeta.values()])
 }
 
 ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
-  cb(getSnippetList())
+  cb(getSnippetMetaList())
 })
 
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
@@ -34,7 +34,14 @@ ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
     content,
   })
   snippetsFn.set(spId, parseSnippet(content))
-  ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetList())
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
+})
+
+ss.on(SOCKET_MSG_TAG_API.SP_DELETE, (id) => {
+  // todo: 检查是否被引用
+  snippetsFn.delete(id)
+  snippetsMeta.delete(id)
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
 export enum PARSE_STRATEGY {
