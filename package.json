@@ -11,7 +11,7 @@
   "author": "fenghen",
   "license": "MIT",
   "scripts": {
-    "server": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts  -c ./erra.config.json",
+    "server": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts  -c ./example/erra.config.yaml",
     "client": "parcel ./src/client/index.html",
     "test:watch": "jest --watch",
     "test": "jest",

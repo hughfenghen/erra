@@ -16,10 +16,10 @@ import configManager from './manager/config-manager';
 const app = new Koa();
 const router = new Router()
 
+// 初始化配置
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 const proxy = httpProxy.createProxyServer({})
-
 
 proxy.on('proxyRes', function (proxyRes, req, resp) {
   const _writeHead = resp.writeHead;
