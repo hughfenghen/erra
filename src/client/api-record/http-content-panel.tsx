@@ -24,7 +24,7 @@ export default function HttpContentPanel({
 
     if (
       /application\/json/.test(content.headers['content-type'])
-      && content.body
+      && typeof content.body === 'string'
     ) {
       setValue(yaml.safeDump({ ...content, body: JSON.parse(content.body) }))
       return

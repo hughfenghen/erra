@@ -7,18 +7,19 @@ import configManager from './config-manager';
 import ss from '../socket-server'
 import { SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
 
-const snippetsFn = new Map<string, Function>()
-const snippetsMeta = new Map<string, Snippet>()
+const snippetsFn: { [key: string]: Function } = {}
+const snippetsMeta: { [key: string]: Snippet} = {}
 
 configManager.on('afterConfigInit', () => {
-  Object.entries(configManager.get('snippets') || {})
-    .forEach(([key, val]) => {
-      snippetsFn.set(key, parseSnippet(val))
+  Object.entries(configManager.get(configManager.key.SNIPPET) || {})
+    .forEach(([key, val]: [string, Snippet]) => {
+      snippetsMeta[key] = val
+      snippetsFn[key] = parseSnippet(val)
     })
 })
 
 function getSnippetMetaList() {
-  return map(pick(['id', 'name', 'correlationApi']), [...snippetsMeta.values()])
+  return map(pick(['id', 'name', 'correlationApi']), values(snippetsMeta))
 }
 
 ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
@@ -28,19 +29,22 @@ ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
   const { name, content } = yaml.load(code)
   const spId = id || genUUID()
-  snippetsMeta.set(spId, {
+  snippetsMeta[spId] = {
     id: spId,
     name,
     content,
-  })
-  snippetsFn.set(spId, parseSnippet(content))
+  }
+
+  configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
+  snippetsFn[spId] = parseSnippet(content)
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
 ss.on(SOCKET_MSG_TAG_API.SP_DELETE, (id) => {
   // todo: 检查是否被引用
-  snippetsFn.delete(id)
-  snippetsMeta.delete(id)
+  delete snippetsFn[id]
+  delete snippetsMeta[id]
+  configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
@@ -69,14 +73,14 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
       const sId = value.split('|').slice(-1)[0]
 
       // snippet 是否被解析过，如果没有则解析后更新snippets
-      const parsed = snippetsFn.get(sId)
+      const parsed = snippetsFn[sId]
       if (parsed) return parsed
 
-      const source = configManager.get('snippets')[sId]
+      const source = configManager.get(configManager.key.SNIPPET)[sId]
       if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${value}`)
 
       const ps = parse(source)
-      snippetsFn.set(sId, ps)
+      snippetsFn[sId] = ps
       return ps
   }
   return identity
@@ -150,9 +154,9 @@ export function parseSnippet(snippet): (data: any) => any {
 }
 
 export function getSnippet(id: string): Function {
-  return snippetsFn.get(id)
+  return snippetsFn[id]
 }
 
 export function addSnippet(id: string, snippet: any): void {
-  snippetsFn.set(id, parseSnippet(snippet))
+  snippetsFn[id] = parseSnippet(snippet)
 }

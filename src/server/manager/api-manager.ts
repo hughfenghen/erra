@@ -36,6 +36,11 @@ ss.on(SOCKET_MSG_TAG_API.API_GET_SNIPPET_RELATION, (cb) => {
 
 ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
   bindApiSnippet(url, snippetId)
+  configManager.emit(
+    'update', 
+    configManager.key.API_BIND_SNIPPET, 
+    apiSnippetPair
+  )
   ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, apiSnippetPair)
 })
 
@@ -79,7 +84,8 @@ export function replaceRecord(record: ApiRecord) {
 }
 
 export function bindApiSnippet(url: string, snippetId: string) {
-  apiSnippetPair[url] = snippetId
+  if (snippetId) apiSnippetPair[url] = snippetId
+  else delete apiSnippetPair[url]
 }
 
 export function getApiHistory(): ApiRecord[] {

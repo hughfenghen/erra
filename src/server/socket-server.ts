@@ -13,9 +13,6 @@ const eventListeners: { [x: string]: SocketListener } = {}
 io.on('connection', socket => {
   onlineSocketSet.add(socket)
 
-  socket.on('test', (arg) => {
-    console.log('------ test', arg);
-  })
   Object.entries(eventListeners)
     .forEach(([evtName, listener]) => {
       socket.on(evtName, listener)

@@ -4,8 +4,6 @@ import { SocketListener } from '../../lib/interface';
 
 const socket = io('http://localhost:63236');
 
-socket.emit('test', 111)
-
 socket.on('api-response', (url, data) => {
   console.log('====== api-response', url, data);
 })

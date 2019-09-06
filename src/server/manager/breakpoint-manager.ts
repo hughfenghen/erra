@@ -4,8 +4,13 @@ import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API } from '../../
 import ss from '../socket-server';
 import { replaceRecord } from './api-manager';
 import { parseSnippet } from './snippet-manager';
+import configManager from './config-manager';
 
 let BPS: BreakPoint[] = []
+
+configManager.on('afterConfigInit', () => {
+  BPS = configManager.get(configManager.key.BREAKPOINT) || []
+})
 
 ss.on(SOCKET_MSG_TAG_API.BP_GET, (cb) => {
   cb(BPS)
@@ -19,6 +24,7 @@ ss.on(
       concat(enableTypes.map((type) => ({ type, url })))
     )(BPS)
     
+    configManager.emit('update', configManager.key.BREAKPOINT, BPS)
     ss.broadcast(SOCKET_MSG_TAG_API.BP_UPDATE, BPS)
   }
 )

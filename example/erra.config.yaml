@@ -1,0 +1,9 @@
+snippet:
+  f2636bc8-c103-40bf-b866-c8186b18e72e:
+    id: f2636bc8-c103-40bf-b866-c8186b18e72e
+    name: test
+    content:
+      body: 234
+breakpoint: []
+apiBindSnippet:
+  'http://www.mocky.io/v2/5185415ba171ea3a00704eed': f2636bc8-c103-40bf-b866-c8186b18e72e

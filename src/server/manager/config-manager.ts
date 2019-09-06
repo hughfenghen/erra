@@ -7,8 +7,15 @@ const ee = new EventEmitter()
 let config: { [key: string]: any } = {}
 let cofnigPath = ''
 
+enum configKeys {
+  SNIPPET = 'snippet',
+  BREAKPOINT = 'breakpoint',
+  API_BIND_SNIPPET = 'apiBindSnippet',
+}
+
 const exps = {
   init,
+  key: configKeys,
   get(key: string) {
     return config[key]
   },
@@ -34,7 +41,7 @@ function init (cfgPath) {
       console.error(err);
       return 
     }
-    config = yaml.load(data)
+    config = yaml.load(data) || {}
     exps.emit('afterConfigInit')
   });
 }
