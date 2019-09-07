@@ -8,6 +8,7 @@ import Editor from '../common/editor';
 export default function SnippetPanel({
   snippet,
   onSave = noop,
+  onCancel = noop,
 }) {
   const [value, setValue] = useState('')
   useEffect(() => {
@@ -15,9 +16,8 @@ export default function SnippetPanel({
   }, [snippet])
 
   return <section>
-    {!snippet.id && <Button onClick={() => {
-      onSave(value);
-    }}>保存</Button>}
+    <Button onClick={() => { onSave(value) }}>保存</Button>
+    <Button onClick={onCancel}>取消</Button>
     <Editor
       value={value}
       onChange={(val) => { setValue(val) }}

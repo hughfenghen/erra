@@ -16,21 +16,30 @@ export default function Snippets() {
 
   return <section>
     <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
-    <List dataSource={snippets} renderItem={(it) => <div>
+    <List dataSource={snippets} renderItem={(it) => <div 
+      onClick={() => {
+        setActiveSnippet(it)
+      }}
+    >
       <span>{it.name}</span>
       <Divider type="vertical"></Divider>
       <span>{it.id}</span>
       <Divider type="vertical"></Divider>
-      <span>{it.correlationApi}</span>
+      <span>{it.correlationApi || '-'}</span>
       <Divider type="vertical"></Divider>
-      <Icon onClick={() => {
+      <Icon onClick={(evt) => {
+        evt.stopPropagation()
+        setActiveSnippet(null)
         sc.emit(SOCKET_MSG_TAG_API.SP_DELETE, it.id)
       }} type="delete" />
     </div>}></List>
     {!!activeSnippet && <SnippetPanel
       snippet={activeSnippet}
-      onSave={async (code) => {
+      onSave={(code) => {
         sc.emit(SOCKET_MSG_TAG_API.SP_SAVE, { id: activeSnippet.id, code })
+        setActiveSnippet(null)
+      }}
+      onCancel={() => {
         setActiveSnippet(null)
       }}
     ></SnippetPanel>}

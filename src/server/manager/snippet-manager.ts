@@ -19,7 +19,7 @@ configManager.on('afterConfigInit', () => {
 })
 
 function getSnippetMetaList() {
-  return map(pick(['id', 'name', 'correlationApi']), values(snippetsMeta))
+  return map(pick(['id', 'name', 'content', 'correlationApi']), values(snippetsMeta))
 }
 
 ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
