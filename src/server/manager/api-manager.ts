@@ -1,4 +1,4 @@
-import { find } from 'lodash/fp';
+import { find, omit } from 'lodash/fp';
 import genUUID from 'uuid';
 
 import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
@@ -15,15 +15,23 @@ const apiSnippetPair: { [x: string]: string } = {}
 let apiRecords: ApiRecord[] = []
 
 configManager.on('afterConfigInit', () => {
-  // todo init apiSnippetPair
-  Object.entries(configManager.get('api-match-snippet') || {})
+  Object.entries(configManager.get(configManager.key.API_BIND_SNIPPET) || {})
     .forEach(([matcher, snippetId]) => {
       bindApiSnippet(matcher, String(snippetId))
     })
 })
 
 ss.on(SOCKET_MSG_TAG_API.API_GET_HISTORY, (cb) => {
-  cb(apiRecords)
+  // 默认不传递body、headers，避免页面卡顿
+  cb(apiRecords.map(({ uuid, req, resp }) => ({
+    uuid,
+    req: omit(['body', 'headers'], req),
+    resp: omit(['body', 'headers'], resp),
+  })))
+})
+
+ss.on(SOCKET_MSG_TAG_API.API_GET_RECORD_DETAIL, (uuid, cb) => {
+  cb(find({ uuid }, apiRecords))
 })
 
 ss.on(SOCKET_MSG_TAG_API.API_CLEAR_RECORD, () => {
@@ -45,7 +53,7 @@ ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
 })
 
 export function handleReq(req): ApiRecord {
-  // todo: cookie, formData, body 
+  // todo: 支持formData, body file
   const { headers, url, method } = req
   const record = {
     uuid: genUUID(),

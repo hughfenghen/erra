@@ -11,7 +11,7 @@ export default function ApiRecords() {
   const [apiList, setApiList] = useState<ApiRecord[]>([])
   const [breakpoints, setBreakpoints] = useState<BreakPoint[]>([])
   const snippets = useSnippets()
-  
+
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [debugHttp, setDebugHttp] = useState(false)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
@@ -75,6 +75,21 @@ export default function ApiRecords() {
     }
   }, [apiList])
 
+  // 为节省性能，初始化时获取的列表不包含详情
+  // 查看详情时实时获取
+  const onViewDetail = useCallback((it, type) => {
+    if (it[type].body && it[type].headers) {
+      setHttpDetail(it[type])
+      return
+    }
+    sc.emit(SOCKET_MSG_TAG_API.API_GET_RECORD_DETAIL, it.uuid, (r) => {
+      if (!r) throw new Error('找不到请求内容')
+      setHttpDetail(r[type])
+      Object.assign(it, r)
+      setApiList(apiList)
+    })
+  }, [apiList])
+
   return <section>
     <List dataSource={apiList} renderItem={(it: ApiRecord) => <div>
       <Tag>{it.req.method}</Tag>
@@ -96,7 +111,7 @@ export default function ApiRecords() {
         </Checkbox.Group>
       </span>
       <Divider type="vertical"></Divider>
-      <Select 
+      <Select
         value={apiSnippetPair[it.req.url]}
         onChange={(spId) => {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.req.url, spId)
@@ -104,7 +119,7 @@ export default function ApiRecords() {
         style={{ width: '200px' }}
         allowClear
       >
-        {snippets.map((it) => <Select.Option 
+        {snippets.map((it) => <Select.Option
           value={it.id}
           key={it.id}
         >{it.name}</Select.Option>)}
@@ -112,10 +127,10 @@ export default function ApiRecords() {
       <Divider type="vertical"></Divider>
       <span>
         <Button onClick={() => {
-          setHttpDetail(it.req)
+          onViewDetail(it, 'req')
         }}>Request</Button>
         <Button onClick={() => {
-          setHttpDetail(it.resp)
+          onViewDetail(it, 'resp')
         }} disabled={isEmpty(it.resp)}>Response</Button>
       </span>
     </div>}></List>
