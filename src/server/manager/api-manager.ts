@@ -4,7 +4,7 @@ import genUUID from 'uuid';
 import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import ss from '../socket-server';
 import configManager from './config-manager';
-import { getSnippet } from './snippet-manager';
+import { getSnippetFn } from './snippet-manager';
 
 
 function noticeApiUpdate(tag: string, content = {}) {
@@ -68,7 +68,7 @@ export function handleReq(req): ApiRecord {
 
 export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
   const snippetId = apiSnippetPair[req.url]
-  const rs = snippetId ? getSnippet(snippetId)(resp) : resp
+  const rs = snippetId ? getSnippetFn(snippetId)(resp) : resp
 
   const record = <ApiRecord>find({ uuid: req._erra_uuid }, apiRecords)
 

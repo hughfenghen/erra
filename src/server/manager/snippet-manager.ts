@@ -5,7 +5,7 @@ import genUUID from 'uuid';
 
 import configManager from './config-manager';
 import ss from '../socket-server'
-import { SOCKET_MSG_TAG_API, Snippet } from '../../lib/interface';
+import { SOCKET_MSG_TAG_API, Snippet, SnippetContent } from '../../lib/interface';
 
 const snippetsFn: { [key: string]: Function } = {}
 const snippetsMeta: { [key: string]: Snippet} = {}
@@ -14,7 +14,7 @@ configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get(configManager.key.SNIPPET) || {})
     .forEach(([key, val]: [string, Snippet]) => {
       snippetsMeta[key] = val
-      snippetsFn[key] = parseSnippet(val)
+      snippetsFn[key] = parseSnippetContent(val.content)
     })
 })
 
@@ -36,7 +36,7 @@ ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
   }
 
   configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
-  snippetsFn[spId] = parseSnippet(content)
+  snippetsFn[spId] = parseSnippetContent(content)
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
@@ -86,7 +86,7 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
   return identity
 }
 
-function parse(snippet) {
+function parse(snippet: SnippetContent) {
   if (isPlainObject(snippet)) {
     const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
     const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
@@ -126,16 +126,24 @@ function parse(snippet) {
   return parseStrategy({ value: snippet })
 }
 
-// 当源数据 与 snippet层级匹配时，snippet中有些元素是一个Function
-// 递归将snippet中的所有函数执行，生成数据
-function expandSnippet(snippet) {
-  if (isFunction(snippet)) return snippet()
-  if (isArray(snippet)) return map(expandSnippet)(snippet)
-  if (isPlainObject(snippet)) return mapValues(expandSnippet)(snippet)
-  return snippet
+/**
+ * 当源数据 与 snippet字段不匹配时，snippet中有些元素是一个Function
+ * 递归将snippet中的所有函数执行，生成数据
+ * @param remainder 
+ */
+function expandSnippet(remainder) {
+  if (isFunction(remainder)) return remainder()
+  if (isArray(remainder)) return map(expandSnippet)(remainder)
+  if (isPlainObject(remainder)) return mapValues(expandSnippet)(remainder)
+  return remainder
 }
 
-export function parseSnippet(snippet): (data: any) => any {
+/**
+ * 解析SnippetContent
+ * @param snippet 生成数据的策略
+ * @return Function
+ */
+export function parseSnippetContent(snippet: SnippetContent): (data: any) => any {
   const snippeter = parse(snippet)
 
   return (data): any => {
@@ -153,10 +161,11 @@ export function parseSnippet(snippet): (data: any) => any {
   }
 }
 
-export function getSnippet(id: string): Function {
+/**
+ * 获取解析后的snippet
+ * @param id snippetId
+ * @return Function 按配置策略处理传入的参数后返回
+ */
+export function getSnippetFn(id: string): Function {
   return snippetsFn[id]
-}
-
-export function addSnippet(id: string, snippet: any): void {
-  snippetsFn[id] = parseSnippet(snippet)
 }

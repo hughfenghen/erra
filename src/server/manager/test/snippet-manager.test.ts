@@ -1,6 +1,6 @@
 import yaml from 'js-yaml';
 import configManager from '../config-manager';
-import { getSnippet, parseSnippet } from '../snippet-manager';
+import { getSnippetFn, parseSnippetContent } from '../snippet-manager';
 
 jest.mock('../../socket-server')
 
@@ -42,11 +42,11 @@ const bodyTpl = {
 }
 
 test('parse 返回一个函数', () => {
-  expect(parseSnippet({})).toBeInstanceOf(Function);
+  expect(parseSnippetContent({})).toBeInstanceOf(Function);
 })
 
 test('fixed会覆盖原值', () => {
-  const mergeFn = parseSnippet(yaml.load(`
+  const mergeFn = parseSnippetContent(yaml.load(`
     $fixed store: null
   `))
 
@@ -54,16 +54,16 @@ test('fixed会覆盖原值', () => {
 })
 
 test('默认使用原值', () => {
-  expect(parseSnippet({})(bodyTpl)).toEqual(JSON.parse(JSON.stringify(bodyTpl)))
+  expect(parseSnippetContent({})(bodyTpl)).toEqual(JSON.parse(JSON.stringify(bodyTpl)))
 })
 
 
 test('未冲突的情况下，snippet与原值合并', () => {
-  expect(parseSnippet({ a: 1, book: 2 })(bodyTpl)).toEqual(Object.assign({}, bodyTpl, { a: 1, book: 2 }))
+  expect(parseSnippetContent({ a: 1, book: 2 })(bodyTpl)).toEqual(Object.assign({}, bodyTpl, { a: 1, book: 2 }))
 })
 
 test('使用mockjs生成string', () => {
-  const mergeFn = parseSnippet(yaml.load(`
+  const mergeFn = parseSnippetContent(yaml.load(`
     store:
       $mockjs book: '@string'
   `))
@@ -72,7 +72,7 @@ test('使用mockjs生成string', () => {
 })
 
 test('mockjs生成数组', () => {
-  const mergeFn = parseSnippet(yaml.load(`
+  const mergeFn = parseSnippetContent(yaml.load(`
     store:
       $mockjs book|10:
         - item
@@ -94,12 +94,12 @@ test('解析snippet引用', () => {
   configManager.get = jest.fn(() => snippets)
   configManager.emit('afterConfigInit')
 
-  const linkSnippet = getSnippet('snippetIdaaa')({ ttt: 111, code: 'abc' })
+  const linkSnippet = getSnippetFn('snippetIdaaa')({ ttt: 111, code: 'abc' })
   expect(linkSnippet.ttt).toBe(111)
   expect(linkSnippet.book.length).toBe(10)
   expect(linkSnippet.code).toBe(200)
 })
 
 test('展开与源数据不匹配的snippet层级', () => {
-  expect(parseSnippet({ foo: 'bar' })(null)).toEqual({ foo: 'bar' })
+  expect(parseSnippetContent({ foo: 'bar' })(null)).toEqual({ foo: 'bar' })
 })

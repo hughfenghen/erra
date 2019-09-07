@@ -26,7 +26,9 @@ export interface ApiRecord {
 
 export type SocketListener = (...args: any[]) => void
 
-// socket.io 消息 tag定义
+/**
+ * socket.io 消息 tag定义
+ */
 export enum SOCKET_MSG_TAG_API {
   API_GET_HISTORY = 'api_manager-get_history',
   API_GET_RECORD_DETAIL = 'api_manager-get_detail',
@@ -58,9 +60,16 @@ export interface BreakPoint {
   type: API_DATA_TYPE,
 }
 
+
+/**
+ * 用户编辑的Snippet内容，由parseSnippetContent解析成函数
+ * 函数可以按配置策略，加上http请求原值 用来生成数据
+ */
+export type SnippetContent = any
+
 export interface Snippet {
   id: string,
   name: string,
-  content: any,
+  content: SnippetContent,
   correlationApi?: RegExp,
 }
