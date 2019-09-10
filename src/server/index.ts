@@ -8,7 +8,7 @@ import Router from 'koa-router';
 import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
 
-import { SimpleResp } from '../lib/interface';
+import { SimpleResp, SimpleReq } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
@@ -33,14 +33,14 @@ proxy.on('proxyRes', function (proxyRes, req, resp) {
         pick(['statusCode', 'headers',])(proxyRes),
         { url: req.url, body: originBody }
       ),
-      req
+      req as SimpleReq
     );
     if (!record) return originBody
 
     const { resp: { statusCode, body, headers } } = await throughBP4Resp(record);
 
     resp.writeHead = (code, orignHeaders) => {
-      _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
+      return _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
     return typeof body === 'string' ? body : JSON.stringify(body || null);
   });

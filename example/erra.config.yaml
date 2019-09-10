@@ -5,5 +5,4 @@ snippet:
     content:
       abc: 123
 breakpoint: []
-apiBindSnippet:
-  'http://www.mocky.io/v2/5185415ba171ea3a00704eed': e9668036-e886-44d5-a0a2-cba037845878
+apiBindSnippet: {}
