@@ -1,5 +1,7 @@
 import httpProxy from 'http-proxy';
 import https from 'https';
+import http from 'http';
+import net from 'net';
 import URL from 'url';
 import fs from 'fs';
 import pem from 'pem';
@@ -23,8 +25,8 @@ async function getRoot() {
   };
 }
 
-async function create(host) {
-  // --- 生成证书
+async function createCertificate(host) {
+  // todo cache
   const root = await getRoot();
   const res = await pemCreateCertificate({
     altNames: [host],
@@ -40,25 +42,23 @@ async function create(host) {
 }
 
 (async function init() {
-  const serverCrt = await create('internal_https_server');
+  const serverCrt = await createCertificate('internal_https_server');
 
   // https://github.com/http-party/node-http-proxy/issues/1118
   // https://github.com/http-party/node-http-proxy/issues/596
   const httpsServer = https.createServer({
     SNICallback: (servername, cb) => {
-      create(servername).then(crt => {
-        const ctx = createSecureContext({
-          cert: crt.cert,
-          key: crt.key,
-        });
-        cb(null, ctx);
+      console.log(11112, servername);
+      createCertificate(servername).then(({ cert, key }) => {
+        cb(null, createSecureContext({ cert, key }));
       });
     },
     cert: serverCrt.cert,
     key: serverCrt.key,
   }, (req, resp) => {
-    resp.end("Hello, SSL World!");
-    // const url = URL.parse(req.url)
+    // resp.end("Hello, SSL World!");
+    const url = URL.parse(req.url)
+    console.log(1111, req.headers, url);
 
     // // 不记录map请求
     // if (!/\.map$/.test(req.url)) {
@@ -67,13 +67,29 @@ async function create(host) {
     //   const { req: mReq } = await throughBP4Req(record)
     //   Object.assign(req, mReq)
     // }
-
-    // proxy.web(req, resp, {
-    //   target: `${url.protocol}//${url.host}`,
-    // });
+    proxy.web(req, resp, {
+      target: `https://${req.headers.host}`,
+      secure: false,
+    });
   });
 
   httpsServer.listen(3355, '0.0.0.0');
+
+
+  const httpServer = http.createServer()
+  httpServer.listen(3344, '0.0.0.0');
+  httpServer.on('connect', (req, socket) => {
+    console.log(11114, req.url, socket.remoteAddress);
+    // const tarUrl = value
+    const conn = net.connect(3355, '127.0.0.1', () => {
+
+      socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', () => {
+        conn.pipe(socket);
+        socket.pipe(conn);
+      });
+
+    });
+  })
 })();
 
 export default function registerHandler(reqHandler, respHandler) {
