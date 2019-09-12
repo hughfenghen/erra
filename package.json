@@ -31,6 +31,7 @@
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
     "lodash": "^4.17.15",
+    "lru-cache": "^5.1.1",
     "mockjs": "^1.0.1-beta3",
     "node-http-proxy-text": "git+https://github.com/hughfenghen/node-http-proxy-text.git",
     "pem": "^1.14.2",

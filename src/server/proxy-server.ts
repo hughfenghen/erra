@@ -6,28 +6,48 @@ import URL from 'url';
 import fs from 'fs';
 import pem from 'pem';
 import path from 'path';
+import LRU from 'lru-cache';
 import { createSecureContext } from 'tls';
 import { promisify } from 'es6-promisify';
+
+const certCache = new LRU({
+  max: 500,
+  maxAge: 1000 * 60 * 60,
+})
+
+type Middleware = (ctx) => Promise<any> | void
+const middlewares: Middleware[] = []
+
+const httpPort = 3344
+const httpsPort = 3355
 
 const proxy = httpProxy.createProxyServer({})
 
 const fsReadFile = promisify(fs.readFile);
 const pemCreateCertificate = promisify(pem.createCertificate);
 
-async function getRoot() {
-  return {
+async function getRootCert() {
+  const cacheKey = 'root-cert'
+ 
+  if (certCache.has(cacheKey)) return certCache.get(cacheKey)
+  
+  const rootCert = {
     cert: await fsReadFile(path.join(process.cwd(), 'ca/erra.crt.pem'), {
       encoding: 'utf-8',
     }),
     key: await fsReadFile(path.join(process.cwd(), 'ca/erra.key.pem'), {
       encoding: 'utf-8',
     }),
-  };
+  }
+
+  certCache.set(cacheKey, rootCert);
+  return rootCert;
 }
 
-async function createCertificate(host) {
-  // todo cache
-  const root = await getRoot();
+async function createCert(host) {
+  if (certCache.has(host)) return certCache.get(host)
+
+  const root = await getRootCert();
   const res = await pemCreateCertificate({
     altNames: [host],
     commonName: host,
@@ -35,63 +55,72 @@ async function createCertificate(host) {
     serviceCertificate: root.cert,
     serviceKey: root.key,
   });
-  return {
+  
+  const cert = {
     cert: res.certificate,
     key: res.clientKey,
-  };
+  }
+  certCache.set(host, cert);
+
+  return cert;
+}
+
+async function httpHandler (req, resp) {
+  const url = URL.parse(req.url)
+  const ctx = { req, resp, erraFinished: false }
+
+  for (const m of middlewares) {
+    await m(ctx)
+    
+    if (ctx.erraFinished) break
+  }
+
+  proxy.web(req, resp, {
+    target: `${url.protocol || 'https:'}//${req.headers.host}`,
+    secure: false,
+  });
 }
 
 (async function init() {
-  const serverCrt = await createCertificate('internal_https_server');
+  const serverCrt = await createCert('internal_https_server');
 
-  // https://github.com/http-party/node-http-proxy/issues/1118
-  // https://github.com/http-party/node-http-proxy/issues/596
   const httpsServer = https.createServer({
     SNICallback: (servername, cb) => {
-      console.log(11112, servername);
-      createCertificate(servername).then(({ cert, key }) => {
+      createCert(servername).then(({ cert, key }) => {
         cb(null, createSecureContext({ cert, key }));
       });
     },
     cert: serverCrt.cert,
     key: serverCrt.key,
-  }, (req, resp) => {
-    // resp.end("Hello, SSL World!");
-    const url = URL.parse(req.url)
-    console.log(1111, req.headers, url);
+  }, httpHandler);
 
-    // // 不记录map请求
-    // if (!/\.map$/.test(req.url)) {
-    //   const record = handleReq(req)
-
-    //   const { req: mReq } = await throughBP4Req(record)
-    //   Object.assign(req, mReq)
-    // }
-    proxy.web(req, resp, {
-      target: `https://${req.headers.host}`,
-      secure: false,
-    });
-  });
-
-  httpsServer.listen(3355, '0.0.0.0');
-
-
-  const httpServer = http.createServer()
-  httpServer.listen(3344, '0.0.0.0');
-  httpServer.on('connect', (req, socket) => {
-    console.log(11114, req.url, socket.remoteAddress);
-    // const tarUrl = value
-    const conn = net.connect(3355, '127.0.0.1', () => {
-
+  const httpServer = http.createServer(httpHandler)
+  httpServer.on('connect', (req, socket, head) => {
+    // todo 处理ws、wss协议
+    let proxyPort = httpPort;
+    // connect请求时 如何判断连到的目标机器是不是https协议？
+    // ws、wss、https协议都会发送connect请求
+    const [, targetPort] = req.url.split(':');
+    if (targetPort === '443') {
+      proxyPort = httpsPort;
+    }
+    console.log(555666, httpsPort, req.url); 
+    const conn = net.connect(proxyPort, '127.0.0.1', () => {
       socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', () => {
         conn.pipe(socket);
         socket.pipe(conn);
       });
-
     });
   })
+
+  httpServer.listen(httpPort, '0.0.0.0');
+  httpsServer.listen(httpsPort, '0.0.0.0');
 })();
 
-export default function registerHandler(reqHandler, respHandler) {
-  // body
+export function use(middleware: Middleware) {
+  middlewares.push(middleware)
+}
+
+export default {
+  use
 }
