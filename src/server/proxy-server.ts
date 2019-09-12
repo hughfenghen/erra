@@ -20,6 +20,7 @@ const middlewares: Middleware[] = []
 
 const httpPort = 3344
 const httpsPort = 3355
+let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => {}
 
 const proxy = httpProxy.createProxyServer({})
 
@@ -69,11 +70,7 @@ async function httpHandler (req, resp) {
   const url = URL.parse(req.url)
   const ctx = { req, resp, erraFinished: false }
 
-  for (const m of middlewares) {
-    await m(ctx)
-    
-    if (ctx.erraFinished) break
-  }
+  await beforeProxyReqHandler(req, resp)
 
   proxy.web(req, resp, {
     target: `${url.protocol || 'https:'}//${req.headers.host}`,
@@ -81,7 +78,7 @@ async function httpHandler (req, resp) {
   });
 }
 
-(async function init() {
+;(async function init() {
   const serverCrt = await createCert('internal_https_server');
 
   const httpsServer = https.createServer({
@@ -117,10 +114,11 @@ async function httpHandler (req, resp) {
   httpsServer.listen(httpsPort, '0.0.0.0');
 })();
 
-export function use(middleware: Middleware) {
-  middlewares.push(middleware)
-}
-
 export default {
-  use
+  beforeProxyReq(handler) {
+    beforeProxyReqHandler = handler
+  },
+  afterProxyResp(handler) {
+    proxy.on('proxyRes', handler)
+  }
 }

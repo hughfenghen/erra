@@ -4,5 +4,9 @@ snippet:
     name: xxx
     content:
       abc: 123
-breakpoint: []
-apiBindSnippet: {}
+breakpoint:
+  - type: response
+    url: 'http://www.mocky.io/v2/5185415ba171ea3a00704eed'
+apiBindSnippet:
+  'http://www.mocky.io/v2/5185415ba171ea3a00704eed': e9668036-e886-44d5-a0a2-cba037845878
+  /v2/5185415ba171ea3a00704eed: e9668036-e886-44d5-a0a2-cba037845878

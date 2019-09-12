@@ -20,7 +20,6 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
-    "@koa/cors": "2",
     "@types/lodash": "^4.14.132",
     "antd": "^3.23.2",
     "brace": "^0.11.1",
@@ -28,8 +27,6 @@
     "events": "^3.0.0",
     "http-proxy": "^1.17.0",
     "js-yaml": "^3.13.1",
-    "koa": "^2.7.0",
-    "koa-router": "^7.4.0",
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
     "mockjs": "^1.0.1-beta3",
@@ -59,7 +56,7 @@
     "eslint-plugin-jest": "^22.5.1",
     "jest": "^24.8.0",
     "less": "^3.10.3",
-    "nodemon": "^1.19.0",
+    "nodemon": "^1.19.2",
     "parcel-bundler": "^1.12.3",
     "postcss-modules": "^1.4.1",
     "ts-node": "^8.1.1",
