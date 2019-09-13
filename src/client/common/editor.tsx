@@ -1,4 +1,5 @@
 import ace from 'brace';
+// import brace 必须在ace之后
 import 'brace/ext/language_tools';
 import 'brace/mode/yaml';
 import 'brace/snippets/yaml';

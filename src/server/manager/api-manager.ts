@@ -52,7 +52,7 @@ ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
   ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, apiSnippetPair)
 })
 
-export function handleReq(req): ApiRecord {
+export function handleReq(req: SimpleReq): ApiRecord {
   // todo: 支持formData, body file
   const { headers, url, method } = req
   const record = {

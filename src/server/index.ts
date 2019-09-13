@@ -1,10 +1,10 @@
 import './socket-server';
-import URL from 'url';
 
 import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
+import URL from 'url';
 
-import { SimpleResp, SimpleReq } from '../lib/interface';
+import { SimpleReq, SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
@@ -34,7 +34,8 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
     resp.writeHead = (code, orignHeaders) => {
       return _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
-    return typeof body === 'string' ? body : JSON.stringify(body || null);
+    
+    return body;
   });
 });
 

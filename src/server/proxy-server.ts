@@ -68,7 +68,6 @@ async function createCert(host) {
 
 async function httpHandler (req, resp) {
   const url = URL.parse(req.url)
-  const ctx = { req, resp, erraFinished: false }
 
   await beforeProxyReqHandler(req, resp)
 
@@ -92,7 +91,7 @@ async function httpHandler (req, resp) {
   }, httpHandler);
 
   const httpServer = http.createServer(httpHandler)
-  httpServer.on('connect', (req, socket, head) => {
+  httpServer.on('connect', (req, socket) => {
     // todo 处理ws、wss协议
     let proxyPort = httpPort;
     // connect请求时 如何判断连到的目标机器是不是https协议？
@@ -101,7 +100,7 @@ async function httpHandler (req, resp) {
     if (targetPort === '443') {
       proxyPort = httpsPort;
     }
-    console.log(555666, httpsPort, req.url); 
+    
     const conn = net.connect(proxyPort, '127.0.0.1', () => {
       socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', () => {
         conn.pipe(socket);
