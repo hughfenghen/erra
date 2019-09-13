@@ -1,24 +1,20 @@
-import { Button, Checkbox, Divider, Icon, List, Tag, Select } from 'antd';
+import { Button, Checkbox, Divider, Icon, List, Select, Tag } from 'antd';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, BreakPoint, SOCKET_MSG_TAG_API, Snippet, SimpleReq, SimpleResp } from '../../lib/interface';
-import HttpContentPanel from './http-content-panel';
-import sc from '../common/socket-client';
+import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import { useSnippets } from '../common/custom-hooks';
+import sc from '../common/socket-client';
+import HttpContentPanel from './http-content-panel';
 
 export default function ApiRecords() {
   const [apiList, setApiList] = useState<ApiRecord[]>([])
-  const [breakpoints, setBreakpoints] = useState<BreakPoint[]>([])
+  const [breakpoints, setBreakpoints] = useState({})
   const snippets = useSnippets()
 
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [debugHttp, setDebugHttp] = useState(false)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
-
-  const enableBP = useCallback((rUrl, rType) => {
-    return breakpoints.some(({ type, key }) => rType === type && rUrl === key)
-  }, [breakpoints])
 
   useEffect(() => {
     // 获取请求列表
@@ -26,7 +22,7 @@ export default function ApiRecords() {
       setApiList(records)
     })
     // 获取断点数据
-    sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps: BreakPoint[]) => {
+    sc.emit(SOCKET_MSG_TAG_API.BP_GET, (bps) => {
       setBreakpoints(bps)
     })
     // 获取请求与snippet关联配置
@@ -38,7 +34,7 @@ export default function ApiRecords() {
       setApiSnippetPair(asp)
     })
     // 监听断点更新
-    sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps: BreakPoint[]) => {
+    sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps) => {
       setBreakpoints(bps)
     })
     // 断点开始，弹出code编辑框，可查看编辑requst、response
@@ -99,10 +95,7 @@ export default function ApiRecords() {
       <span>
         <Icon type="bug" />
         <Checkbox.Group
-          value={
-            Object.values(API_DATA_TYPE)
-              .filter((type) => enableBP(it.parsedUrl.shortHref, type))
-          }
+          value={breakpoints[it.parsedUrl.shortHref]}
           onChange={(vals) => {
             sc.emit(
               SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL, 
@@ -117,7 +110,7 @@ export default function ApiRecords() {
       </span>
       <Divider type="vertical"></Divider>
       <Select
-        value={apiSnippetPair[it.parsedUrl.shortHref]}
+        value={apiSnippetPair[it.parsedUrl.shortHref] || []}
         onChange={(spId) => {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.parsedUrl.shortHref, spId)
         }}

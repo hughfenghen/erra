@@ -69,12 +69,6 @@ export enum API_DATA_TYPE {
   RESPONSE = 'response',
 }
 
-export interface BreakPoint {
-  key: string,
-  type: API_DATA_TYPE,
-}
-
-
 /**
  * 用户编辑的Snippet内容，由parseSnippetContent解析成函数
  * 函数可以按配置策略，加上http请求原值 用来生成数据
