@@ -18,10 +18,10 @@ ss.on(SOCKET_MSG_TAG_API.BP_GET, (cb) => {
 
 ss.on(
   SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL,
-  (url: string, enableTypes: API_DATA_TYPE[]) => {
+  (key: string, enableTypes: API_DATA_TYPE[]) => {
     BPS = pipe(
-      pullAllBy('url', [{ url }]),
-      concat(enableTypes.map((type) => ({ type, url })))
+      pullAllBy('key', [{ key }]),
+      concat(enableTypes.map((type) => ({ type, key })))
     )(BPS)
     
     configManager.emit('update', configManager.key.BREAKPOINT, BPS)
@@ -30,14 +30,14 @@ ss.on(
 )
 
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
-  const { req, uuid } = record
+  const { req, parsedUrl } = record
 
-  if (find({ url: req.url, type: API_DATA_TYPE.REQUEST })(BPS)) {
+  if (find({ key: parsedUrl.shortHref , type: API_DATA_TYPE.REQUEST })(BPS)) {
     // 通知客户端，弹窗编辑框
     ss.broadcast(SOCKET_MSG_TAG_API.BP_START, req)
     // 等待UI界面修改resp
     const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
-    const newRecord = { uuid, req: data }
+    const newRecord = { ...record, req: data }
     // 修改后的数据 同步到客户端
     replaceRecord(newRecord)
     return newRecord;
@@ -47,9 +47,9 @@ export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
 }
 
 export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
-  const { resp } = record
+  const { resp, parsedUrl } = record
   
-  if (find({ url: resp.url, type: API_DATA_TYPE.RESPONSE })(BPS)) {
+  if (find({ key: parsedUrl.shortHref, type: API_DATA_TYPE.RESPONSE })(BPS)) {
     // 通知客户端，弹窗编辑框
     ss.broadcast(SOCKET_MSG_TAG_API.BP_START, resp)
     // 等待UI界面修改resp

@@ -23,7 +23,7 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
       <SimpleResp><unknown>
       Object.assign(
         pick(['statusCode', 'headers',])(proxyRes),
-        { url: req.url, body: originBody }
+        { body: originBody }
       ),
       req as SimpleReq
     );
@@ -40,8 +40,6 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
 });
 
 proxyServer.beforeProxyReq(async (req) => {
-  const url = URL.parse(req.url)
-
   // 不记录map请求
   if (!/\.map$/.test(req.url)) {
     const record = handleReq(req)

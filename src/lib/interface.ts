@@ -1,10 +1,24 @@
+import { IncomingMessage } from "http"
 
 export interface StrObj {
   [x: string]: string,
 }
 
+export interface ParsedUrl {
+  host?: string,
+  pathname?: string,
+  port?: string,
+  protocol?: string,
+  origin?: string,
+  search?: string,
+  hash?: string,
+  // 用来作为关联断点、Snippet的key，由 `${url.origin}${url.pathname}` 组成
+  shortHref?: string,
+  href?: string,
+}
 export interface SimpleReq {
-  [x: string]: any;
+  // 插入一个id到http IncomingMessage对象中，在handleResp中可以通过此id关联到对应的request记录
+  _erra_uuid: string,
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS',
   headers: StrObj,
@@ -12,7 +26,6 @@ export interface SimpleReq {
 }
 
 export interface SimpleResp {
-  url: string,
   statusCode: number,
   headers: Object,
   body?: any,
@@ -20,6 +33,7 @@ export interface SimpleResp {
 
 export interface ApiRecord {
   uuid: string,
+  parsedUrl: ParsedUrl,
   req: SimpleReq,
   resp?: SimpleResp,
 }
@@ -56,7 +70,7 @@ export enum API_DATA_TYPE {
 }
 
 export interface BreakPoint {
-  url: string,
+  key: string,
   type: API_DATA_TYPE,
 }
 

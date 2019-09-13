@@ -17,7 +17,7 @@ export default function ApiRecords() {
   const [apiSnippetPair, setApiSnippetPair] = useState({})
 
   const enableBP = useCallback((rUrl, rType) => {
-    return breakpoints.some(({ type, url }) => rType === type && rUrl === url)
+    return breakpoints.some(({ type, key }) => rType === type && rUrl === key)
   }, [breakpoints])
 
   useEffect(() => {
@@ -94,16 +94,21 @@ export default function ApiRecords() {
     <List dataSource={apiList} renderItem={(it: ApiRecord) => <div>
       <Tag>{it.req.method}</Tag>
       <Divider type="vertical"></Divider>
-      <span>{it.req.url}</span>
+      <span>{it.parsedUrl.shortHref}</span>
       <Divider type="vertical"></Divider>
       <span>
         <Icon type="bug" />
         <Checkbox.Group
-          value={Object.values(API_DATA_TYPE)
-            .filter((type) => enableBP(it.req.url, type))
+          value={
+            Object.values(API_DATA_TYPE)
+              .filter((type) => enableBP(it.parsedUrl.shortHref, type))
           }
           onChange={(vals) => {
-            sc.emit(SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL, it.req.url, vals)
+            sc.emit(
+              SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL, 
+              it.parsedUrl.shortHref, 
+              vals
+            )
           }}
         >
           {Object.values(API_DATA_TYPE).map((val) =>
@@ -112,9 +117,9 @@ export default function ApiRecords() {
       </span>
       <Divider type="vertical"></Divider>
       <Select
-        value={apiSnippetPair[it.req.url]}
+        value={apiSnippetPair[it.parsedUrl.shortHref]}
         onChange={(spId) => {
-          sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.req.url, spId)
+          sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.parsedUrl.shortHref, spId)
         }}
         style={{ width: '200px' }}
         allowClear

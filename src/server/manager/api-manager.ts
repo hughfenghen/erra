@@ -5,6 +5,7 @@ import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/
 import ss from '../socket-server';
 import configManager from './config-manager';
 import { getSnippetFn } from './snippet-manager';
+import { parseUrl4Req } from '../../lib/utils';
 
 
 function noticeApiUpdate(tag: string, content = {}) {
@@ -23,10 +24,11 @@ configManager.on('afterConfigInit', () => {
 
 ss.on(SOCKET_MSG_TAG_API.API_GET_HISTORY, (cb) => {
   // 默认不传递body、headers，避免页面卡顿
-  cb(apiRecords.map(({ uuid, req, resp }) => ({
+  cb(apiRecords.map(({ uuid, parsedUrl, req, resp }) => ({
     uuid,
     req: omit(['body', 'headers'], req),
     resp: omit(['body', 'headers'], resp),
+    parsedUrl,
   })))
 })
 
@@ -52,30 +54,46 @@ ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
   ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, apiSnippetPair)
 })
 
+/**
+ * 生成一条api请求记录
+ * @param req SimpleReq
+ */
 export function handleReq(req: SimpleReq): ApiRecord {
   // todo: 支持formData, body file
   const { headers, url, method } = req
+  const uuid = genUUID()
   const record = {
-    uuid: genUUID(),
-    req: { headers, url, method },
+    uuid,
+    req: { 
+      headers, 
+      url, 
+      method,
+      _erra_uuid: uuid,
+    },
+    parsedUrl: parseUrl4Req(req),
   }
-  req._erra_uuid = record.uuid
+
   apiRecords.push(record)
   noticeApiUpdate(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
 
   return record
 }
 
+/**
+ * 关联Resp与req，产生一条完整的ApiRecord
+ * @param resp SimpleResp
+ * @param req SimpleReq
+ */
 export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
-  const snippetId = apiSnippetPair[req.url]
-  const rs = snippetId ? getSnippetFn(snippetId)(resp) : resp
-
   const record = <ApiRecord>find({ uuid: req._erra_uuid }, apiRecords)
-
   if (record == null) {
     console.warn(`【handleResp】找不到匹配的request，url: ${req.url}`);
     return null
   }
+
+  const snippetId = apiSnippetPair[record.parsedUrl.shortHref]
+  
+  const rs = snippetId ? getSnippetFn(snippetId)(resp) : resp
 
   record.resp = rs
   replaceRecord(record)
