@@ -4,6 +4,7 @@ import 'brace/ext/language_tools';
 import 'brace/mode/yaml';
 import 'brace/snippets/yaml';
 import 'brace/theme/github';
+import s from '../style.less';
 
 import { noop } from 'lodash/fp';
 import React, { useEffect, useRef } from 'react';
@@ -29,8 +30,10 @@ export default function Editor({
   width = '100%',
   height = '100vh',
   onChange = noop,
+  onClose = noop,
   language,
   readOnly = false,
+  children,
 }) {
   const snippets = useSnippets()
   const snippetListRef = useRef(null)
@@ -43,6 +46,20 @@ export default function Editor({
       score: 100,
     }))
   }, [snippets])
+
+  useEffect(() => {
+    function onPressESC(evt) {
+      if (evt.key === 'Escape') {
+        onClose()
+        evt.preventDefault()
+      }
+    }
+    document.addEventListener('keydown', onPressESC)
+
+    return () => {
+      document.removeEventListener('keydown', onPressESC)
+    }
+  }, [onClose])
 
   useEffect(() => {
     langTools.addCompleter({
@@ -67,7 +84,10 @@ export default function Editor({
     })
   }, [])
 
-  return <div>
+  return <div className={s.editorContainer}>
+    <div className={s.editorOpBar}>
+      {children}
+    </div>
     <div id="ace-el"></div>
     <AceEditor
       mode="yaml"

@@ -1,11 +1,13 @@
-import { Button, Checkbox, Divider, Icon, List, Select, Tag } from 'antd';
+import { Button, Checkbox, Divider, Icon, List, Popover, Select, Tag } from 'antd';
+import yaml from 'js-yaml';
 import { isEmpty } from 'lodash/fp';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
-import { useSnippets } from '../common/custom-hooks';
-import sc from '../common/socket-client';
-import HttpContentPanel from './http-content-panel';
+import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../lib/interface';
+import { useSnippets } from './common/custom-hooks';
+import Editor from './common/editor';
+import sc from './common/socket-client';
+import s from './style.less';
 
 export default function ApiRecords() {
   const [apiList, setApiList] = useState<ApiRecord[]>([])
@@ -15,7 +17,9 @@ export default function ApiRecords() {
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [debugHttp, setDebugHttp] = useState(false)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
+  const [code, setCode] = useState('')
 
+  // 页面数据交互
   useEffect(() => {
     // 获取请求列表
     sc.emit(SOCKET_MSG_TAG_API.API_GET_HISTORY, (records: ApiRecord[]) => {
@@ -57,6 +61,7 @@ export default function ApiRecords() {
     function onNewRecord(record: ApiRecord) {
       setApiList(apiList.concat(record))
     }
+    // apiList改变后 需要清空已有的监听器
     sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
     sc.on(SOCKET_MSG_TAG_API.API_NEW_RECORD, onNewRecord)
 
@@ -86,28 +91,68 @@ export default function ApiRecords() {
     })
   }, [apiList])
 
-  return <section>
-    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div>
-      <Tag>{it.req.method}</Tag>
+  // 将当前激活对象映射成code 展示到editor中
+  useEffect(() => {
+    if (isEmpty(httpDetail)) {
+      setCode('')
+      return
+    }
+
+    if (
+      /application\/json/.test(httpDetail.headers['content-type'])
+      && typeof httpDetail.body === 'string'
+    ) {
+      setCode(yaml.safeDump({
+        ...httpDetail,
+        // 解析成json对象，yaml语法阅读优化
+        body: JSON.parse(httpDetail.body)
+      }))
+      return
+    }
+    setCode(yaml.safeDump(httpDetail))
+  }, [httpDetail])
+
+  const debugColor = useCallback((bpTypes = []) => {
+    if (bpTypes.length === 2) return '#b37feb'
+    if (bpTypes.includes(API_DATA_TYPE.REQUEST)) return '#85a5ff'
+    if (bpTypes.includes(API_DATA_TYPE.RESPONSE)) return '#ff85c0'
+  }, [])
+
+  return <section className={s.apiRecord}>
+    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div className={s.listItem}>
+      <div>
+        <Popover content={
+          <Checkbox.Group
+            value={breakpoints[it.parsedUrl.shortHref]}
+            onChange={(vals) => {
+              sc.emit(
+                SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL,
+                it.parsedUrl.shortHref,
+                vals
+              )
+            }}
+          >
+            {Object.values(API_DATA_TYPE).map((val) =>
+              <Checkbox value={val} key={val}>{val}</Checkbox>)}
+          </Checkbox.Group>
+        }>
+          <Icon
+            style={{
+              color: debugColor(breakpoints[it.parsedUrl.shortHref])
+            }}
+            type="bug" 
+          />
+        </Popover>
+      </div>
       <Divider type="vertical"></Divider>
-      <span>{it.parsedUrl.shortHref}</span>
+      <div>
+        <Tag>{it.req.method}</Tag>
+      </div>
       <Divider type="vertical"></Divider>
-      <span>
-        <Icon type="bug" />
-        <Checkbox.Group
-          value={breakpoints[it.parsedUrl.shortHref]}
-          onChange={(vals) => {
-            sc.emit(
-              SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL, 
-              it.parsedUrl.shortHref, 
-              vals
-            )
-          }}
-        >
-          {Object.values(API_DATA_TYPE).map((val) =>
-            <Checkbox value={val} key={val}>{val}</Checkbox>)}
-        </Checkbox.Group>
-      </span>
+      <div>
+        <div>{it.parsedUrl.pathname}</div>
+        <div>{it.parsedUrl.origin}</div>
+      </div>
       <Divider type="vertical"></Divider>
       <Select
         value={apiSnippetPair[it.parsedUrl.shortHref] || []}
@@ -132,13 +177,20 @@ export default function ApiRecords() {
         }} disabled={isEmpty(it.resp)}>Response</Button>
       </span>
     </div>}></List>
-    <HttpContentPanel
-      content={httpDetail}
-      debug={debugHttp}
-      onDone={(httpContent) => {
-        setDebugHttp(false)
-        sc.emit(SOCKET_MSG_TAG_API.BP_DONE, httpContent)
+    {!!code && <Editor
+      value={code}
+      onChange={(val) => { setCode(val) }}
+      language="yaml"
+      readOnly={!debugHttp}
+      onClose={() => {
+        if (debugHttp) return
+        setHttpDetail(null)
       }}
-    ></HttpContentPanel>
+    >
+      {debugHttp && <Button onClick={() => {
+        setDebugHttp(false)
+        sc.emit(SOCKET_MSG_TAG_API.BP_DONE, yaml.safeLoad(code))
+      }}>完成</Button>}
+    </Editor>}
   </section>
 }
