@@ -3,7 +3,7 @@ import yaml from 'js-yaml';
 import { isEmpty } from 'lodash/fp';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../lib/interface';
+import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API, BPMsg } from '../lib/interface';
 import { useSnippets } from './common/custom-hooks';
 import Editor from './common/editor';
 import sc from './common/socket-client';
@@ -14,8 +14,8 @@ export default function ApiRecords() {
   const [breakpoints, setBreakpoints] = useState({})
   const snippets = useSnippets()
 
+  const [bpMsg, setBPMsg] = useState<BPMsg>({} as BPMsg)
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
-  const [debugRecordId, setDebugRecordId] = useState<string>(null)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
   const [code, setCode] = useState('')
 
@@ -42,9 +42,9 @@ export default function ApiRecords() {
       setBreakpoints(bps)
     })
     // 断点开始，弹出code编辑框，可查看编辑requst、response
-    sc.on(SOCKET_MSG_TAG_API.BP_START, (uuid, bpHttpDetail) => {
-      setDebugRecordId(uuid)
-      setHttpDetail(bpHttpDetail)
+    sc.on(SOCKET_MSG_TAG_API.BP_START, (bpMsg) => {
+      setHttpDetail(bpMsg.httpDetail)
+      setBPMsg(bpMsg)
     })
     // 更新、重置请求列表
     sc.on(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, (records) => {
@@ -137,7 +137,7 @@ export default function ApiRecords() {
       }>
         <div className={[
           s.debugWrap,
-          debugRecordId === it.uuid ? s.debugging : '',
+          bpMsg.uuid === it.uuid ? s.debugging : '',
         ].join(' ')}>
           <Icon
             style={{ 
@@ -149,13 +149,13 @@ export default function ApiRecords() {
       </Popover>
       <Divider type="vertical"></Divider>
       <span>
-        <Button size="small" disabled={!!debugRecordId} onClick={() => {
+        <Button size="small" disabled={!!bpMsg.uuid} onClick={() => {
           onViewDetail(it, 'req')
         }}>show req</Button>
         <br />
         <Button size="small" onClick={() => {
           onViewDetail(it, 'resp')
-        }} disabled={!!debugRecordId || isEmpty(it.resp)}>show resp</Button>
+        }} disabled={!!bpMsg.uuid || isEmpty(it.resp)}>show resp</Button>
       </span>
       <Divider type="vertical"></Divider>
       <div>
@@ -186,16 +186,16 @@ export default function ApiRecords() {
       value={code}
       onChange={(val) => { setCode(val) }}
       language="yaml"
-      readOnly={!debugRecordId}
+      readOnly={!bpMsg.uuid}
       onClose={() => {
         // debug中禁用ESC关闭快捷键
-        if (!!debugRecordId) return
+        if (!!bpMsg.uuid) return
         setHttpDetail(null)
       }}
     >
-      {debugRecordId && <Button onClick={() => {
-        setDebugRecordId(null)
-        sc.emit(SOCKET_MSG_TAG_API.BP_DONE, yaml.safeLoad(code))
+      {bpMsg.uuid && <Button onClick={() => {
+        sc.emit(SOCKET_MSG_TAG_API.BP_DONE + bpMsg.uuid + bpMsg.bpType, yaml.safeLoad(code))
+        setBPMsg({} as BPMsg)
       }}>完成</Button>}
     </Editor>}
   </section>

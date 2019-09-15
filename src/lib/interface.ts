@@ -16,11 +16,13 @@ export interface ParsedUrl {
   shortHref?: string,
   href?: string,
 }
+
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS' | 'PATCH'
 export interface SimpleReq {
   // 插入一个id到http IncomingMessage对象中，在handleResp中可以通过此id关联到对应的request记录
   _erra_uuid: string,
   url: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS',
+  method: HttpMethod,
   headers: StrObj,
   body?: any,
 }
@@ -80,4 +82,11 @@ export interface Snippet {
   name: string,
   content: SnippetContent,
   correlationApi?: RegExp,
+}
+
+export interface BPMsg {
+  uuid: string,
+  bpKey: string,
+  bpType: API_DATA_TYPE,
+  httpDetail: SimpleReq | SimpleResp,
 }
