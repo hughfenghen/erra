@@ -1,8 +1,4 @@
 snippet:
-  90adceef-1e67-4735-a926-632a80da8dac:
-    id: 90adceef-1e67-4735-a926-632a80da8dac
-    name: xxx
-    content: ''
   88f3d643-ca05-4dc0-a338-964390a39ce3:
     id: 88f3d643-ca05-4dc0-a338-964390a39ce3
     name: abc
@@ -10,6 +6,5 @@ snippet:
       body: abc
 breakpoint:
   'https://www.mocky.io/v2/5185415ba171ea3a00704eed':
-    - response
     - request
 apiBindSnippet: {}

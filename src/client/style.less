@@ -1,5 +1,6 @@
 .app {
   :global {
+
     // 不知道为什么 tab title的元素的高度100%，需要覆盖掉才能正常显示
     .ant-tabs-nav .ant-tabs-tab {
       height: auto;
@@ -15,12 +16,34 @@
   height: 100vh;
   width: 50%;
   min-width: 500px;
+
+  .editorOpBar {
+    background-color: #fff;
+  }
 }
 
 .apiRecord {
+  .debugWrap {
+    height: 50px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .debugging {
+    background-color: #faad14;
+  }
+}
+
+.apiRecord,
+.snippetList {
   .listItem {
     display: flex;
-    margin-left: 10px;
+    padding: 4px 10px;
+    align-items: center;
+    border-bottom: 1px solid #eee;
   }
 }
 

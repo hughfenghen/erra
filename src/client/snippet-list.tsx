@@ -7,6 +7,7 @@ import { useSnippets } from './common/custom-hooks';
 import Editor from './common/editor';
 import sc from './common/socket-client';
 import s from './style.less';
+import { omit } from 'lodash/fp';
 
 const snippetObjTpl = {
   name: '',
@@ -19,7 +20,8 @@ export default function Snippets() {
   const [code, setCode] = useState('')
 
   useEffect(() => {
-    setCode(activeSnippet ? yaml.safeDump(activeSnippet) : '')
+    // id不可编辑
+    setCode(activeSnippet ? yaml.safeDump(omit('id', activeSnippet)) : '')
   }, [activeSnippet])
 
   return <section className={s.snippetList}>

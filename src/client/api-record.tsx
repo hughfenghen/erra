@@ -15,7 +15,7 @@ export default function ApiRecords() {
   const snippets = useSnippets()
 
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
-  const [debugHttp, setDebugHttp] = useState(false)
+  const [debugRecordId, setDebugRecordId] = useState<string>(null)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
   const [code, setCode] = useState('')
 
@@ -42,9 +42,9 @@ export default function ApiRecords() {
       setBreakpoints(bps)
     })
     // 断点开始，弹出code编辑框，可查看编辑requst、response
-    sc.on(SOCKET_MSG_TAG_API.BP_START, (resp) => {
-      setDebugHttp(true)
-      setHttpDetail(resp)
+    sc.on(SOCKET_MSG_TAG_API.BP_START, (uuid, bpHttpDetail) => {
+      setDebugRecordId(uuid)
+      setHttpDetail(bpHttpDetail)
     })
     // 更新、重置请求列表
     sc.on(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, (records) => {
@@ -120,30 +120,43 @@ export default function ApiRecords() {
 
   return <section className={s.apiRecord}>
     <List dataSource={apiList} renderItem={(it: ApiRecord) => <div className={s.listItem}>
-      <div>
-        <Popover content={
-          <Checkbox.Group
-            value={breakpoints[it.parsedUrl.shortHref]}
-            onChange={(vals) => {
-              sc.emit(
-                SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL,
-                it.parsedUrl.shortHref,
-                vals
-              )
-            }}
-          >
-            {Object.values(API_DATA_TYPE).map((val) =>
-              <Checkbox value={val} key={val}>{val}</Checkbox>)}
-          </Checkbox.Group>
-        }>
+      <Popover title="断点时机" placement="right" content={
+        <Checkbox.Group
+          value={breakpoints[it.parsedUrl.shortHref]}
+          onChange={(vals) => {
+            sc.emit(
+              SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL,
+              it.parsedUrl.shortHref,
+              vals
+            )
+          }}
+        >
+          {Object.values(API_DATA_TYPE).map((val) =>
+            <Checkbox value={val} key={val}>{val}</Checkbox>)}
+        </Checkbox.Group>
+      }>
+        <div className={[
+          s.debugWrap,
+          debugRecordId === it.uuid ? s.debugging : '',
+        ].join(' ')}>
           <Icon
-            style={{
-              color: debugColor(breakpoints[it.parsedUrl.shortHref])
+            style={{ 
+              color: debugColor(breakpoints[it.parsedUrl.shortHref]), 
             }}
-            type="bug" 
+            type="bug"
           />
-        </Popover>
-      </div>
+        </div>
+      </Popover>
+      <Divider type="vertical"></Divider>
+      <span>
+        <Button size="small" disabled={!!debugRecordId} onClick={() => {
+          onViewDetail(it, 'req')
+        }}>show req</Button>
+        <br />
+        <Button size="small" onClick={() => {
+          onViewDetail(it, 'resp')
+        }} disabled={!!debugRecordId || isEmpty(it.resp)}>show resp</Button>
+      </span>
       <Divider type="vertical"></Divider>
       <div>
         <Tag>{it.req.method}</Tag>
@@ -160,6 +173,7 @@ export default function ApiRecords() {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.parsedUrl.shortHref, spId)
         }}
         style={{ width: '200px' }}
+        placeholder="选择Snippet可篡改Resp"
         allowClear
       >
         {snippets.map((it) => <Select.Option
@@ -167,28 +181,20 @@ export default function ApiRecords() {
           key={it.id}
         >{it.name}</Select.Option>)}
       </Select>
-      <Divider type="vertical"></Divider>
-      <span>
-        <Button onClick={() => {
-          onViewDetail(it, 'req')
-        }}>Request</Button>
-        <Button onClick={() => {
-          onViewDetail(it, 'resp')
-        }} disabled={isEmpty(it.resp)}>Response</Button>
-      </span>
     </div>}></List>
     {!!code && <Editor
       value={code}
       onChange={(val) => { setCode(val) }}
       language="yaml"
-      readOnly={!debugHttp}
+      readOnly={!debugRecordId}
       onClose={() => {
-        if (debugHttp) return
+        // debug中禁用ESC关闭快捷键
+        if (!!debugRecordId) return
         setHttpDetail(null)
       }}
     >
-      {debugHttp && <Button onClick={() => {
-        setDebugHttp(false)
+      {debugRecordId && <Button onClick={() => {
+        setDebugRecordId(null)
         sc.emit(SOCKET_MSG_TAG_API.BP_DONE, yaml.safeLoad(code))
       }}>完成</Button>}
     </Editor>}

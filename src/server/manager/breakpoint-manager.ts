@@ -33,11 +33,11 @@ ss.on(
 )
 
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
-  const { req, parsedUrl } = record
+  const { req, parsedUrl, uuid } = record
 
   if ((BPS[parsedUrl.shortHref] || []).includes(API_DATA_TYPE.REQUEST)) {
     // 通知客户端，弹窗编辑框
-    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, req)
+    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, uuid, req)
     // 等待UI界面修改resp
     const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
     const newRecord = { ...record, req: data }
@@ -50,11 +50,11 @@ export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
 }
 
 export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
-  const { resp, parsedUrl } = record
+  const { resp, parsedUrl, uuid } = record
 
   if ((BPS[parsedUrl.shortHref] || []).includes(API_DATA_TYPE.RESPONSE)) {
     // 通知客户端，弹窗编辑框
-    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, resp)
+    ss.broadcast(SOCKET_MSG_TAG_API.BP_START, uuid, resp)
     // 等待UI界面修改resp
     const data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE)
     const newRecord = Object.assign(

@@ -92,8 +92,11 @@ export default function Editor({
     <AceEditor
       mode="yaml"
       theme="github"
-      value={value}
-      onChange={onChange}
+      value={`#非断点模式时，按ESC可关闭编辑器\n${value}`}
+      onChange={(code) => {
+        // 替换第一行的注释
+        onChange(code.replace(/.*?\n/, ''))
+      }}
       name="ace-el"
       editorProps={{ $blockScrolling: true }}
       width={width}
