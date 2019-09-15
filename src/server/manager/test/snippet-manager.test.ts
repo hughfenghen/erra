@@ -41,7 +41,7 @@ const bodyTpl = {
   }
 }
 
-test('parse 返回一个函数', () => {
+test('parseSnippetContent 返回一个函数', () => {
   expect(parseSnippetContent({})).toBeInstanceOf(Function);
 })
 
@@ -85,10 +85,16 @@ test('mockjs生成数组', () => {
 test('解析snippet引用', () => {
   const snippets = yaml.load(`
     snippetIdaaa:
-      $mockjs book|10:
-        - item
-      $snippet code: snippetIdCode200
-    snippetIdCode200: 200
+      id: snippetIdaaa
+      name: aaa
+      content:
+        $mockjs book|10:
+          - item
+        $snippet code: snippetIdCode200
+    snippetIdCode200:
+      id: snippetIdCode200
+      name: aaa
+      content: 200
   `)
 
   configManager.get = jest.fn(() => snippets)

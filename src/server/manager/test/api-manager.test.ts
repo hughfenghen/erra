@@ -16,7 +16,7 @@ let respTpl: SimpleResp
 beforeEach(() => {
   reqTpl = {
     _erra_uuid: genUUID(),
-    url: 'url',
+    url: 'http://erra.io/test',
     method: 'GET',
     headers: {},
   }
@@ -24,7 +24,6 @@ beforeEach(() => {
   respTpl = {
     statusCode: 200,
     headers: {},
-    url: 'url',
   }
   clearApiHistory()
 })
@@ -41,12 +40,11 @@ test('没有匹配到snippet时, 返回原值', () => {
 })
 
 test('snippet修改statusCode', () => {
-  bindApiSnippet('/.*/', 'snippetId')
-
-  const spyGetSnippet = jest.spyOn(snippetManager, 'getSnippet')
+  const spyGetSnippet = jest.spyOn(snippetManager, 'getSnippetFn')
   spyGetSnippet.mockImplementation(() => (s) => Object.assign(s, { statusCode: 500 }))
-  bindApiSnippet(respTpl.url, '111')
+  bindApiSnippet(reqTpl.url, 'mock_snippetid')
 
+  // 给req打一个_erra_uuid标记，在handleResp中可以匹配上
   handleReq(reqTpl)
   expect(handleResp(respTpl, reqTpl).resp.statusCode).toBe(500)
 })

@@ -79,7 +79,7 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
       const source = configManager.get(configManager.key.SNIPPET)[sId]
       if (!source) throw new Error(`[snippet解析错误]找不到依赖的snippet：${value}`)
 
-      const ps = parse(source)
+      const ps = parseSnippetContent(source.content)
       snippetsFn[sId] = ps
       return ps
   }
