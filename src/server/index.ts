@@ -2,7 +2,6 @@ import './socket-server';
 
 import { pick } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
-import URL from 'url';
 
 import { SimpleReq, SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
@@ -14,10 +13,13 @@ import proxyServer from './proxy-server';
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 proxyServer.afterProxyResp((proxyRes, req, resp) => {
+  // 不处理map请求
+  if (/\.map$/.test(req.url)) return
+
   const _writeHead = resp.writeHead;
 
-  // resp 是原始的response，statusCode：404，没有headers、body
-  // proxyRes是代理服务强请求的response，是目标服务器返回的内容
+  // resp 是浏览器跟Erra的链接
+  // proxyRes 是Erra跟远程服务器的连接
   modifyResponse(resp, proxyRes, async function (originBody) {
     const record = handleResp(
       <SimpleResp><unknown>
@@ -35,7 +37,7 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
       return _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
     };
     
-    return body;
+    return typeof body === 'string' ? body : JSON.stringify(body || null);
   });
 });
 
