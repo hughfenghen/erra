@@ -1,6 +1,6 @@
 import { Button, Checkbox, Divider, Icon, List, Popover, Select, Tag } from 'antd';
 import yaml from 'js-yaml';
-import { isEmpty } from 'lodash/fp';
+import { isEmpty, includes, props, pipe } from 'lodash/fp';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API, BPMsg } from '../lib/interface';
@@ -114,7 +114,14 @@ export default function ApiRecords() {
   }, [])
 
   return <section className={s.apiRecord}>
-    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div className={s.listItem}>
+    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div 
+      className={s.listItem}
+      // 高亮选中项背景色
+      style={{ backgroundColor: pipe(
+        props(['req', 'resp']),
+        includes(httpDetail)
+      )(it) ? '#eee' : undefined }}
+    >
       <Popover title="断点时机" placement="right" content={
         <Checkbox.Group
           value={breakpoints[it.parsedUrl.shortHref]}
