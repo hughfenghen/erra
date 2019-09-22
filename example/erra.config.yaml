@@ -4,8 +4,14 @@ snippet:
     name: abc
     content:
       body: abc
-breakpoint:
-  'https://www.mocky.io/v2/5185415ba171ea3a00704eed':
-    - response
-    - request
-apiBindSnippet: {}
+  d0a5315e-494f-4760-8859-be42d3e26e8c:
+    id: d0a5315e-494f-4760-8859-be42d3e26e8c
+    name: false-ifUserInMeeting
+    content:
+      body:
+        data: false
+        code: 200
+        message: success
+breakpoint: {}
+apiBindSnippet:
+  'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c

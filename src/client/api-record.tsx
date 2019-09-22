@@ -46,35 +46,30 @@ export default function ApiRecords() {
       setHttpDetail(bpMsg.httpDetail)
       setBPMsg(bpMsg)
     })
-    // 更新、重置请求列表
+    // 更新、重置请求列表，清空列表记录
     sc.on(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, (records) => {
       setApiList(records)
     })
-
-    return () => {
-      sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
-      sc.off(SOCKET_MSG_TAG_API.BP_START)
-    }
-  }, [])
-
-  useEffect(() => {
-    function onNewRecord(record: ApiRecord) {
-      setApiList(apiList.concat(record))
-    }
-    // apiList改变后 需要清空已有的监听器
-    sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
-    sc.on(SOCKET_MSG_TAG_API.API_NEW_RECORD, onNewRecord)
-
-    function onReplaceRecord(record: ApiRecord) {
-      setApiList(apiList.map((r) => r.uuid === record.uuid ? record : r))
-    }
-    sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
-    sc.on(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, onReplaceRecord)
+    // 新的代理纪录
+    sc.on(SOCKET_MSG_TAG_API.API_NEW_RECORD, (record: ApiRecord) => {
+      setApiList(list => list.concat(record))
+    })
+    // 替换已有记录的内容（通常是resp更新）
+    sc.on(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, (record: ApiRecord) => {
+      setApiList(
+        list => list.map((r) => r.uuid === record.uuid ? record : r)
+      )
+    })
+   
     return () => {
       sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
       sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
+      sc.off(SOCKET_MSG_TAG_API.API_UPDATE_RECORD)
+      sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
+      sc.off(SOCKET_MSG_TAG_API.BP_START)
+      sc.off(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION)
     }
-  }, [apiList])
+  }, [])
 
   // 为节省性能，初始化时获取的列表不包含详情
   // 查看详情时实时获取
