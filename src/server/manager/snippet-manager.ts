@@ -149,9 +149,9 @@ export function parseSnippetContent(snippet: SnippetContent): (data: any) => any
   return (data): any => {
     if (isFunction(snippeter)) return snippeter(data)
     if (isPlainObject(data) && isPlainObject(snippeter)) {
-      const rs = mergeWith((objValue, srcValue) => {
-        if (isFunction(srcValue)) {
-          return srcValue(objValue)
+      const rs = mergeWith((subOriginVal, subSnippetVal) => {
+        if (isFunction(subSnippetVal)) {
+          return subSnippetVal(subOriginVal)
         }
         return undefined
       }, data, snippeter)

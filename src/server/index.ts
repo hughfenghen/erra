@@ -8,6 +8,7 @@ import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 import proxyServer from './proxy-server';
+import { safeJSONParse } from '../lib/utils';
 
 // 初始化配置
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
@@ -25,7 +26,7 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
       <SimpleResp><unknown>
       Object.assign(
         pick(['statusCode', 'headers',])(proxyRes),
-        { body: originBody }
+        { body: safeJSONParse(originBody) }
       ),
       req as SimpleReq
     );

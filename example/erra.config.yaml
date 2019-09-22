@@ -10,8 +10,6 @@ snippet:
     content:
       body:
         data: false
-        code: 200
-        message: success
 breakpoint: {}
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c

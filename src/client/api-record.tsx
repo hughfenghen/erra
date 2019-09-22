@@ -8,6 +8,7 @@ import { useSnippets } from './common/custom-hooks';
 import Editor from './common/editor';
 import sc from './common/socket-client';
 import s from './style.less';
+import { safeJSONParse } from '../lib/utils';
 
 export default function ApiRecords() {
   const [apiList, setApiList] = useState<ApiRecord[]>([])
@@ -60,7 +61,7 @@ export default function ApiRecords() {
         list => list.map((r) => r.uuid === record.uuid ? record : r)
       )
     })
-   
+
     return () => {
       sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
       sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
@@ -93,18 +94,11 @@ export default function ApiRecords() {
       return
     }
 
-    if (
-      /application\/json/.test(httpDetail.headers['content-type'])
-      && typeof httpDetail.body === 'string'
-    ) {
-      setCode(yaml.safeDump({
-        ...httpDetail,
-        // 解析成json对象，yaml语法阅读优化
-        body: JSON.parse(httpDetail.body)
-      }))
-      return
-    }
-    setCode(yaml.safeDump(httpDetail))
+    setCode(yaml.safeDump({
+      ...httpDetail,
+      // 解析成json对象，yaml语法阅读优化
+      ...(httpDetail.body ? { body: safeJSONParse(httpDetail.body) } : {}),
+    }))
   }, [httpDetail])
 
   const debugColor = useCallback((bpTypes = []) => {
@@ -114,13 +108,15 @@ export default function ApiRecords() {
   }, [])
 
   return <section className={s.apiRecord}>
-    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div 
+    <List dataSource={apiList} renderItem={(it: ApiRecord) => <div
       className={s.listItem}
       // 高亮选中项背景色
-      style={{ backgroundColor: pipe(
-        props(['req', 'resp']),
-        includes(httpDetail)
-      )(it) ? '#eee' : undefined }}
+      style={{
+        backgroundColor: pipe(
+          props(['req', 'resp']),
+          includes(httpDetail)
+        )(it) ? '#eee' : undefined
+      }}
     >
       <Popover title="断点时机" placement="right" content={
         <Checkbox.Group
@@ -142,8 +138,8 @@ export default function ApiRecords() {
           bpMsg.uuid === it.uuid ? s.debugging : '',
         ].join(' ')}>
           <Icon
-            style={{ 
-              color: debugColor(breakpoints[it.parsedUrl.shortHref]), 
+            style={{
+              color: debugColor(breakpoints[it.parsedUrl.shortHref]),
             }}
             type="bug"
           />

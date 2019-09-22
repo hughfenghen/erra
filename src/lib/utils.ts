@@ -1,5 +1,6 @@
 import URL from 'url';
 import { SimpleReq, ParsedUrl } from './interface';
+import { isString } from 'lodash/fp';
 
 export function sleep(millisecond) {
   return new Promise((resolve) => {
@@ -29,4 +30,16 @@ export function parseUrl4Req(req: SimpleReq) {
   url.href = `${url.shortHref}${url.search || ''}${url.hash || ''}`
 
   return url
+}
+
+/**
+ * 尝试将任意对象解析为JSON对象，如果解析失败则返回原对象，不会抛出错误
+ */
+export function safeJSONParse(val) {
+  if (!isString(val)) return val
+  try {
+    return JSON.parse(val)
+  } catch (e) {
+    return val
+  }
 }
