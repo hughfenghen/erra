@@ -10,8 +10,13 @@ import s from './style.less';
 import { omit } from 'lodash/fp';
 
 const snippetObjTpl = {
+  __all_comment__: '只有name、content两个字段有效，不必输入或编辑其他内容',
+  __name_comment__: '必填项',
   name: '',
-  content: '',
+  __content_comment__: `1.必填项；
+2.content下的内容将被解析为Snippet，与原值"合并"生成数据；
+3.如果作为顶级Snippet（直接与请求绑定），content下只有"statusCode、headers、body"三个字段会对Response产生作用`,
+  content: {},
 }
 
 export default function Snippets() {
