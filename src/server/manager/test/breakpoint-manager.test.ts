@@ -13,7 +13,7 @@ jest.mock('uuid');
 function createRecord(url) {
   const uuid = genUUID()
   const req: SimpleReq = {
-    _erra_uuid: uuid,
+    __erra_uuid__: uuid,
     url,
     headers: {},
     method: 'POST',

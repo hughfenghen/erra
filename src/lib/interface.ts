@@ -20,7 +20,7 @@ export interface ParsedUrl {
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS' | 'PATCH'
 export interface SimpleReq {
   // 插入一个id到http IncomingMessage对象中，在handleResp中可以通过此id关联到对应的request记录
-  _erra_uuid: string,
+  __erra_uuid__: string,
   url: string,
   method: HttpMethod,
   headers: StrObj,

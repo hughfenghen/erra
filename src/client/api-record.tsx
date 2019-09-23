@@ -1,6 +1,6 @@
 import { Button, Checkbox, Divider, Icon, List, Popover, Select, Tag } from 'antd';
 import yaml from 'js-yaml';
-import { isEmpty, includes, props, pipe } from 'lodash/fp';
+import { isEmpty, includes, props, pipe, omit } from 'lodash/fp';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API, BPMsg } from '../lib/interface';
@@ -95,7 +95,8 @@ export default function ApiRecords() {
     }
 
     setCode(yaml.safeDump({
-      ...httpDetail,
+      // 隐藏__erra_uuid__字段
+      ...omit('__erra_uuid__', httpDetail),
       // 解析成json对象，yaml语法阅读优化
       ...(httpDetail.body ? { body: safeJSONParse(httpDetail.body) } : {}),
     }))

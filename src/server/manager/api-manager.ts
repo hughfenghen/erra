@@ -68,7 +68,7 @@ export function handleReq(req: SimpleReq): ApiRecord {
       headers, 
       url, 
       method,
-      _erra_uuid: uuid,
+      __erra_uuid__: uuid,
     },
     parsedUrl: parseUrl4Req(req),
   }
@@ -85,7 +85,7 @@ export function handleReq(req: SimpleReq): ApiRecord {
  * @param req SimpleReq
  */
 export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
-  const record = <ApiRecord>find({ uuid: req._erra_uuid }, apiRecords)
+  const record = <ApiRecord>find({ uuid: req.__erra_uuid__ }, apiRecords)
   if (record == null) {
     console.warn(`【handleResp】找不到匹配的request，url: ${req.url}`);
     return null

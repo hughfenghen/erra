@@ -15,7 +15,7 @@ let respTpl: SimpleResp
 
 beforeEach(() => {
   reqTpl = {
-    _erra_uuid: genUUID(),
+    __erra_uuid__: genUUID(),
     url: 'http://erra.io/test',
     method: 'GET',
     headers: {},
@@ -44,7 +44,7 @@ test('snippet修改statusCode', () => {
   spyGetSnippet.mockImplementation(() => (s) => Object.assign(s, { statusCode: 500 }))
   bindApiSnippet(reqTpl.url, 'mock_snippetid')
 
-  // 给req打一个_erra_uuid标记，在handleResp中可以匹配上
+  // 给req打一个__erra_uuid__标记，在handleResp中可以匹配上
   handleReq(reqTpl)
   expect(handleResp(respTpl, reqTpl).resp.statusCode).toBe(500)
 })
