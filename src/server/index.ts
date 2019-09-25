@@ -1,6 +1,6 @@
 import './socket-server';
 
-import { pick } from 'lodash/fp';
+import { pick, isString } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
 
 import { SimpleReq, SimpleResp } from '../lib/interface';
@@ -22,6 +22,10 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
   // resp 是浏览器跟Erra的链接
   // proxyRes 是Erra跟远程服务器的连接
   modifyResponse(resp, proxyRes, async function (originBody) {
+    // 避免Response太长，导致浏览器卡死，超过10w长度则替换
+    if (isString(originBody) && originBody.length > 1e5) {
+      originBody = '<long long string>'
+    }
     const record = handleResp(
       <SimpleResp><unknown>
       Object.assign(
