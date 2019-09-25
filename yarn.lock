@@ -5490,7 +5490,7 @@ node-forge@^0.7.1:
 
 "node-http-proxy-text@git+https://github.com/hughfenghen/node-http-proxy-text.git":
   version "0.1.6"
-  resolved "git+https://github.com/hughfenghen/node-http-proxy-text.git#975b1e9ca2201919eb4d997dc7e1203ddb30be10"
+  resolved "git+https://github.com/hughfenghen/node-http-proxy-text.git#07cf6a8c0732834d1c42902dea81b9d345b053e0"
   dependencies:
     bufferhelper "^0.2.1"
     concat-stream "^1.5.1"
