@@ -10,6 +10,14 @@ import configManager from './manager/config-manager';
 import proxyServer from './proxy-server';
 import { safeJSONParse } from '../lib/utils';
 
+process.on('uncaughtException', function (err) {
+  console.error(err);
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 // 初始化配置
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 

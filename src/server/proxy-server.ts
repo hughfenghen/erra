@@ -20,18 +20,24 @@ const middlewares: Middleware[] = []
 
 const httpPort = 3344
 const httpsPort = 3355
-let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => {}
+let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => { }
 
 const proxy = httpProxy.createProxyServer({})
+proxy.on('error', function (err, req, res) {
+  res.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
+  console.error(err);
+  res.end('请检查目标服务和Erra是否正常工作。\n' + err.toString());
+});
+
 
 const fsReadFile = promisify(fs.readFile);
 const pemCreateCertificate = promisify(pem.createCertificate);
 
 async function getRootCert() {
   const cacheKey = 'root-cert'
- 
+
   if (certCache.has(cacheKey)) return certCache.get(cacheKey)
-  
+
   const rootCert = {
     cert: await fsReadFile(path.join(process.cwd(), 'ca/erra.crt.pem'), {
       encoding: 'utf-8',
@@ -56,7 +62,7 @@ async function createCert(host) {
     serviceCertificate: root.cert,
     serviceKey: root.key,
   });
-  
+
   const cert = {
     cert: res.certificate,
     key: res.clientKey,
@@ -66,18 +72,23 @@ async function createCert(host) {
   return cert;
 }
 
-async function httpHandler (req, resp) {
-  const url = URL.parse(req.url)
+async function httpHandler(req, resp) {
+  try {
+    const url = URL.parse(req.url)
 
-  await beforeProxyReqHandler(req, resp)
+    await beforeProxyReqHandler(req, resp)
 
-  proxy.web(req, resp, {
-    target: `${url.protocol || 'https:'}//${req.headers.host}`,
-    secure: false,
-  });
+    proxy.web(req, resp, {
+      target: `${url.protocol || 'https:'}//${req.headers.host}`,
+      secure: false,
+    });
+  } catch (err) {
+    console.error(err);
+    
+  }
 }
 
-;(async function init() {
+; (async function init() {
   const serverCrt = await createCert('internal_https_server');
 
   const httpsServer = https.createServer({
@@ -100,13 +111,17 @@ async function httpHandler (req, resp) {
     if (targetPort === '443') {
       proxyPort = httpsPort;
     }
-    
-    const conn = net.connect(proxyPort, '127.0.0.1', () => {
-      socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', () => {
-        conn.pipe(socket);
-        socket.pipe(conn);
+
+    try {
+      const conn = net.connect(proxyPort, '127.0.0.1', () => {
+        socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', () => {
+          conn.pipe(socket);
+          socket.pipe(conn);
+        });
       });
-    });
+    } catch (err) {
+      console.error(err);
+    }
   })
 
   httpServer.listen(httpPort, '0.0.0.0');
