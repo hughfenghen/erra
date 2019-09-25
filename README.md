@@ -18,6 +18,7 @@
 
 ### Bug
 [] 超长的Response可能导致页面卡死
+[] websocket代理失败
 
 ### 一期基本功能
 [x] http、https代理服务
