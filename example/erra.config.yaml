@@ -16,7 +16,14 @@ snippet:
     content:
       body:
         code: 200
-breakpoint: {}
+breakpoint:
+  'http://yapi.sankuai.com/mock/2841/api/getmeetings':
+    - response
+  'http://yapi.sankuai.com/mock/2841/api/create/meetings':
+    - response
+  'http://iamsrv.it.dev.sankuai.com/dc/qy/accounts/1/applyAccount/applied/page':
+    - response
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/agent/blacklist/reasons': 97423a98-30c5-479d-8a34-0f7bfcf1ae7d
+  'http://yapi.sankuai.com/mock/2841/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c

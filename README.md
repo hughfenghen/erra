@@ -19,6 +19,7 @@
 ### Bug
 [] 超长的Response可能导致页面卡死
 [] websocket代理失败
+[] 断点 中断后无法继续，导致后续所有断点在队列中无法处理
 
 ### 一期基本功能
 [x] http、https代理服务
@@ -34,14 +35,18 @@
   [] Erra bin
   [] 注入Erra操作面板到业务页面
   [] 非代理接入：业务项目主动接入
+  [] 断点、Snippet总开关
 [] 编辑器优化
   [] 更智能的自动补全、错误提示
   [] 更丰富的yaml语法高亮
   [] 图片文件支持预览
 [] 效率、体验优化
   [] include、exclude API记录模式
+  [] API List 倒序
   [] 一键保存请求Response为Snippet
   [] API List快速过滤
+  [] 激活断点 发送浏览器消息
+  [] 断点队列管理
 [] 资源映射（charles中的mapping）
 
 
