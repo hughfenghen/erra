@@ -60,6 +60,7 @@ export enum SOCKET_MSG_TAG_API {
   BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',
   BP_DONE = 'breakpoint_manager-done',
   BP_START = 'breakpoint_manager-start',
+  BP_QUEUE = 'breakpoint_manager-queue',
   SP_GET = 'snippet_manager-get',
   SP_SAVE = 'snippet_manager-save',
   SP_UPDATE = 'snippet_manager-update',

@@ -82,6 +82,10 @@ ss.on(
   }
 )
 
+ss.on(SOCKET_MSG_TAG_API.BP_QUEUE, () => {
+  
+})
+
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
   const { req, parsedUrl, uuid } = record
 

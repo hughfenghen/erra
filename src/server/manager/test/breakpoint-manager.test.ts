@@ -30,124 +30,139 @@ function createRecord(url) {
   return recordTpl
 }
 
-test('api req断点按队列顺序进行', (done) => {
-  const url = 'http://erra.io/test'
+
+// 添加一个断点
+function addBP(bpKey, bpType) {
   const onBPUpdate = pipe(
     fromPairs,
     prop(SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL)
     // @ts-ignore
   )(ss.on.mock.calls);
 
+  onBPUpdate(bpKey, [bpType])
+
   const spyOnce = jest.spyOn(ss, 'once')
-  let firtBPResove = null
+  let bpResolve = null
   spyOnce.mockReturnValueOnce(new Promise((resolve) => {
-    firtBPResove = resolve
+    bpResolve = resolve
   }))
 
-  // 添加一个断点
-  onBPUpdate(url, [API_DATA_TYPE.REQUEST])
+  return bpResolve
+}
+
+// 模拟一个请求 命中断点
+function hitBP(bpKey, bpType) {
+  const record = createRecord(bpKey)
+  // 生成随机数作为每条record的指纹
+  record.req.headers['x-random'] = String(Math.random())
+
+  handleReq(record.req)
+  if (bpType === API_DATA_TYPE.REQUEST) {
+    throughBP4Req(record)
+  } else if (bpType === API_DATA_TYPE.RESPONSE) {
+    handleResp(record.resp, record.req)
+    throughBP4Resp(record)
+  } else {
+    throw new Error('参数错误：bpType')
+  }
+
+  return record
+}
+
+test('获取断点队列', () => {
+
+})
+
+test('处理断点任务', () => {
+
+})
+
+test('跳过一个断点任务', () => {
+
+})
+
+test('跳过所有断点任务', () => {
+
+})
+
+test('api req断点按队列顺序进行', (done) => {
+  const url = 'http://erra.io/test'
+  const firtBPResolve = addBP(url, API_DATA_TYPE.REQUEST)
 
   // @ts-ignore 清空update调用的broadcast
   ss.broadcast.mockReset()
   // 模拟同时收到两个断点
-  const r1 = createRecord(url)
-  handleReq(r1.req)
-  throughBP4Req(r1)
+  const r1 = hitBP(url, API_DATA_TYPE.REQUEST)
+  const r2 = hitBP(url, API_DATA_TYPE.REQUEST)
 
-  const r2 = createRecord(url)
-  handleReq(r2.req)
-  throughBP4Req(r2)
+  let calledArgsGroup = ss.broadcast
+    // @ts-ignore
+    .mock
+    .calls
+    .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
 
-  expect(ss.broadcast).toBeCalledWith(
-    SOCKET_MSG_TAG_API.BP_START,
-    r1.uuid,
-    r1.req
-  )
-  expect(
-    ss.broadcast
+  expect(calledArgsGroup.length).toBe(1)
+
+  let firstCalledArgs = calledArgsGroup[0]
+  expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+  expect(firstCalledArgs[1].httpDetail).toEqual(r1.req)
+
+  // 第一个断点结束后
+  firtBPResolve()
+  setTimeout(function () {
+    // 再开始下一个断点
+    calledArgsGroup = ss.broadcast
       // @ts-ignore
       .mock
       .calls
-      .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START).length
-  ).toBe(1)
-  // 第一个断点结束后
-  firtBPResove()
-  setTimeout(function () {
-    // 再按开始下一个断点
-    expect(ss.broadcast).toBeCalledWith(
-      SOCKET_MSG_TAG_API.BP_START,
-      r2.uuid,
-      r2.req
-    )
-    expect(
-      ss.broadcast
-        // @ts-ignore
-        .mock
-        .calls
-        .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START).length
-    ).toBe(2)
+      .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+    expect(calledArgsGroup.length).toBe(2)
+
+    let secondCalledArgs = calledArgsGroup[1]
+    expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+    expect(secondCalledArgs[1].httpDetail).toEqual(r2.req)
+
     done()
   }, 1);
 })
 
 test('api resp断点按队列顺序进行', (done) => {
   const url = 'http://erra.io/test'
-  const onBPUpdate = pipe(
-    fromPairs,
-    prop(SOCKET_MSG_TAG_API.BP_UPDATE_BY_URL)
-    // @ts-ignore
-  )(ss.on.mock.calls);
-
-  const spyOnce = jest.spyOn(ss, 'once')
-  let firtBPResove = null
-  spyOnce.mockReturnValueOnce(new Promise((resolve) => {
-    firtBPResove = resolve
-  }))
-
-  // 添加一个断点
-  onBPUpdate(url, [API_DATA_TYPE.RESPONSE])
+  const firtBPResolve = addBP(url, API_DATA_TYPE.RESPONSE)
 
   // @ts-ignore 清空update调用的broadcast
   ss.broadcast.mockReset()
   // 模拟同时收到两个断点
-  const r1 = createRecord(url)
-  handleReq(r1.req)
-  handleResp(r1.resp, r1.req)
-  throughBP4Resp(r1)
+  const r1 = hitBP(url, API_DATA_TYPE.RESPONSE)
+  const r2 = hitBP(url, API_DATA_TYPE.RESPONSE)
 
-  const r2 = createRecord(url)
-  handleReq(r2.req)
-  handleResp(r2.resp, r2.req)
-  throughBP4Resp(r2)
+  let calledArgsGroup = ss.broadcast
+    // @ts-ignore
+    .mock
+    .calls
+    .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
 
-  expect(ss.broadcast).toBeCalledWith(
-    SOCKET_MSG_TAG_API.BP_START,
-    r1.uuid,
-    r1.resp
-  )
-  expect(
-    ss.broadcast
+  expect(calledArgsGroup.length).toBe(1)
+
+  let firstCalledArgs = calledArgsGroup[0]
+  expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+  expect(firstCalledArgs[1].httpDetail).toEqual(r1.resp)
+
+  // 第一个断点结束后
+  firtBPResolve()
+  setTimeout(function () {
+    // 再开始下一个断点
+    calledArgsGroup = ss.broadcast
       // @ts-ignore
       .mock
       .calls
-      .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START).length
-  ).toBe(1)
-  // 第一个断点结束后
-  firtBPResove()
-  setTimeout(function () {
-    // 再按开始下一个断点
-    expect(ss.broadcast).toBeCalledWith(
-      SOCKET_MSG_TAG_API.BP_START,
-      r2.uuid,
-      r2.resp
-    )
-    expect(
-      ss.broadcast
-        // @ts-ignore
-        .mock
-        .calls
-        .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START).length
-    ).toBe(2)
+      .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+    expect(calledArgsGroup.length).toBe(2)
+
+    let secondCalledArgs = calledArgsGroup[1]
+    expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+    expect(secondCalledArgs[1].httpDetail).toEqual(r2.resp)
+
     done()
   }, 1);
 })
