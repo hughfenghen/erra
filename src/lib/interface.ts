@@ -60,7 +60,8 @@ export enum SOCKET_MSG_TAG_API {
   BP_UPDATE_BY_URL = 'breakpoint_manager-update_by_url',
   BP_DONE = 'breakpoint_manager-done',
   BP_START = 'breakpoint_manager-start',
-  BP_QUEUE = 'breakpoint_manager-queue',
+  BP_GET_QUEUE_MSGS = 'breakpoint_manager-get_queue_msgs',
+  BP_PASS_ALL = 'breakpoint_manager-pass_all',
   SP_GET = 'snippet_manager-get',
   SP_SAVE = 'snippet_manager-save',
   SP_UPDATE = 'snippet_manager-update',
@@ -87,7 +88,9 @@ export interface Snippet {
 
 export interface BPMsg {
   uuid: string,
-  bpKey: string,
-  bpType: API_DATA_TYPE,
+  type: API_DATA_TYPE,
+  parsedUrl: ParsedUrl,
+  method: HttpMethod,
   httpDetail: SimpleReq | SimpleResp,
+  resolve: (data: any) => void,
 }
