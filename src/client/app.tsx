@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import ApiRecords from './api-record';
 import { SOCKET_MSG_TAG_API } from '../lib/interface';
 import Snippets from './snippet-list';
+import BreakpointQueue from './breakpoint-queue';
 import s from './style.less';
 import sc from './common/socket-client';
 
@@ -22,6 +23,9 @@ function App() {
       </Tabs.TabPane>
       <Tabs.TabPane tab="Snippet" key="snippet">
         <Snippets></Snippets>
+      </Tabs.TabPane>
+      <Tabs.TabPane tab="BP Queue" key="bp-queue">
+        <BreakpointQueue></BreakpointQueue>
       </Tabs.TabPane>
     </Tabs>
   </div>
