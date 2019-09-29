@@ -31,7 +31,6 @@ export default function Editor({
   height = '100vh',
   onChange = noop,
   onClose = noop,
-  language,
   readOnly = false,
   children,
 }) {

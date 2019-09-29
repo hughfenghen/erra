@@ -124,10 +124,12 @@ ss.on(SOCKET_MSG_TAG_API.BP_START, (uuid, cb) => {
 
 ss.on(SOCKET_MSG_TAG_API.BP_DONE, (uuid, httpDetail) => {
   bpMsgQueue.passBPMsg(uuid, httpDetail)
+  // todo: update msg queu
 })
 
 ss.on(SOCKET_MSG_TAG_API.BP_PASS_ALL, () => {
   bpMsgQueue.passAll()
+  // todo broadcast
 })
 
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {

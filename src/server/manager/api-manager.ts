@@ -96,9 +96,9 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
   const rs = snippetId ? getSnippetFn(snippetId)(resp) : resp
 
   let recordBody = rs.body
-  const ct = rs.headers['content-type']
+  const ct = rs.headers['content-type'] || rs.headers['Content-Type']
   // 非文本时，编辑其中的内容用占位符代替
-  if (ct && !/text|json|javascript|xml|svg|csv|html?|css/.test(rs.headers['content-type'])) {
+  if (ct && !/text|json|javascript|xml|svg|csv|html?|css/.test(ct)) {
     recordBody = '<non text>'
   } if (isString(rs.body) && rs.body.length > 1e5) {
     // 避免Response太长，导致浏览器卡死，超过10w长度则替换

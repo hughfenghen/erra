@@ -184,7 +184,6 @@ export default function ApiRecords() {
     {!!code && <Editor
       value={code}
       onChange={(val) => { setCode(val) }}
-      language="yaml"
       readOnly={!bpMsg.uuid}
       onClose={() => {
         // debug中禁用ESC关闭快捷键
@@ -193,7 +192,7 @@ export default function ApiRecords() {
       }}
     >
       {bpMsg.uuid && <Button onClick={() => {
-        sc.emit(SOCKET_MSG_TAG_API.BP_DONE + bpMsg.uuid + bpMsg.bpType, yaml.safeLoad(code))
+        sc.emit(SOCKET_MSG_TAG_API.BP_DONE + bpMsg.uuid + bpMsg.type, yaml.safeLoad(code))
         setBPMsg({} as BPMsg)
       }}>完成</Button>}
     </Editor>}

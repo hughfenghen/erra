@@ -52,7 +52,6 @@ export default function Snippets() {
     {!!activeSnippet && <Editor
       value={code}
       onChange={(val) => { setCode(val) }}
-      language="yaml"
       onClose={() => {
         setActiveSnippet(null)
       }}
