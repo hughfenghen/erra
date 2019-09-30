@@ -32,7 +32,7 @@ export default function Editor({
   onChange = noop,
   onClose = noop,
   readOnly = false,
-  children,
+  children = null,
 }) {
   const snippets = useSnippets()
   const snippetListRef = useRef(null)

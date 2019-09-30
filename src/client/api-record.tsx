@@ -15,7 +15,6 @@ export default function ApiRecords() {
   const [breakpoints, setBreakpoints] = useState({})
   const snippets = useSnippets()
 
-  const [bpMsg, setBPMsg] = useState<BPMsg>({} as BPMsg)
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
   const [code, setCode] = useState('')
@@ -42,11 +41,6 @@ export default function ApiRecords() {
     sc.on(SOCKET_MSG_TAG_API.BP_UPDATE, (bps) => {
       setBreakpoints(bps)
     })
-    // 断点开始，弹出code编辑框，可查看编辑requst、response
-    sc.on(SOCKET_MSG_TAG_API.BP_START, (bpMsg) => {
-      setHttpDetail(bpMsg.httpDetail)
-      setBPMsg(bpMsg)
-    })
     // 更新、重置请求列表，清空列表记录
     sc.on(SOCKET_MSG_TAG_API.API_UPDATE_RECORD, (records) => {
       setApiList(records)
@@ -67,7 +61,6 @@ export default function ApiRecords() {
       sc.off(SOCKET_MSG_TAG_API.API_REPLACE_RECORD)
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_RECORD)
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
-      sc.off(SOCKET_MSG_TAG_API.BP_START)
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION)
     }
   }, [])
@@ -134,10 +127,7 @@ export default function ApiRecords() {
             <Checkbox value={val} key={val}>{val}</Checkbox>)}
         </Checkbox.Group>
       }>
-        <div className={[
-          s.debugWrap,
-          bpMsg.uuid === it.uuid ? s.debugging : '',
-        ].join(' ')}>
+        <div className={s.debugWrap}>
           <Icon
             style={{
               color: debugColor(breakpoints[it.parsedUrl.shortHref]),
@@ -148,13 +138,13 @@ export default function ApiRecords() {
       </Popover>
       <Divider type="vertical"></Divider>
       <span>
-        <Button size="small" disabled={!!bpMsg.uuid} onClick={() => {
+        <Button size="small" onClick={() => {
           onViewDetail(it, 'req')
         }}>show req</Button>
         <br />
         <Button size="small" onClick={() => {
           onViewDetail(it, 'resp')
-        }} disabled={!!bpMsg.uuid || isEmpty(it.resp)}>show resp</Button>
+        }} disabled={isEmpty(it.resp)}>show resp</Button>
       </span>
       <Divider type="vertical"></Divider>
       <div>
@@ -184,17 +174,8 @@ export default function ApiRecords() {
     {!!code && <Editor
       value={code}
       onChange={(val) => { setCode(val) }}
-      readOnly={!bpMsg.uuid}
-      onClose={() => {
-        // debug中禁用ESC关闭快捷键
-        if (!!bpMsg.uuid) return
-        setHttpDetail(null)
-      }}
-    >
-      {bpMsg.uuid && <Button onClick={() => {
-        sc.emit(SOCKET_MSG_TAG_API.BP_DONE + bpMsg.uuid + bpMsg.type, yaml.safeLoad(code))
-        setBPMsg({} as BPMsg)
-      }}>完成</Button>}
-    </Editor>}
+      readOnly
+      onClose={() => { setHttpDetail(null) }}
+    ></Editor>}
   </section>
 }
