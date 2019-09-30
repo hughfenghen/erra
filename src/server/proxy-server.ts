@@ -84,7 +84,8 @@ async function httpHandler(req, resp) {
     });
   } catch (err) {
     console.error(err);
-    
+    resp.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
+    resp.end(err.toString());  
   }
 }
 

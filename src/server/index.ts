@@ -26,6 +26,7 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
   if (/\.map$/.test(req.url)) return
 
   const _writeHead = resp.writeHead;
+  const _end = resp.end;
 
   // resp 是浏览器跟Erra的链接
   // proxyRes 是Erra跟远程服务器的连接
@@ -40,13 +41,18 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
     );
     if (!record) return originBody
 
-    const { resp: { statusCode, body, headers } } = await throughBP4Resp(record);
+    try {
+      const { resp: { statusCode, body, headers } } = await throughBP4Resp(record);
+      resp.writeHead = (code, orignHeaders) => {
+        return _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
+      };
 
-    resp.writeHead = (code, orignHeaders) => {
-      return _writeHead.call(resp, statusCode, Object.assign({}, orignHeaders, headers))
-    };
-    
-    return typeof body === 'string' ? body : JSON.stringify(body || null);
+      return typeof body === 'string' ? body : JSON.stringify(body || null);
+    } catch (err) {
+      _writeHead.call(resp, 500, { 'Content-Type': 'text/plain;charset=utf-8' });
+      _end.call(resp, err.toString());
+      throw err
+    }
   });
 });
 

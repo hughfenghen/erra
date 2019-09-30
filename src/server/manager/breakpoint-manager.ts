@@ -1,4 +1,5 @@
 import { ApiRecord, API_DATA_TYPE, SOCKET_MSG_TAG_API, SimpleReq, SimpleResp, BPMsg } from '../../lib/interface';
+import yaml from 'js-yaml';
 import ss from '../socket-server';
 import { replaceRecord } from './api-manager';
 import configManager from './config-manager';
@@ -9,12 +10,11 @@ const BPS: { [key: string]: API_DATA_TYPE[] } = {}
 
 class BPMsgQueue {
   private queue: BPMsg[] = []
-  private awaiting = false
 
   push<T>(record: ApiRecord): Promise<T> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const { uuid, req, resp, parsedUrl } = record
-      this.queue.push({
+      const msg = {
         uuid,
         method: req.method,
         parsedUrl,
@@ -22,8 +22,11 @@ class BPMsgQueue {
         type: resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST,
         httpDetail: resp || req,
         resolve,
-      })
-      // this.consumer()
+        reject,
+      }
+      this.queue.push(msg)
+      
+      ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_NEW, omit('httpDetail', msg))
     })
   }
 
@@ -34,7 +37,7 @@ class BPMsgQueue {
   //   let data = msg.httpDetail
   //   try {
   //     this.awaiting = true
-  //     ss.broadcast(SOCKET_MSG_TAG_API.BP_START, msg)
+  //     ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_START, msg)
   //     // 携带id type使得socketIO消息tag是唯一的，不用考虑网络先后顺序
   //     data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE + msg.uuid + msg.bpType)
   //     // 递归进行下一个断点
@@ -84,6 +87,12 @@ class BPMsgQueue {
     })
     this.queue = []
   }
+
+  abortMSg(uuid) {
+    const msg = <BPMsg>find({ uuid }, this.queue)
+    if (!msg) return
+    msg.reject(new Error('请求被中断：' + msg.parsedUrl.shortHref))
+  }
 };
 
 // 断点消息队列
@@ -114,57 +123,79 @@ ss.on(
   }
 )
 
-ss.on(SOCKET_MSG_TAG_API.BP_GET_QUEUE_MSGS, (cb) => {
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_GET_QUEUE, (cb) => {
   cb(bpMsgQueue.getQueueMsgs())
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_START, (uuid, cb) => {
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_START, (uuid, cb) => {
   cb(bpMsgQueue.getMsg(uuid))
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_DONE, (uuid, httpDetail) => {
-  bpMsgQueue.passBPMsg(uuid, httpDetail)
-  // todo: update msg queu
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_ABORT, (uuid) => {
+  bpMsgQueue.abortMSg(uuid)
+  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, uuid)
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_PASS_ALL, () => {
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_DONE, (id, code) => {
+  bpMsgQueue.passBPMsg(id, code && yaml.safeLoad(code))
+  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, id)
+})
+
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL, () => {
   bpMsgQueue.passAll()
-  // todo broadcast
+  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, 'all')
 })
 
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
   const { req, parsedUrl, uuid } = record
+  let rsRecord = record
 
   if ((BPS[parsedUrl.shortHref] || []).includes(API_DATA_TYPE.REQUEST)) {
-    // 放入断点消息队列，逐个通知客户端，弹出窗编辑框
-    const mHttpDetail = await bpMsgQueue.push<SimpleReq>(record)
+    try {
+      // 放入断点消息队列
+      const mHttpDetail = await bpMsgQueue.push<SimpleReq>(record)
 
-    const newRecord = { ...record, req: mHttpDetail }
-    // 修改后的数据 同步到客户端
-    replaceRecord(newRecord)
-    return newRecord;
+      rsRecord = await{ ...record, req: mHttpDetail }
+      // 修改后的数据 同步到客户端
+      replaceRecord(rsRecord)
+    } catch(err) {
+      rsRecord.resp = {
+        statusCode: 500,
+        headers: {},
+        body: err.message,
+      }
+      replaceRecord(rsRecord)
+      throw err
+    }
+    return rsRecord;
   }
 
   return record
 }
 
 export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
-  const { resp, parsedUrl, uuid } = record
+  const { resp, parsedUrl } = record
+  let rsRecord = record
 
   if ((BPS[parsedUrl.shortHref] || []).includes(API_DATA_TYPE.RESPONSE)) {
-    // 放入断点消息队列，逐个通知客户端，弹出窗编辑框
-    const mHttpDetail = await bpMsgQueue.push<SimpleReq>(record)
+    try {
+      // 放入断点消息队列，由队列管理消息
+      const mHttpDetail = await bpMsgQueue.push<SimpleReq>(record)
 
-    const newRecord = Object.assign(
-      {},
-      record,
-      // 断点的时候 支持用户输入 snippet
-      { resp: parseSnippetContent(mHttpDetail)(resp) }
-    )
+      rsRecord = Object.assign(
+        {},
+        record,
+        // 断点的时候 支持用户输入 snippet
+        { resp: parseSnippetContent(mHttpDetail)(resp) }
+      )      
+      replaceRecord(rsRecord)
+    } catch (err) {
+      rsRecord.resp.body = err.message
+      replaceRecord(rsRecord)
+      throw err
+    }
 
-    replaceRecord(newRecord)
-
-    return newRecord;
+    return rsRecord;
   }
 
   return record

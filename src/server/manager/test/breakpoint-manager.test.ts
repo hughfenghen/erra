@@ -16,7 +16,7 @@ afterEach(() => { passAllMsgs() })
 function passAllMsgs() {
   const onPassAll = pipe(
     fromPairs,
-    prop(SOCKET_MSG_TAG_API.BP_PASS_ALL),
+    prop(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL),
     // @ts-ignore
   )(ss.on.mock.calls);
   // 每个用例前清空断点消息队列
@@ -77,7 +77,7 @@ function hitBP(bpKey, bpType) {
 function getQueueMsgs() {
   const onGetQueueMsg = pipe(
     fromPairs,
-    prop(SOCKET_MSG_TAG_API.BP_GET_QUEUE_MSGS)
+    prop(SOCKET_MSG_TAG_API.BP_MSG_GET_QUEUE)
     // @ts-ignore
   )(ss.on.mock.calls);
 
@@ -103,12 +103,12 @@ test('获取断点队列', () => {
 test('处理断点任务', () => {
   const onBPStart = pipe(
     fromPairs,
-    prop(SOCKET_MSG_TAG_API.BP_START)
+    prop(SOCKET_MSG_TAG_API.BP_MSG_START)
     // @ts-ignore
   )(ss.on.mock.calls);
   const onBPDone = pipe(
     fromPairs,
-    prop(SOCKET_MSG_TAG_API.BP_DONE)
+    prop(SOCKET_MSG_TAG_API.BP_MSG_DONE)
     // @ts-ignore
   )(ss.on.mock.calls);
 
@@ -153,12 +153,12 @@ test('跳过所有断点任务', () => {
 //     // @ts-ignore
 //     .mock
 //     .calls
-//     .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+//     .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_MSG_START)
 
 //   expect(calledArgsGroup.length).toBe(1)
 
 //   let firstCalledArgs = calledArgsGroup[0]
-//   expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+//   expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_MSG_START)
 //   expect(firstCalledArgs[1].httpDetail).toEqual(r1.req)
 
 //   setTimeout(function () {
@@ -167,11 +167,11 @@ test('跳过所有断点任务', () => {
 //       // @ts-ignore
 //       .mock
 //       .calls
-//       .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+//       .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_MSG_START)
 //     expect(calledArgsGroup.length).toBe(2)
 
 //     let secondCalledArgs = calledArgsGroup[1]
-//     expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+//     expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_MSG_START)
 //     expect(secondCalledArgs[1].httpDetail).toEqual(r2.req)
 
 //     done()
@@ -192,12 +192,12 @@ test('跳过所有断点任务', () => {
 //     // @ts-ignore
 //     .mock
 //     .calls
-//     .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+//     .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_MSG_START)
 
 //   expect(calledArgsGroup.length).toBe(1)
 
 //   let firstCalledArgs = calledArgsGroup[0]
-//   expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+//   expect(firstCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_MSG_START)
 //   expect(firstCalledArgs[1].httpDetail).toEqual(r1.resp)
 
 //   setTimeout(function () {
@@ -206,11 +206,11 @@ test('跳过所有断点任务', () => {
 //       // @ts-ignore
 //       .mock
 //       .calls
-//       .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_START)
+//       .filter(([msgTag]) => msgTag === SOCKET_MSG_TAG_API.BP_MSG_START)
 //     expect(calledArgsGroup.length).toBe(2)
 
 //     let secondCalledArgs = calledArgsGroup[1]
-//     expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_START)
+//     expect(secondCalledArgs[0]).toBe(SOCKET_MSG_TAG_API.BP_MSG_START)
 //     expect(secondCalledArgs[1].httpDetail).toEqual(r2.resp)
 
 //     done()
