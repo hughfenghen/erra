@@ -30,25 +30,6 @@ class BPMsgQueue {
     })
   }
 
-  // private async consumer() {
-  //   if (this.awaiting || isEmpty(this.queue)) return
-
-  //   const [msg, resolve] = this.queue.shift()
-  //   let data = msg.httpDetail
-  //   try {
-  //     this.awaiting = true
-  //     ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_START, msg)
-  //     // 携带id type使得socketIO消息tag是唯一的，不用考虑网络先后顺序
-  //     data = await ss.once(SOCKET_MSG_TAG_API.BP_DONE + msg.uuid + msg.bpType)
-  //     // 递归进行下一个断点
-  //     this.awaiting = false
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  //   resolve(data)
-  //   this.consumer()
-  // }
-
   // 用户移除断点，释放队列中所有阻塞的断点
   releaseMsg(bpKey: string, bpTypes: API_DATA_TYPE[]) {
     // 断点配置变化，从队列中 找到需要放行的消息

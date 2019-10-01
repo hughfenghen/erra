@@ -1,14 +1,14 @@
 import { Button, Checkbox, Divider, Icon, List, Popover, Select, Tag } from 'antd';
 import yaml from 'js-yaml';
-import { isEmpty, includes, props, pipe, omit } from 'lodash/fp';
+import { includes, isEmpty, omit, pipe, props } from 'lodash/fp';
 import React, { useCallback, useEffect, useState } from 'react';
-
-import { API_DATA_TYPE, ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API, BPMsg } from '../lib/interface';
+import { ApiRecord, API_DATA_TYPE, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../lib/interface';
+import { safeJSONParse } from '../lib/utils';
 import { useSnippets } from './common/custom-hooks';
 import Editor from './common/editor';
 import sc from './common/socket-client';
 import s from './style.less';
-import { safeJSONParse } from '../lib/utils';
+
 
 export default function ApiRecords() {
   const [apiList, setApiList] = useState<ApiRecord[]>([])
