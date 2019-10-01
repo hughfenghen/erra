@@ -147,7 +147,9 @@ export default function ApiRecords() {
         }} disabled={isEmpty(it.resp)}>show resp</Button>
       </span>
       <Divider type="vertical"></Divider>
-      <div style={{ color: it.resp.statusCode >= 400 ? 'red' : '' }}>
+      <div style={{ 
+        color: it.resp && (it.resp.statusCode >= 400) ? 'red' : ''
+      }}>
         <div>{it.parsedUrl.pathname}</div>
         <div>{it.parsedUrl.origin}</div>
       </div>

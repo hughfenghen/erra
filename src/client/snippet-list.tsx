@@ -30,7 +30,9 @@ export default function Snippets() {
   }, [activeSnippet])
 
   return <section className={s.snippetList}>
-    <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
+    <div className={s.opBar}>
+      <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
+    </div>
     <List dataSource={snippets} renderItem={(it) => <div
       onClick={() => {
         setActiveSnippet(it)
