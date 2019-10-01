@@ -11,7 +11,7 @@ import { omit } from 'lodash/fp';
 
 const snippetObjTpl = {
   __all_comment__: '只有name、content两个字段有效，不必输入或编辑其他内容',
-  __name_comment__: '必填项',
+  __name_comment__: 'name字段为必填项',
   name: '',
   __content_comment__: `1.必填项；
 2.content下的内容将被解析为Snippet，与原值"合并"生成数据；
@@ -36,8 +36,9 @@ export default function Snippets() {
         setActiveSnippet(it)
       }}
       className={s.listItem}
+      style={{ backgroundColor: it === activeSnippet ? '#eee' : '' }}
     >
-      <span>{it.name}</span>
+      <strong>{it.name}</strong>
       <Divider type="vertical"></Divider>
       <span>{it.id}</span>
       <Divider type="vertical"></Divider>

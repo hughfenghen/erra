@@ -69,7 +69,7 @@ export default function BreakpointQueue() {
     else if (activeMsg && msg.uuid === activeMsg.uuid) setActiveMsg(null)
   }}>跳过</Button>
 
-  return <section className={s.bpPage}>
+  return <section className={s.bpMsgQueue}>
     <div className={s.opBar}>
       {bpMsgs.length > 0 && <Button onClick={() => {
         sc.emit(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL)
@@ -82,7 +82,10 @@ export default function BreakpointQueue() {
         className={s.listItem}
         style={{ backgroundColor: (activeMsg || {}).uuid === it.uuid ? '#eee' : '' }}
       >
-        <span>{it.parsedUrl.shortHref}</span>
+        <div>
+          <div>{it.parsedUrl.pathname}</div>
+          <div>{it.parsedUrl.origin}</div>
+        </div>
         <Divider type="vertical" />
         <div>
           <Button onClick={() => {
@@ -97,6 +100,7 @@ export default function BreakpointQueue() {
     ></List>
     {!!code && <Editor
       value={code}
+      onClose={() => { setActiveMsg(null)}}
     >
       <Button onClick={() => {
         sc.emit(SOCKET_MSG_TAG_API.BP_MSG_DONE, {
