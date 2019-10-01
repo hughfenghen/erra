@@ -30,21 +30,6 @@ class BPMsgQueue {
     })
   }
 
-  // 用户移除断点，释放队列中所有阻塞的断点
-  releaseMsg(bpKey: string, bpTypes: API_DATA_TYPE[]) {
-    // 断点配置变化，从队列中 找到需要放行的消息
-    // 更新后的断点类型中，不包含队列消息中的断点，判定为需要放行的消息
-    const releaseMsgs = this.queue.filter((msg) => (msg.parsedUrl.shortHref === bpKey && !bpTypes.includes(msg.type)))
-    if (isEmpty(releaseMsgs)) return
-
-    releaseMsgs.forEach(({ httpDetail, resolve }) => {
-      // 按添加消息的数据返回，不做修改
-      resolve(httpDetail)
-    })
-    // @ts-ignore
-    this.queue = pullAll(releaseMsgs, this.queue)
-  }
-
   getQueueMsgs() {
     // 避免内容过大移除断点中的详情
     return map(omit(['httpDetail', 'resolve']))(this.queue)
@@ -100,7 +85,6 @@ ss.on(
 
     configManager.emit('update', configManager.key.BREAKPOINT, BPS)
     ss.broadcast(SOCKET_MSG_TAG_API.BP_UPDATE, BPS)
-    bpMsgQueue.releaseMsg(key, enableTypes)
   }
 )
 
