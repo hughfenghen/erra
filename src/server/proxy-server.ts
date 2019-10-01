@@ -15,20 +15,16 @@ const certCache = new LRU({
   maxAge: 1000 * 60 * 60,
 })
 
-type Middleware = (ctx) => Promise<any> | void
-const middlewares: Middleware[] = []
-
 const httpPort = 3344
 const httpsPort = 3355
 let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => { }
 
-const proxy = httpProxy.createProxyServer({})
+const proxy = httpProxy.createProxyServer({ ws: true })
 proxy.on('error', function (err, req, res) {
-  res.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
   console.error(err);
+  res.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
   res.end('请检查目标服务和Erra是否正常工作。\n' + err.toString());
 });
-
 
 const fsReadFile = promisify(fs.readFile);
 const pemCreateCertificate = promisify(pem.createCertificate);
@@ -81,6 +77,7 @@ async function httpHandler(req, resp) {
     proxy.web(req, resp, {
       target: `${url.protocol || 'https:'}//${req.headers.host}`,
       secure: false,
+      ws: true,
     });
   } catch (err) {
     console.error(err);
@@ -103,11 +100,9 @@ async function httpHandler(req, resp) {
   }, httpHandler);
 
   const httpServer = http.createServer(httpHandler)
-  httpServer.on('connect', (req, socket) => {
-    // todo 处理ws、wss协议
+  httpServer.on('connect', (req, socket, head) => {
     let proxyPort = httpPort;
-    // connect请求时 如何判断连到的目标机器是不是https协议？
-    // ws、wss、https协议都会发送connect请求
+    // todo: connect请求时 如何判断连到的目标机器是不是https协议？
     const [, targetPort] = req.url.split(':');
     if (targetPort === '443') {
       proxyPort = httpsPort;
@@ -124,6 +119,11 @@ async function httpHandler(req, resp) {
       console.error(err);
     }
   })
+
+  // 简单转发，暂不考虑断点、编辑ws请求
+  httpServer.on('upgrade', (req, socket, head) => {
+    proxy.ws(req, socket, head, { target: `ws://${req.headers.host}`});
+  });
 
   httpServer.listen(httpPort, '0.0.0.0');
   httpsServer.listen(httpsPort, '0.0.0.0');
