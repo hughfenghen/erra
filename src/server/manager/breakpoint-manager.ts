@@ -136,7 +136,7 @@ ss.on(SOCKET_MSG_TAG_API.BP_MSG_ABORT, (uuid) => {
   ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, uuid)
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_MSG_DONE, (id, code) => {
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_DONE, ({ id, code }) => {
   bpMsgQueue.passBPMsg(id, code && yaml.safeLoad(code))
   ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, id)
 })
