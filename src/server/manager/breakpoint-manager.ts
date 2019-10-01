@@ -1,17 +1,21 @@
-import { ApiRecord, API_DATA_TYPE, SOCKET_MSG_TAG_API, SimpleReq, SimpleResp, BPMsg } from '../../lib/interface';
 import yaml from 'js-yaml';
+import { find, isEmpty, map, omit, pull } from 'lodash/fp';
+import { ApiRecord, API_DATA_TYPE, BPMsg, SimpleReq, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import ss from '../socket-server';
 import { replaceRecord } from './api-manager';
 import configManager from './config-manager';
 import { parseSnippetContent } from './snippet-manager';
-import { find, isEmpty, map, pullAll, omit, pull } from 'lodash/fp';
 
 const BPS: { [key: string]: API_DATA_TYPE[] } = {}
 
 class BPMsgQueue {
   private queue: BPMsg[] = []
+  switch = true
 
   push<T>(record: ApiRecord): Promise<T> {
+    if (!this.switch) {
+      return Promise.resolve(<T><unknown>(record.resp || record.req))
+    }
     return new Promise((resolve, reject) => {
       const { uuid, req, resp, parsedUrl } = record
       const msg = {
@@ -25,7 +29,7 @@ class BPMsgQueue {
         reject,
       }
       this.queue.push(msg)
-      
+
       ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_NEW, omit('httpDetail', msg))
     })
   }
@@ -111,8 +115,17 @@ ss.on(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL, () => {
   ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, 'all')
 })
 
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_GET_SWITCH, (cb) => {
+  cb(bpMsgQueue.switch)
+})
+
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, (val) => {
+  bpMsgQueue.switch = val
+  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, val)
+})
+
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
-  const { req, parsedUrl, uuid } = record
+  const { parsedUrl } = record
   let rsRecord = record
 
   if ((BPS[parsedUrl.shortHref] || []).includes(API_DATA_TYPE.REQUEST)) {
@@ -120,10 +133,10 @@ export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
       // 放入断点消息队列
       const mHttpDetail = await bpMsgQueue.push<SimpleReq>(record)
 
-      rsRecord = await{ ...record, req: mHttpDetail }
+      rsRecord = await { ...record, req: mHttpDetail }
       // 修改后的数据 同步到客户端
       replaceRecord(rsRecord)
-    } catch(err) {
+    } catch (err) {
       rsRecord.resp = {
         statusCode: 500,
         headers: {},
@@ -152,7 +165,7 @@ export async function throughBP4Resp(record: ApiRecord): Promise<ApiRecord> {
         record,
         // 断点的时候 支持用户输入 snippet
         { resp: parseSnippetContent(mHttpDetail)(resp) }
-      )      
+      )
       replaceRecord(rsRecord)
     } catch (err) {
       rsRecord.resp.body = err.message

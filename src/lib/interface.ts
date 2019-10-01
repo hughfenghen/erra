@@ -65,6 +65,8 @@ export enum SOCKET_MSG_TAG_API {
   BP_MSG_NEW = 'breakpoint_manager-msg_new',
   BP_MSG_REMOVE = 'breakpoint_manager-msg_remove',
   BP_MSG_ABORT = 'breakpoint_manager-msg_abort',
+  BP_MSG_GET_SWITCH = 'breakpoint_manager-msg_get_switch',
+  BP_MSG_UPDATE_SWITCH = 'breakpoint_manager-msg_update_switch',
   SP_GET = 'snippet_manager-get',
   SP_SAVE = 'snippet_manager-save',
   SP_UPDATE = 'snippet_manager-update',

@@ -11,14 +11,23 @@ export default function BreakpointQueue() {
   const [activeMsg, setActiveMsg] = useState<BPMsg>(null)
   const [code, setCode] = useState('')
   const [autoNext, setAutoNext] = useState(true)
+  const [bpSwitch, setBPSwitch] = useState(true)
 
   useEffect(() => {
     sc.emit(SOCKET_MSG_TAG_API.BP_MSG_GET_QUEUE, (msgs) => {
       setBPMsgs(msgs)
     })
 
+    sc.emit(SOCKET_MSG_TAG_API.BP_MSG_GET_SWITCH, (val) => {
+      setBPSwitch(val)
+    })
+
     sc.on(SOCKET_MSG_TAG_API.BP_MSG_NEW, (msg) => {
       setBPMsgs(list => list.concat(msg))
+    })
+
+    sc.on(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, (val) => {
+      setBPSwitch(val)
     })
 
     sc.on(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, (rId) => {
@@ -32,6 +41,7 @@ export default function BreakpointQueue() {
     return () => {
       sc.off(SOCKET_MSG_TAG_API.BP_MSG_NEW)
       sc.off(SOCKET_MSG_TAG_API.BP_MSG_REMOVE)
+      sc.off(SOCKET_MSG_TAG_API.BP_MSG_GET_SWITCH)
     }
   }, [])
 
@@ -71,6 +81,9 @@ export default function BreakpointQueue() {
 
   return <section className={s.bpMsgQueue}>
     <div className={s.opBar}>
+      <Checkbox checked={bpSwitch} onChange={({ target: { checked }}) => {
+        sc.emit(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, checked)
+      }}>启用断点</Checkbox>
       {bpMsgs.length > 0 && <Button onClick={() => {
         sc.emit(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL)
         setActiveMsg(null)
