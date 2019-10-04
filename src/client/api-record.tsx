@@ -18,7 +18,8 @@ export default function ApiRecords() {
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
   const [code, setCode] = useState('')
-  const [enabledSnippet, setEnabledSnippet] = useState(true)
+  const [snippetEnabled, setSnippetEnabled] = useState(true)
+  const [recordingEnabled, setRecordingEnabled] = useState(true)
 
   // 页面数据交互
   useEffect(() => {
@@ -58,10 +59,16 @@ export default function ApiRecords() {
     })
     // Snippet解析数据功能是否开启，未开启时禁止绑定Snippet
     sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
-      setEnabledSnippet(val)
+      setSnippetEnabled(val)
     })
     sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
-      setEnabledSnippet(val)
+      setSnippetEnabled(val)
+    })
+    sc.emit(SOCKET_MSG_TAG_API.API_ENABLED, (val) => {
+      setRecordingEnabled(val)
+    })
+    sc.on(SOCKET_MSG_TAG_API.API_SET_ENABLED, (val) => {
+      setRecordingEnabled(val)
     })
 
     return () => {
@@ -70,6 +77,7 @@ export default function ApiRecords() {
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_RECORD)
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION)
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
       sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
     }
   }, [])
@@ -111,6 +119,11 @@ export default function ApiRecords() {
   }, [])
 
   return <section className={s.apiRecord}>
+    <div className={s.opBar}>
+      <Checkbox checked={recordingEnabled} onChange={({ target: { checked } }) => {
+        sc.emit(SOCKET_MSG_TAG_API.API_SET_ENABLED, checked)
+      }}>记录请求</Checkbox>
+    </div>
     <List dataSource={apiList} renderItem={(it: ApiRecord) => <div
       className={s.listItem}
       // 高亮选中项背景色
@@ -168,7 +181,7 @@ export default function ApiRecords() {
         onChange={(spId) => {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.parsedUrl.shortHref, spId)
         }}
-        disabled={!enabledSnippet}
+        disabled={!snippetEnabled}
         style={{ width: '200px' }}
         placeholder="选择Snippet可篡改Resp"
         allowClear

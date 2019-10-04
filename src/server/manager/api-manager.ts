@@ -7,13 +7,9 @@ import configManager from './config-manager';
 import { getSnippetFn } from './snippet-manager';
 import { parseUrl4Req } from '../../lib/utils';
 
-
-function noticeApiUpdate(tag: string, content = {}) {
-  ss.broadcast(tag, content)
-}
-
 const apiSnippetPair: { [x: string]: string } = {}
 let apiRecords: ApiRecord[] = []
+let recordingEenabled = true
 
 configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get(configManager.key.API_BIND_SNIPPET) || {})
@@ -54,11 +50,21 @@ ss.on(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, (url, snippetId) => {
   ss.broadcast(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION, apiSnippetPair)
 })
 
+ss.on(SOCKET_MSG_TAG_API.API_ENABLED, (cb) => {
+  cb(recordingEenabled)
+})
+
+ss.on(SOCKET_MSG_TAG_API.API_SET_ENABLED, (val) => {
+  recordingEenabled = !!val
+  ss.broadcast(SOCKET_MSG_TAG_API.API_SET_ENABLED, recordingEenabled)
+})
+
 /**
  * 生成一条api请求记录
  * @param req SimpleReq
  */
-export function handleReq(req: SimpleReq): ApiRecord {
+export function handleReq(req: SimpleReq): ApiRecord | null {
+  if (!recordingEenabled) return null
   // todo: 支持formData, body file
   const { headers, url, method } = req
   const uuid = genUUID()
@@ -74,7 +80,7 @@ export function handleReq(req: SimpleReq): ApiRecord {
   }
 
   apiRecords.push(record)
-  noticeApiUpdate(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
+  ss.broadcast(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
 
   return record
 }
@@ -84,7 +90,9 @@ export function handleReq(req: SimpleReq): ApiRecord {
  * @param resp SimpleResp
  * @param req SimpleReq
  */
-export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord {
+export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord | null {
+  if (!recordingEenabled) return
+
   const record = <ApiRecord>find({ uuid: req.__erra_uuid__ }, apiRecords)
   if (record == null) {
     console.warn(`【handleResp】找不到匹配的request，url: ${req.url}`);
@@ -124,7 +132,7 @@ export function replaceRecord(record: ApiRecord) {
   if (!oldRecord) throw new Error('找不到需要替换的record');
 
   const newRecord = Object.assign(oldRecord, record)
-  noticeApiUpdate(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, newRecord)
+  ss.broadcast(SOCKET_MSG_TAG_API.API_REPLACE_RECORD, newRecord)
 }
 
 export function bindApiSnippet(url: string, snippetId: string) {

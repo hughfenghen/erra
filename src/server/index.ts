@@ -60,6 +60,7 @@ proxyServer.beforeProxyReq(async (req) => {
   // 不记录map请求
   if (!/\.map$/.test(req.url)) {
     const record = handleReq(req)
+    if (!record) return
 
     const { req: mReq } = await throughBP4Req(record)
     Object.assign(req, mReq)

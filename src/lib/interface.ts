@@ -46,6 +46,8 @@ export type SocketListener = (...args: any[]) => void
  * socket.io 消息 tag定义
  */
 export enum SOCKET_MSG_TAG_API {
+  API_ENABLED = 'api_manager-enabled',
+  API_SET_ENABLED = 'api_manager-set_enabled',
   API_GET_HISTORY = 'api_manager-get_history',
   API_GET_RECORD_DETAIL = 'api_manager-get_detail',
   API_NEW_RECORD = 'api_manager-new_record',

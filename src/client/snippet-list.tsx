@@ -23,14 +23,14 @@ export default function Snippets() {
   const snippets = useSnippets()
   const [activeSnippet, setActiveSnippet] = useState(null)
   const [code, setCode] = useState('')
-  const [enabledSnippet, setEnabledSnippet] = useState(true)
+  const [snippetEnabled, setSnippetEnabled] = useState(true)
 
   useEffect(() => {
     sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
-      setEnabledSnippet(val)
+      setSnippetEnabled(val)
     })
     sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
-      setEnabledSnippet(val)
+      setSnippetEnabled(val)
     })
     return () => {
       sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
@@ -46,7 +46,7 @@ export default function Snippets() {
     <div className={s.opBar}>
       <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
       <Divider type="vertical"></Divider>
-      <Checkbox checked={enabledSnippet} onChange={({ target: { checked } }) => {
+      <Checkbox checked={snippetEnabled} onChange={({ target: { checked } }) => {
         sc.emit(SOCKET_MSG_TAG_API.SP_SET_ENABLED, checked)
       }}>启用Snippet</Checkbox>
     </div>
