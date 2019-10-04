@@ -10,10 +10,10 @@ const BPS: { [key: string]: API_DATA_TYPE[] } = {}
 
 class BPMsgQueue {
   private queue: BPMsg[] = []
-  switch = true
+  enabled = true
 
   push<T>(record: ApiRecord): Promise<T> {
-    if (!this.switch) {
+    if (!this.enabled) {
       return Promise.resolve(<T><unknown>(record.resp || record.req))
     }
     return new Promise((resolve, reject) => {
@@ -115,13 +115,13 @@ ss.on(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL, () => {
   ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_REMOVE, 'all')
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_MSG_GET_SWITCH, (cb) => {
-  cb(bpMsgQueue.switch)
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_ENABLED, (cb) => {
+  cb(bpMsgQueue.enabled)
 })
 
-ss.on(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, (val) => {
-  bpMsgQueue.switch = val
-  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_UPDATE_SWITCH, val)
+ss.on(SOCKET_MSG_TAG_API.BP_MSG_SET_ENABLED, (val) => {
+  bpMsgQueue.enabled = val
+  ss.broadcast(SOCKET_MSG_TAG_API.BP_MSG_SET_ENABLED, val)
 })
 
 export async function throughBP4Req(record: ApiRecord): Promise<ApiRecord> {
