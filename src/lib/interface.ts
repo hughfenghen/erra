@@ -71,6 +71,8 @@ export enum SOCKET_MSG_TAG_API {
   SP_SAVE = 'snippet_manager-save',
   SP_UPDATE = 'snippet_manager-update',
   SP_DELETE = 'snippet_manager-delete',
+  SP_ENABLED = 'snippet_manager-enabled',
+  SP_SET_ENABLED = 'snippet_manager-set_enabled',
 }
 
 export enum API_DATA_TYPE {

@@ -18,6 +18,7 @@ export default function ApiRecords() {
   const [httpDetail, setHttpDetail] = useState<SimpleReq | SimpleResp>(null)
   const [apiSnippetPair, setApiSnippetPair] = useState({})
   const [code, setCode] = useState('')
+  const [enabledSnippet, setEnabledSnippet] = useState(true)
 
   // 页面数据交互
   useEffect(() => {
@@ -55,6 +56,13 @@ export default function ApiRecords() {
         list => list.map((r) => r.uuid === record.uuid ? record : r)
       )
     })
+    // Snippet解析数据功能是否开启，未开启时禁止绑定Snippet
+    sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
+      setEnabledSnippet(val)
+    })
+    sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+      setEnabledSnippet(val)
+    })
 
     return () => {
       sc.off(SOCKET_MSG_TAG_API.API_NEW_RECORD)
@@ -62,6 +70,7 @@ export default function ApiRecords() {
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_RECORD)
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION)
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
     }
   }, [])
 
@@ -159,6 +168,7 @@ export default function ApiRecords() {
         onChange={(spId) => {
           sc.emit(SOCKET_MSG_TAG_API.API_BIND_SNIPPET, it.parsedUrl.shortHref, spId)
         }}
+        disabled={!enabledSnippet}
         style={{ width: '200px' }}
         placeholder="选择Snippet可篡改Resp"
         allowClear

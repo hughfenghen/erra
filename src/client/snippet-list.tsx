@@ -1,4 +1,4 @@
-import { Button, Divider, Icon, List } from 'antd';
+import { Button, Divider, Icon, List, Checkbox } from 'antd';
 import yaml from 'js-yaml';
 import React, { useEffect, useState } from 'react';
 
@@ -23,7 +23,20 @@ export default function Snippets() {
   const snippets = useSnippets()
   const [activeSnippet, setActiveSnippet] = useState(null)
   const [code, setCode] = useState('')
+  const [enabledSnippet, setEnabledSnippet] = useState(true)
 
+  useEffect(() => {
+    sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
+      setEnabledSnippet(val)
+    })
+    sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+      setEnabledSnippet(val)
+    })
+    return () => {
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
+    }
+  }, [])
+  
   useEffect(() => {
     // id不可编辑
     setCode(activeSnippet ? yaml.safeDump(omit('id', activeSnippet)) : '')
@@ -32,6 +45,10 @@ export default function Snippets() {
   return <section className={s.snippetList}>
     <div className={s.opBar}>
       <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
+      <Divider type="vertical"></Divider>
+      <Checkbox checked={enabledSnippet} onChange={({ target: { checked } }) => {
+        sc.emit(SOCKET_MSG_TAG_API.SP_SET_ENABLED, checked)
+      }}>启用Snippet</Checkbox>
     </div>
     <List dataSource={snippets} renderItem={(it) => <div
       onClick={() => {

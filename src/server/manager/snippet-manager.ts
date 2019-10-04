@@ -9,6 +9,7 @@ import { SOCKET_MSG_TAG_API, Snippet, SnippetContent } from '../../lib/interface
 
 const snippetsFn: { [key: string]: Function } = {}
 const snippetsMeta: { [key: string]: Snippet} = {}
+let enableSnippet = true
 
 configManager.on('afterConfigInit', () => {
   Object.entries(configManager.get(configManager.key.SNIPPET) || {})
@@ -46,6 +47,15 @@ ss.on(SOCKET_MSG_TAG_API.SP_DELETE, (id) => {
   delete snippetsMeta[id]
   configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
+})
+
+ss.on(SOCKET_MSG_TAG_API.SP_ENABLED, (cb) => {
+  cb(enableSnippet)
+})
+
+ss.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+  enableSnippet = !!val
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_SET_ENABLED, enableSnippet)
 })
 
 export enum PARSE_STRATEGY {
@@ -167,5 +177,7 @@ export function parseSnippetContent(snippet: SnippetContent): (data: any) => any
  * @return Function 按配置策略处理传入的参数后返回
  */
 export function getSnippetFn(id: string): Function {
-  return snippetsFn[id]
+  if (enableSnippet) return snippetsFn[id]
+  // 关闭Snippet转换功能时，返回一个不对数据做任何处理的函数identity
+  return identity
 }
