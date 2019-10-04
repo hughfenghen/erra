@@ -15,7 +15,7 @@ export function parseUrl4Req(req: SimpleReq) {
   const url: ParsedUrl = { origin: null, ...u }
   
   if (url.protocol && url.host) {
-    url.origin = `${url.protocol}//${url.host}${url.port ? (':' + url.port) : ''}`
+    url.origin = `${url.protocol}//${url.host}`
     url.shortHref = `${url.origin}${url.pathname}`
     return url
   }
@@ -25,7 +25,7 @@ export function parseUrl4Req(req: SimpleReq) {
   // todo 兼容ws、wss协议
   url.protocol = 'https:'
   
-  url.origin = `${url.protocol}//${url.host}${url.port ? (':' + url.port) : ''}`
+  url.origin = `${url.protocol}//${url.host}`
   url.shortHref = `${url.origin}${url.pathname}`
   url.href = `${url.shortHref}${url.search || ''}${url.hash || ''}`
 
