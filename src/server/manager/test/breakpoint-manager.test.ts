@@ -123,7 +123,7 @@ test('处理断点任务', () => {
     expect(httpDetail).toEqual(record.req)
   })
 
-  onBPDone(msg.uuid, {})
+  onBPDone({ id: msg.uuid })
   // 处理断点后 队列为空
   expect(getQueueMsgs().length).toBe(0)
 })
