@@ -113,6 +113,7 @@ export default function BreakpointQueue() {
     ></List>
     {!!code && <Editor
       value={code}
+      onChange={(val) => setCode(val)}
       onClose={() => { setActiveMsg(null)}}
     >
       <Button onClick={() => {

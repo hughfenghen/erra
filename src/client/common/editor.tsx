@@ -92,10 +92,7 @@ export default function Editor({
       mode="yaml"
       theme="github"
       value={value}
-      onChange={(code) => {
-        // 替换第一行的注释
-        onChange(code.replace(/.*?\n/, ''))
-      }}
+      onChange={onChange}
       name="ace-el"
       editorProps={{ $blockScrolling: true }}
       width={width}

@@ -27,6 +27,8 @@ breakpoint:
     - response
   'http://iamsrv.it.dev.sankuai.com/dc/qy/accounts/1/applyAccount/applied/page':
     - response
+  'https://www.mocky.io/v2/5185415ba171ea3a00704eed':
+    - response
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/agent/blacklist/reasons': 97423a98-30c5-479d-8a34-0f7bfcf1ae7d
