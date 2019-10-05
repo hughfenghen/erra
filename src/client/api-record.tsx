@@ -104,7 +104,7 @@ export default function ApiRecords() {
       return
     }
 
-    setCode(yaml.safeDump({
+    setCode(yaml.dump({
       // 隐藏__erra_uuid__字段
       ...omit('__erra_uuid__', httpDetail),
       // 解析成json对象，yaml语法阅读优化

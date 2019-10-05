@@ -47,7 +47,7 @@ export default function BreakpointQueue() {
 
   useEffect(() => {
     // id不可编辑
-    setCode(activeMsg ? yaml.safeDump(activeMsg.httpDetail) : '')
+    setCode(activeMsg ? yaml.dump(activeMsg.httpDetail) : '')
   }, [activeMsg])
 
   function getNextMsg() {
