@@ -132,6 +132,8 @@ function parse(snippet: SnippetContent) {
     )(snippet)
   } else if (isArray(snippet)) {
     return map(parse)(snippet)
+  } else if (isFunction(snippet)) {
+    return snippet
   }
   return parseStrategy({ value: snippet })
 }

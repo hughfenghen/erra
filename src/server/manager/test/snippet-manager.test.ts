@@ -109,3 +109,26 @@ test('解析snippet引用', () => {
 test('展开与源数据不匹配的snippet层级', () => {
   expect(parseSnippetContent({ foo: 'bar' })(null)).toEqual({ foo: 'bar' })
 })
+
+test('支持js-yaml 自定义函数 向html中注入脚本', () => {
+  const snippets = yaml.load(`
+    snippetFnId:
+      id: snippetFnId
+      name: customFn
+      content: 
+        body: !!js/function (body) => body.replace(/(<\\/body>)/, '<script>alert("yoyoyo")</script>$1')
+  `)
+
+  configManager.get = jest.fn(() => snippets)
+  configManager.emit('afterConfigInit')
+
+  expect(getSnippetFn('snippetFnId')({
+    statusCode: 200,
+    headers: {},
+    body: `
+    <html>
+      <body>Hello Erra</body>
+    </html>
+  `
+  }).body.includes('<script>alert("yoyoyo")</script>')).toBeTruthy()
+})
