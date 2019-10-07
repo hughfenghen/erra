@@ -20,7 +20,11 @@ configManager.on('afterConfigInit', () => {
 })
 
 function getSnippetMetaList() {
-  return map(pick(['id', 'name', 'content', 'correlationApi']), values(snippetsMeta))
+  // 函数转换成字符串，负责不能通过socket传递
+  return JSON.stringify(
+    values(snippetsMeta),
+    (k, v) => isFunction(v) ? `!!js/function ${v.toString()}` : v
+  );
 }
 
 ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {

@@ -26,7 +26,19 @@ snippet:
     id: fe550821-92a2-46c8-80ed-9047cbfa859f
     name: Inject Eruda
     content:
-      body: !!js/function (body) => body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+      body: !<tag:yaml.org,2002:js/function> |-
+        function anonymous(body
+        /*``*/) {
+
+
+
+
+          return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
+
+
+
+        }
 breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
