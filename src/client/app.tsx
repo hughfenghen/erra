@@ -10,6 +10,7 @@ import BreakpointQueue from './breakpoint-queue';
 import s from './style.less';
 import sc from './common/socket-client';
 
+// import '../../static/erra-portal.js'
 
 function App() {
   return <div className={s.app}>
