@@ -29,19 +29,26 @@ snippet:
       body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
         /*``*/) {
+
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
         }
   f05e8851-d14f-4531-9dd7-8f941568e0e4:
     id: f05e8851-d14f-4531-9dd7-8f941568e0e4
     name: Inject Erra
     content:
-      body: !<tag:yaml.org,2002:js/function> >-
+      body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
-
         /*``*/) {
-        return body.replace(/(<\/body>)/, '<script
-        src="http://localhost:1234/erra-portal.js"></script>$1')
+         return body.replace(/(<\/body>)/, '<script src="http://localhost:1234/erra-portal.js"></script>$1') 
         }
+  22938ccb-880d-4ce0-8d96-4a881d32aa94:
+    id: 22938ccb-880d-4ce0-8d96-4a881d32aa94
+    name: EreMsg
+    content:
+      body:
+        data:
+          errorMsg: acd;akd111
 breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
@@ -53,3 +60,5 @@ apiBindSnippet:
   'http://yapi.sankuai.com/mock/2841/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c
   'http://lh:9081:9081/meeting/dataset/getCityBuildingAndFloor': 7ef09c6c-f242-4549-aa28-51aa6244ce1d
   'http://lh:7001/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4
+  'http://lh:8890/access-permission': f05e8851-d14f-4531-9dd7-8f941568e0e4
+  'http://iamsrv.it.dev.sankuai.com/dc/qy/1/pms/appInfo/host': 22938ccb-880d-4ce0-8d96-4a881d32aa94

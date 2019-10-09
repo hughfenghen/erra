@@ -36,7 +36,7 @@ export default function Snippets() {
       sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
     }
   }, [])
-  
+
   useEffect(() => {
     // id不可编辑
     setCode(activeSnippet ? yaml.dump(omit('id', activeSnippet)) : '')
@@ -44,11 +44,16 @@ export default function Snippets() {
 
   return <section className={s.snippetList}>
     <div className={s.opBar}>
-      <Button onClick={() => setActiveSnippet({ ...snippetObjTpl })}>新增Snippet</Button>
+      <Checkbox
+        checked={snippetEnabled}
+        onChange={({ target: { checked } }) => {
+          sc.emit(SOCKET_MSG_TAG_API.SP_SET_ENABLED, checked)
+        }}
+      >启用Snippet</Checkbox>
       <Divider type="vertical"></Divider>
-      <Checkbox checked={snippetEnabled} onChange={({ target: { checked } }) => {
-        sc.emit(SOCKET_MSG_TAG_API.SP_SET_ENABLED, checked)
-      }}>启用Snippet</Checkbox>
+      <Button
+        onClick={() => setActiveSnippet({ ...snippetObjTpl })}
+      >新增Snippet</Button>
     </div>
     <List dataSource={snippets} renderItem={(it) => <div
       onClick={() => {

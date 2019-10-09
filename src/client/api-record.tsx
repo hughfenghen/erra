@@ -120,9 +120,16 @@ export default function ApiRecords() {
 
   return <section className={s.apiRecord}>
     <div className={s.opBar}>
-      <Checkbox checked={recordingEnabled} onChange={({ target: { checked } }) => {
-        sc.emit(SOCKET_MSG_TAG_API.API_SET_ENABLED, checked)
-      }}>记录请求</Checkbox>
+      <Checkbox
+        checked={recordingEnabled}
+        onChange={({ target: { checked } }) => {
+          sc.emit(SOCKET_MSG_TAG_API.API_SET_ENABLED, checked)
+        }}
+      >记录请求</Checkbox>
+      <Divider type="vertical"></Divider>
+      <Button
+        onClick={() => { sc.emit(SOCKET_MSG_TAG_API.API_CLEAR_RECORD) }}
+      >Clear Record</Button>
     </div>
     <List dataSource={apiList} renderItem={(it: ApiRecord) => <div
       className={s.listItem}
@@ -169,7 +176,7 @@ export default function ApiRecords() {
         }} disabled={isEmpty(it.resp)}>show resp</Button>
       </span>
       <Divider type="vertical"></Divider>
-      <div style={{ 
+      <div style={{
         color: it.resp && (it.resp.statusCode >= 400) ? 'red' : ''
       }}>
         <div>{it.parsedUrl.pathname}</div>

@@ -14,10 +14,9 @@ import sc from './common/socket-client';
 
 function App() {
   return <div className={s.app}>
-    <Button onClick={() => {
+    {/debug/.test(window.location.search) && <Button onClick={() => {
       fetch('https://www.mocky.io/v2/5185415ba171ea3a00704eed')
-    }}>Send mocky request</Button>
-    <Button onClick={() => { sc.emit(SOCKET_MSG_TAG_API.API_CLEAR_RECORD)}}>Clear Record</Button>
+    }}>Send mocky request</Button>}
     <Tabs defaultActiveKey="network">
       <Tabs.TabPane tab="Network" key="network">
         <ApiRecords></ApiRecords>

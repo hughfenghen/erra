@@ -81,13 +81,18 @@ export default function BreakpointQueue() {
 
   return <section className={s.bpMsgQueue}>
     <div className={s.opBar}>
-      <Checkbox checked={bpEnabled} onChange={({ target: { checked }}) => {
-        sc.emit(SOCKET_MSG_TAG_API.BP_MSG_SET_ENABLED, checked)
-      }}>启用断点</Checkbox>
-      {bpMsgs.length > 0 && <Button onClick={() => {
-        sc.emit(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL)
-        setActiveMsg(null)
-      }}>跳过所有</Button>}
+      <Checkbox
+        checked={bpEnabled}
+        onChange={({ target: { checked } }) => {
+          sc.emit(SOCKET_MSG_TAG_API.BP_MSG_SET_ENABLED, checked)
+        }}
+      >启用断点</Checkbox>
+      {bpMsgs.length > 0 && <Button
+        onClick={() => {
+          sc.emit(SOCKET_MSG_TAG_API.BP_MSG_PASS_ALL)
+          setActiveMsg(null)
+        }}
+      >跳过所有</Button>}
     </div>
     <List
       dataSource={bpMsgs}
@@ -114,7 +119,7 @@ export default function BreakpointQueue() {
     {!!code && <Editor
       value={code}
       onChange={(val) => setCode(val)}
-      onClose={() => { setActiveMsg(null)}}
+      onClose={() => { setActiveMsg(null) }}
     >
       <Button onClick={() => {
         sc.emit(SOCKET_MSG_TAG_API.BP_MSG_DONE, {
