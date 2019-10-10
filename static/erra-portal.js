@@ -22,7 +22,7 @@
 
   let showIFrame = false
   const iframeEl = document.createElement('iframe')
-  iframeEl.src = 'http://localhost:1234/'
+  iframeEl.src = 'https://localhost:1234/'
   Object.assign(iframeEl.style, {
     position: 'fixed',
     zIndex: 100,

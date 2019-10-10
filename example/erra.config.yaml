@@ -40,7 +40,7 @@ snippet:
       body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
         /*``*/) {
-         return body.replace(/(<\/body>)/, '<script src="http://localhost:1234/erra-portal.js"></script>$1') 
+         return body.replace(/(<\/body>)/, '<script src="https://localhost:1234/erra-portal.js"></script>$1') 
         }
   22938ccb-880d-4ce0-8d96-4a881d32aa94:
     id: 22938ccb-880d-4ce0-8d96-4a881d32aa94
@@ -62,3 +62,4 @@ apiBindSnippet:
   'http://lh:7001/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4
   'http://lh:8890/access-permission': f05e8851-d14f-4531-9dd7-8f941568e0e4
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/pms/appInfo/host': 22938ccb-880d-4ce0-8d96-4a881d32aa94
+  'https://zoom.test.meituan.com/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4

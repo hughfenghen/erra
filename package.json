@@ -12,7 +12,7 @@
   "license": "MIT",
   "scripts": {
     "server": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts  -c ./example/erra.config.yaml",
-    "client": "parcel ./src/client/index.html",
+    "client": "parcel ./src/client/index.html --cert ./ca/erra.crt.pem --key ./ca/erra.key.pem",
     "test:watch": "jest --watch",
     "test": "jest",
     "prebuild": "yarn run test",

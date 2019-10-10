@@ -20,6 +20,7 @@
 [x] 超长的Response可能导致页面卡死  
 [x] websocket代理失败  
 [x] 断点 中断后无法继续，导致后续所有断点在队列中无法处理  
+[x] Erra嵌入到https页面失败
 
 ### 一期基本功能
 [x] http、https代理服务  
