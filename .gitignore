@@ -3,4 +3,4 @@ node_modules
 dist
 yarn-error.log
 coverage
-ca
+package-lock.json
