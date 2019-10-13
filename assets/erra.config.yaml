@@ -1,0 +1,29 @@
+snippet:
+  88f3d643-ca05-4dc0-a338-964390a39ce3:
+    id: 88f3d643-ca05-4dc0-a338-964390a39ce3
+    name: hello world
+    content:
+      body:
+        hello: world
+  fe550821-92a2-46c8-80ed-9047cbfa859f:
+    id: fe550821-92a2-46c8-80ed-9047cbfa859f
+    name: Inject Eruda
+    content:
+      body: !<tag:yaml.org,2002:js/function> |-
+        function anonymous(body
+        /*``*/) {
+
+          return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
+        }
+  f05e8851-d14f-4531-9dd7-8f941568e0e4:
+    id: f05e8851-d14f-4531-9dd7-8f941568e0e4
+    name: Inject Erra
+    content:
+      body: !<tag:yaml.org,2002:js/function> |-
+        function anonymous(body
+        /*``*/) {
+         return body.replace(/(<\/body>)/, '<script src="https://localhost:1234/erra-portal.js"></script>$1') 
+        }
+breakpoint:
+apiBindSnippet:
