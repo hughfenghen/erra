@@ -30,9 +30,7 @@ const exps = {
 function init (cfgPath) {
   const p = path.resolve(process.cwd(), cfgPath)
   if (!fs.existsSync(p)) {
-    console.error(`找不到配置的path: ${p}`);
-    // todo: create config file
-    throw new Error(`找不到配置的的path: ${p}`)
+    throw new Error(`配置文件不存在，path: ${p}`)
   }
 
   cofnigPath = p 

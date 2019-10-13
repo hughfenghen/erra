@@ -4,6 +4,7 @@ import http from 'http';
 import net from 'net';
 import URL from 'url';
 import fs from 'fs';
+import os from 'os';
 import pem from 'pem';
 import path from 'path';
 import LRU from 'lru-cache';
@@ -35,10 +36,10 @@ async function getRootCert() {
   if (certCache.has(cacheKey)) return certCache.get(cacheKey)
 
   const rootCert = {
-    cert: await fsReadFile(path.join(process.cwd(), 'ca/erra.crt.pem'), {
+    cert: await fsReadFile(path.resolve(os.homedir(), '.erra/erra.crt.pem'), {
       encoding: 'utf-8',
     }),
-    key: await fsReadFile(path.join(process.cwd(), 'ca/erra.key.pem'), {
+    key: await fsReadFile(path.resolve(os.homedir(), '.erra/erra.key.pem'), {
       encoding: 'utf-8',
     }),
   }

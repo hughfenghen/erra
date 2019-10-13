@@ -10,7 +10,7 @@
     "http"
   ],
   "main": "",
-  "bin": "./bin/index.sh",
+  "bin": "./bin/erra.js",
   "author": "fenghen",
   "license": "MIT",
   "scripts": {
@@ -19,13 +19,14 @@
     "test:watch": "jest --watch",
     "test": "jest",
     "prebuild": "yarn run test",
-    "build": "tsc ./lib/index.ts --declaration",
+    "build": "tsc -p tsconfig.json",
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
     "antd": "^3.23.6",
     "brace": "^0.11.1",
+    "commander": "^3.0.2",
     "es6-promisify": "^6.0.2",
     "events": "^3.0.0",
     "http-proxy": "^1.17.0",
@@ -38,6 +39,7 @@
     "react": "^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0",
     "react-ace": "^7.0.4",
     "react-dom": "^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0",
+    "shelljs": "^0.8.3",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "uuid": "^3.3.2"
@@ -64,7 +66,7 @@
     "parcel-plugin-static-files-copy": "^2.2.1",
     "postcss-modules": "^1.4.1",
     "ts-node": "^8.1.1",
-    "typescript": "^3.4.5",
+    "typescript": "^3.6.4",
     "typescript-plugin-css-modules": "^1.2.1"
   }
 }
