@@ -16,11 +16,12 @@
   "scripts": {
     "server:bin": "node -r ts-node/register ./src/server/index.ts -c ",
     "server:dev": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts -c ./example/erra.config.yaml",
-    "client": "parcel ./src/client/index.html --cert ./ca/erra.crt.pem --key ./ca/erra.key.pem",
+    "client:bin": "http-server dist assets --ssl --cert assets/erra.crt.pem --key assets/erra.key.pem",
+    "client:dev": "parcel ./src/client/index.html --cert assets/erra.crt.pem --key assets/erra.key.pem",
     "test:watch": "jest --watch",
     "test": "jest",
     "prebuild": "yarn run test",
-    "build": "tsc -p tsconfig.json",
+    "build:client": "parcel build ./src/client/index.html",
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
@@ -60,6 +61,7 @@
     "babel-jest": "^24.8.0",
     "babel-plugin-module-resolver": "^3.2.0",
     "eslint-plugin-jest": "^22.5.1",
+    "http-server": "^0.11.1",
     "jest": "^24.8.0",
     "less": "^3.10.3",
     "nodemon": "^1.19.2",

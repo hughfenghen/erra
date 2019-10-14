@@ -42,7 +42,6 @@ program.command('start')
     cpPemFile()
     let p = path.resolve(process.cwd(), cfgPath)
     if (!fs.existsSync(p)) {
-      // log: path not exists
       p = defaultErraCfgPath
       if (!fs.existsSync(p)) {
         createCfgFile(p)
@@ -50,7 +49,9 @@ program.command('start')
     }
 
     shelljs.cd(erraPrjPath)
-    shelljs.exec(`npm run server:bin ${p}`)
+    console.log('配置文件路径：', p);
+    shelljs.exec(`npm run server:bin ${p}`, { async: true })
+    shelljs.exec('npm run client:bin', { async: true })
   })
 
 program.parse(process.argv);
