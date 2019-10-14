@@ -16,8 +16,8 @@
   "scripts": {
     "server:bin": "node -r ts-node/register ./src/server/index.ts -c ",
     "server:dev": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts -c ./example/erra.config.yaml",
-    "client:bin": "http-server dist assets --ssl --cert assets/erra.crt.pem --key assets/erra.key.pem",
-    "client:dev": "parcel ./src/client/index.html --cert assets/erra.crt.pem --key assets/erra.key.pem",
+    "client:bin": "http-server dist --ssl --cert static/erra.crt.pem --key static/erra.key.pem",
+    "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
     "test": "jest",
     "prebuild": "yarn run test",

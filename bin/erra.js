@@ -12,7 +12,7 @@ const defaultErraCfgPath = path.resolve(erraHomePath, 'erra.config.yaml')
 
 function createCfgFile(cfgPath) {
   shelljs.mkdir('-p', path.dirname(cfgPath))
-  shelljs.cp(path.resolve(erraPrjPath, 'assets/erra.config.yaml'), cfgPath)
+  shelljs.cp(path.resolve(erraPrjPath, 'static/erra.config.yaml'), cfgPath)
 }
 
 function cpPemFile () {
@@ -20,7 +20,7 @@ function cpPemFile () {
   ['erra.crt.pem', 'erra.csr.pem', 'erra.key.pem'].forEach((name) => {
       const targetPath = path.resolve(erraHomePath, name)
       if (!fs.existsSync(targetPath)) {
-        shelljs.cp(path.resolve(erraPrjPath, `assets/${name}`), targetPath)
+        shelljs.cp(path.resolve(erraPrjPath, `static/${name}`), targetPath)
       }
     })
 }
