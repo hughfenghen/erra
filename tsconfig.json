@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "dist/server",
     "plugins": [{ "name": "typescript-plugin-css-modules" }],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "downlevelIteration": true,
     "jsx": "react"
-  },
-  "include": ["src/server/*"]
+  }
 }

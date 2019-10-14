@@ -7,7 +7,6 @@ const program = require('commander');
 const shelljs = require('shelljs');
 
 const erraPrjPath = path.resolve(__dirname, '../')
-const serverPath = path.resolve(erraPrjPath, 'dist/server/server/index.js')
 const erraHomePath = `${os.homedir()}/.erra`
 const defaultErraCfgPath = path.resolve(erraHomePath, 'erra.config.yaml')
 
@@ -50,7 +49,8 @@ program.command('start')
       }
     }
 
-    shelljs.exec(`node ${serverPath} -c ${p}`)
+    shelljs.cd(erraPrjPath)
+    shelljs.exec(`npm run server:bin ${p}`)
   })
 
 program.parse(process.argv);
