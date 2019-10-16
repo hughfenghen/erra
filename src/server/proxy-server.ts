@@ -3,19 +3,9 @@ import https from 'https';
 import http from 'http';
 import net from 'net';
 import URL from 'url';
-import fs from 'fs';
-import os from 'os';
-import pem from 'pem';
-import path from 'path';
-import LRU from 'lru-cache';
 import { createSecureContext } from 'tls';
-import { promisify } from 'es6-promisify';
 import ip from 'ip';
-
-const certCache = new LRU({
-  max: 500,
-  maxAge: 1000 * 60 * 60,
-})
+import { createCert } from '../lib/cert';
 
 let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => {}
 
@@ -25,48 +15,6 @@ proxy.on('error', function (err, req, res) {
   res.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
   res.end('请检查目标服务和Erra是否正常工作。\n' + err.toString());
 });
-
-const fsReadFile = promisify(fs.readFile);
-const pemCreateCertificate = promisify(pem.createCertificate);
-
-async function getRootCert() {
-  const cacheKey = 'root-cert'
-
-  if (certCache.has(cacheKey)) return certCache.get(cacheKey)
-
-  const rootCert = {
-    cert: await fsReadFile(path.resolve(os.homedir(), '.erra/erra.crt.pem'), {
-      encoding: 'utf-8',
-    }),
-    key: await fsReadFile(path.resolve(os.homedir(), '.erra/erra.key.pem'), {
-      encoding: 'utf-8',
-    }),
-  }
-
-  certCache.set(cacheKey, rootCert);
-  return rootCert;
-}
-
-async function createCert(host) {
-  if (certCache.has(host)) return certCache.get(host)
-
-  const root = await getRootCert();
-  const res = await pemCreateCertificate({
-    altNames: [host],
-    commonName: host,
-    days: 365,
-    serviceCertificate: root.cert,
-    serviceKey: root.key,
-  });
-
-  const cert = {
-    cert: res.certificate,
-    key: res.clientKey,
-  }
-  certCache.set(host, cert);
-
-  return cert;
-}
 
 async function httpHandler(req, resp) {
   try {
@@ -90,10 +38,9 @@ async function run({ httpPort, httpsPort }) {
   const serverCrt = await createCert('internal_https_server');
 
   const httpsServer = https.createServer({
-    SNICallback: (servername, cb) => {
-      createCert(servername).then(({ cert, key }) => {
-        cb(null, createSecureContext({ cert, key }));
-      });
+    async SNICallback(servername, cb) {
+      const { cert, key } = await createCert(servername)
+      cb(null, createSecureContext({ cert, key }))
     },
     cert: serverCrt.cert,
     key: serverCrt.key,
