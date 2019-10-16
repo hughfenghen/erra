@@ -10,15 +10,14 @@ import path from 'path';
 import LRU from 'lru-cache';
 import { createSecureContext } from 'tls';
 import { promisify } from 'es6-promisify';
+import ip from 'ip';
 
 const certCache = new LRU({
   max: 500,
   maxAge: 1000 * 60 * 60,
 })
 
-const httpPort = 3344
-const httpsPort = 3355
-let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => { }
+let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => {}
 
 const proxy = httpProxy.createProxyServer({ ws: true })
 proxy.on('error', function (err, req, res) {
@@ -87,7 +86,7 @@ async function httpHandler(req, resp) {
   }
 }
 
-; (async function init() {
+async function run({ httpPort, httpsPort }) {
   const serverCrt = await createCert('internal_https_server');
 
   const httpsServer = https.createServer({
@@ -126,11 +125,14 @@ async function httpHandler(req, resp) {
     proxy.ws(req, socket, head, { target: `ws://${req.headers.host}`});
   });
 
-  httpServer.listen(httpPort, '0.0.0.0');
+  httpServer.listen(httpPort, '0.0.0.0', () => {
+    console.log(`本地代理服务已启动，http_proxy=http://${ip.address()}:${httpPort}`);
+  });
   httpsServer.listen(httpsPort, '0.0.0.0');
-})();
+}
 
 export default {
+  run,
   beforeProxyReq(handler) {
     beforeProxyReqHandler = handler
   },

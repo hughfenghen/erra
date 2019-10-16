@@ -4,7 +4,6 @@ import socketIO from 'socket.io';
 import { SocketListener } from '../lib/interface';
 
 const app = http.createServer()
-app.listen(63236);
 const io = socketIO(app);
 
 const onlineSocketSet = new Set<socketIO.Socket>()
@@ -58,4 +57,7 @@ export default {
   broadcast,
   on,
   once,
+  run(port) {
+    app.listen(port);
+  }
 }

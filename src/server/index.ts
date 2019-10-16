@@ -1,12 +1,11 @@
-import './socket-server';
-
-import { pick, isString } from 'lodash/fp';
+import { pick, getOr } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
 
 import { SimpleReq, SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
+import ss from './socket-server';
 import proxyServer from './proxy-server';
 import { safeJSONParse } from '../lib/utils';
 
@@ -20,6 +19,14 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // 初始化配置
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
+
+configManager.on('afterConfigInit', (cfg) => {
+  proxyServer.run({ 
+    httpPort: getOr(3344, 'SERVICE_CONFIG.httpPort', cfg),
+    httpsPort: getOr(4455, 'SERVICE_CONFIG.httpsPort', cfg),
+  })
+  ss.run(getOr(5566, 'SERVICE_CONFIG.wsPort', cfg))
+})
 
 proxyServer.afterProxyResp((proxyRes, req, resp) => {
   // 不处理map请求

@@ -1,3 +1,5 @@
+# ERRA服务配置，可指定 httpPort, httpsPort, wsPort
+SERVICE_CONFIG:
 snippet:
   88f3d643-ca05-4dc0-a338-964390a39ce3:
     id: 88f3d643-ca05-4dc0-a338-964390a39ce3

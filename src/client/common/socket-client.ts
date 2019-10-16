@@ -2,7 +2,9 @@ import io from 'socket.io-client';
 
 import { SocketListener } from '../../lib/interface';
 
-const socket = io('http://localhost:63236');
+const port = (new URL(window.location.href)).searchParams.get('wsPort') || 5566
+
+const socket = io(`http://${window.location.hostname}:${port}`);
 
 socket.on('api-response', (url, data) => {
   console.log('====== api-response', url, data);

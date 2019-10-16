@@ -40,7 +40,7 @@ function init (cfgPath) {
       return 
     }
     config = yaml.load(data) || {}
-    exps.emit('afterConfigInit')
+    exps.emit('afterConfigInit', config)
   });
 }
 

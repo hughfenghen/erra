@@ -20,9 +20,8 @@
     "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
     "test": "jest",
-    "prebuild": "yarn run test",
     "build:client": "parcel build ./src/client/index.html",
-    "prepublishOnly": "yarn run build"
+    "prepublishOnly": "yarn run test"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
@@ -32,6 +31,7 @@
     "es6-promisify": "^6.0.2",
     "events": "^3.0.0",
     "http-proxy": "^1.17.0",
+    "ip": "^1.1.5",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
