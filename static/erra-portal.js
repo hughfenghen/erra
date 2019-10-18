@@ -22,7 +22,9 @@
 
   let showIFrame = false
   const iframeEl = document.createElement('iframe')
-  iframeEl.src = 'https://localhost:1234/'
+
+  // js资源对应的顶级pat即 erra界面
+  iframeEl.src = new URL(document.querySelector('script[src$="/erra-portal.js"]').getAttribute('src')).origin
   Object.assign(iframeEl.style, {
     position: 'fixed',
     zIndex: 100,

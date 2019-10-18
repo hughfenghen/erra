@@ -21,7 +21,7 @@
 [x] websocket代理失败  
 [x] 断点 中断后无法继续，导致后续所有断点在队列中无法处理  
 [x] Erra嵌入到https页面失败
-[] 注入Erra到移动端html失败（localhost）
+[-] 注入Erra到移动端html失败（localhost）
 
 ### 一期基本功能
 [x] http、https代理服务  
