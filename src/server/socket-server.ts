@@ -1,26 +1,13 @@
-import https from 'https';
 import socketIO from 'socket.io';
-import { createSecureContext } from 'tls';
-
 import { SocketListener } from '../lib/interface';
-import { createCert } from '../lib/cert';
+import server from './server';
+
 
 const onlineSocketSet = new Set<socketIO.Socket>()
 const eventListeners: { [x: string]: SocketListener } = {}
 
-async function run(port) {
-  const serverCrt = await createCert('internal_https_server');
-
-  const app = https.createServer({
-    cert: serverCrt.cert,
-    key: serverCrt.key,
-    async SNICallback(servername, cb) {
-      const { cert, key } = await createCert(servername)
-      cb(null, createSecureContext({ cert, key }))
-    },
-  })
-  const io = socketIO(app);
-  app.listen(port);
+async function run() {
+  const io = socketIO(await server.getHttpsServer());
 
   io.on('connection', socket => {
     onlineSocketSet.add(socket)
@@ -30,12 +17,11 @@ async function run(port) {
         socket.on(evtName, listener)
       })
 
-    socket.on('disconnect', (...args) => {
+    socket.on('disconnect', () => {
       onlineSocketSet.delete(socket)
     })
   })
 }
-
 
 function broadcast(eventName: string, ...args) {
   onlineSocketSet.forEach((s) => { s.emit(eventName, ...args) })

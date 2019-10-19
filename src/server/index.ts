@@ -6,6 +6,7 @@ import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
 import ss from './socket-server';
+import server from './server';
 import proxyServer from './proxy-server';
 import { safeJSONParse } from '../lib/utils';
 
@@ -21,11 +22,11 @@ process.on('unhandledRejection', (reason, promise) => {
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 configManager.on('afterConfigInit', (cfg) => {
-  proxyServer.run({ 
+  server.run({ 
     httpPort: getOr(3344, 'SERVICE_CONFIG.httpPort', cfg),
     httpsPort: getOr(4455, 'SERVICE_CONFIG.httpsPort', cfg),
   })
-  ss.run(getOr(5566, 'SERVICE_CONFIG.wsPort', cfg))
+  ss.run()
 })
 
 proxyServer.afterProxyResp((proxyRes, req, resp) => {

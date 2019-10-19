@@ -32,7 +32,9 @@ snippet:
         /*``*/) {
 
 
+
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
 
 
         }
@@ -44,7 +46,9 @@ snippet:
         function anonymous(body
         /*``*/) {
 
+
          return body.replace(/(<\/body>)/, '<script src="https://localhost:1234/erra-portal.js"></script>$1') 
+
 
         }
   22938ccb-880d-4ce0-8d96-4a881d32aa94:
@@ -58,8 +62,6 @@ breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
   'http://iamsrv.it.dev.sankuai.com/dc/qy/accounts/1/applyAccount/applied/page':
-    - response
-  'https://www.baidu.com/':
     - response
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c

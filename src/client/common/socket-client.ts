@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 
 import { SocketListener } from '../../lib/interface';
 
-const port = (new URL(window.location.href)).searchParams.get('wsPort') || 5566
+const port = (new URL(window.location.href)).searchParams.get('wsPort') || 4455
 
 const socket = io(`https://${window.location.hostname}:${port}`);
 
