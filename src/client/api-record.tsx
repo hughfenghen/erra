@@ -176,11 +176,16 @@ export default function ApiRecords() {
         }} disabled={isEmpty(it.resp)}>show resp</Button>
       </span>
       <Divider type="vertical"></Divider>
-      <div style={{
+      <div className={s.url} style={{
         color: it.resp && (it.resp.statusCode >= 400) ? 'red' : ''
       }}>
         <div>{it.parsedUrl.pathname}</div>
         <div>{it.parsedUrl.origin}</div>
+      </div>
+      <Divider type="vertical"></Divider>
+      
+      <div>
+        <Tag>{it.req.method}</Tag>
       </div>
       <Divider type="vertical"></Divider>
       <Select
@@ -198,10 +203,6 @@ export default function ApiRecords() {
           key={it.id}
         >{it.name}</Select.Option>)}
       </Select>
-      <Divider type="vertical"></Divider>
-      <div>
-        <Tag>{it.req.method}</Tag>
-      </div>
     </div>}></List>
     {!!code && <Editor
       value={code}

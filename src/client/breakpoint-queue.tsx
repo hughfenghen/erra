@@ -100,12 +100,12 @@ export default function BreakpointQueue() {
         className={s.listItem}
         style={{ backgroundColor: (activeMsg || {}).uuid === it.uuid ? '#eee' : '' }}
       >
-        <div>
+        <div className={s.url}>
           <div>{it.parsedUrl.pathname}</div>
           <div>{it.parsedUrl.origin}</div>
         </div>
         <Divider type="vertical" />
-        <div>
+        <div className={s.op}>
           <Button onClick={() => {
             sc.emit(SOCKET_MSG_TAG_API.BP_MSG_START, it.uuid, (msg) => {
               setActiveMsg(msg)
@@ -132,7 +132,7 @@ export default function BreakpointQueue() {
       {passEl(activeMsg, true)}
       <Checkbox checked={autoNext} onChange={({ target: { checked } }) => {
         setAutoNext(checked)
-      }}>完成后自动开始下一个</Checkbox>
+      }}>自动开始下一个</Checkbox>
     </Editor>}
   </section>
 }

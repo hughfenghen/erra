@@ -14,8 +14,8 @@ const snippetObjTpl = {
   __name_comment__: 'name字段为必填项',
   name: '',
   __content_comment__: `1.必填项；
-2.content下的内容将被解析为Snippet，与原值"合并"生成数据；
-3.如果作为顶级Snippet（直接与请求绑定），content下只有"statusCode、headers、body"三个字段会对Response产生作用`,
+2.content下的内容将被解析为Snippet，与接口原始返回值"合并"生成数据；
+3.如果作为顶级Snippet（Network页与请求绑定）时，content下只有"statusCode、headers、body"三个字段会对Response产生作用`,
   content: {},
 }
 
@@ -62,11 +62,11 @@ export default function Snippets() {
       className={s.listItem}
       style={{ backgroundColor: it === activeSnippet ? '#eee' : '' }}
     >
-      <strong>{it.name}</strong>
+      <strong className={s.sptName}>{it.name}</strong>
       <Divider type="vertical"></Divider>
       <span>{it.id}</span>
-      <Divider type="vertical"></Divider>
-      <span>{it.correlationApi || '-'}</span>
+      {/* <Divider type="vertical"></Divider> */}
+      {/* <span>{it.correlationApi || '-'}</span> */}
       <Divider type="vertical"></Divider>
       <Icon onClick={(evt) => {
         evt.stopPropagation()

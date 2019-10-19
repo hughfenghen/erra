@@ -1,5 +1,4 @@
-# ERRA服务配置，可指定 httpPort, httpsPort, wsPort
-SERVICE_CONFIG:
+SERVICE_CONFIG: null
 snippet:
   88f3d643-ca05-4dc0-a338-964390a39ce3:
     id: 88f3d643-ca05-4dc0-a338-964390a39ce3
@@ -32,7 +31,9 @@ snippet:
         function anonymous(body
         /*``*/) {
 
+
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
 
         }
   f05e8851-d14f-4531-9dd7-8f941568e0e4:
@@ -42,7 +43,9 @@ snippet:
       body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
         /*``*/) {
+
          return body.replace(/(<\/body>)/, '<script src="https://localhost:1234/erra-portal.js"></script>$1') 
+
         }
   22938ccb-880d-4ce0-8d96-4a881d32aa94:
     id: 22938ccb-880d-4ce0-8d96-4a881d32aa94
@@ -55,6 +58,8 @@ breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
   'http://iamsrv.it.dev.sankuai.com/dc/qy/accounts/1/applyAccount/applied/page':
+    - response
+  'https://www.baidu.com/':
     - response
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c

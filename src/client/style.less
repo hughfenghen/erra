@@ -19,6 +19,10 @@
 
   .editorOpBar {
     background-color: #fff;
+
+    button {
+      margin-right: 8px;
+    }
   }
 }
 
@@ -36,6 +40,9 @@
 .apiRecord,
 .snippetList,
 .bpMsgQueue {
+  // 兼容嵌入时 小窗口的样式
+  max-width: 800px;
+
   .opBar {
     padding-left: 10px;
     padding-bottom: 10px;
@@ -46,11 +53,26 @@
     padding: 4px 10px;
     align-items: center;
     border-bottom: 1px solid #eee;
+
+    .url {
+      flex: 1;
+      overflow: hidden;
+    }
   }
 }
 
 .snippetList {
   .listItem {
     cursor: pointer;
+
+    .sptName {
+      flex: 1;
+    }
+  }
+}
+
+.bpMsgQueue {
+  .op button {
+    margin-left: 8px;
   }
 }
