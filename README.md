@@ -21,7 +21,10 @@
 [x] websocket代理失败  
 [x] 断点 中断后无法继续，导致后续所有断点在队列中无法处理  
 [x] Erra嵌入到https页面失败
-[-] 注入Erra到移动端html失败（localhost）
+[x] 注入Erra到移动端html失败（localhost）
+[] 127.0.0.1 socket请求证书问题  
+[] 验证移动端代理  
+[] 静态服务器证书问题  
 
 ### 一期基本功能
 [x] http、https代理服务  
@@ -49,7 +52,6 @@
 
 [] 效率、体验优化  
   - [] 界面美化  
-  - [] include、exclude API记录模式  
   - [] API List 倒序  
   - [] 一键保存请求Response为Snippet  
   - [] API List快速过滤  

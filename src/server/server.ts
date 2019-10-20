@@ -10,7 +10,12 @@ const plugins = []
 
 async function httpHandler(req, resp) {
   try {
-    plugins.forEach((fn) => fn(req, resp))
+    for (let i in plugins) {
+      // 某个插件返回false 表示中断，当前请求已被response.end()
+      if (!plugins[i](req, resp)) {
+        break;
+      }
+    }
   } catch (err) {
     console.error(err);
     resp.writeHead(500, { 'Content-Type': 'text/plain;charset=utf-8' });
@@ -67,7 +72,9 @@ async function run({ httpPort, httpsPort }) {
   httpServer.listen(httpPort, '0.0.0.0', () => {
     console.log(`本地代理服务已启动，http_proxy=http://${ip.address()}:${httpPort}`);
   });
-  (await getHttpsServer()).listen(httpsPort, '0.0.0.0');
+  (await getHttpsServer()).listen(httpsPort, '0.0.0.0', () => {
+    console.log(`erra管理界面地址，https://${ip.address()}:${httpsPort}/erra`);
+  });
 }
 
 export default {

@@ -40,6 +40,11 @@ function init (cfgPath) {
       return 
     }
     config = yaml.load(data) || {}
+    // 默认端口号
+    config.SERVICE_CONFIG = Object.assign({
+      httpPort: 3344,
+      httpsPort: 4455,
+    }, config.SERVICE_CONFIG)
     exps.emit('afterConfigInit', config)
   });
 }

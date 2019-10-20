@@ -1,4 +1,6 @@
-SERVICE_CONFIG: null
+SERVICE_CONFIG:
+  httpPort: 3344
+  httpsPort: 4455
 snippet:
   88f3d643-ca05-4dc0-a338-964390a39ce3:
     id: 88f3d643-ca05-4dc0-a338-964390a39ce3
@@ -33,7 +35,9 @@ snippet:
 
 
 
+
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
 
 
 
@@ -47,7 +51,11 @@ snippet:
         /*``*/) {
 
 
-         return body.replace(/(<\/body>)/, '<script src="https://localhost:1234/erra-portal.js"></script>$1') 
+
+
+         return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
+
+
 
 
         }
@@ -72,3 +80,4 @@ apiBindSnippet:
   'http://lh:8890/access-permission': f05e8851-d14f-4531-9dd7-8f941568e0e4
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/pms/appInfo/host': 22938ccb-880d-4ce0-8d96-4a881d32aa94
   'https://zoom.test.meituan.com/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4
+  'https://www.baidu.com/': f05e8851-d14f-4531-9dd7-8f941568e0e4

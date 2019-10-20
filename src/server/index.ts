@@ -1,5 +1,9 @@
 import { pick, getOr } from 'lodash/fp';
 import modifyResponse from 'node-http-proxy-text';
+import staticHandler from 'serve-handler';
+import path from 'path';
+import LRU from 'lru-cache';
+import fs from 'fs';
 
 import { SimpleReq, SimpleResp } from '../lib/interface';
 import { handleReq, handleResp } from './manager/api-manager';
@@ -18,13 +22,42 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
+const fileCache = new LRU({
+  max: 50,
+  maxAge: Infinity,
+})
+
+// 极简版静态服务器，将erra path下的请求映射到文件
+server.use((req, resp) => {
+  if (req.url.includes('/erra')) {
+    const filePath = path.resolve(
+      __dirname,
+      '../../dist',
+      req.url.replace(/^\/erra\/?/, '') || './index.html'
+    )
+    if (!fs.existsSync(filePath)) {
+      resp.writeHead(404, { 'Content-Type': 'text/plain;charset=utf-8' });
+      resp.end();
+      return false
+    }
+    let content = fileCache.get(filePath)
+    if (!content) {
+      content = fs.readFileSync(filePath)
+      fileCache.set(filePath, content)
+    }
+    resp.end(content, 'utf8');
+    return false
+  }
+  return true
+})
+
 // 初始化配置
 configManager.init(process.argv[process.argv.indexOf('-c') + 1])
 
 configManager.on('afterConfigInit', (cfg) => {
-  server.run({ 
-    httpPort: getOr(3344, 'SERVICE_CONFIG.httpPort', cfg),
-    httpsPort: getOr(4455, 'SERVICE_CONFIG.httpsPort', cfg),
+  server.run({
+    httpPort: cfg.SERVICE_CONFIG.httpPort,
+    httpsPort: cfg.SERVICE_CONFIG.httpsPort,
   })
   ss.run()
 })

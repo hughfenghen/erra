@@ -51,7 +51,6 @@ program.command('start')
     shelljs.cd(erraPrjPath)
     console.log('配置文件路径：', p);
     shelljs.exec(`npm run server:bin ${p}`, { async: true })
-    shelljs.exec('npm run client:bin', { async: true })
   })
 
 program.parse(process.argv);

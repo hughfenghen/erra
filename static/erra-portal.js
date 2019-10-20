@@ -24,7 +24,7 @@
   const iframeEl = document.createElement('iframe')
 
   // js资源对应的顶级pat即 erra界面
-  iframeEl.src = new URL(document.querySelector('script[src$="/erra-portal.js"]').getAttribute('src')).origin
+  iframeEl.src = new URL(document.querySelector('script[src$="/erra-portal.js"]').getAttribute('src')).origin + '/erra'
   Object.assign(iframeEl.style, {
     position: 'fixed',
     zIndex: 100,
