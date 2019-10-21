@@ -17,7 +17,7 @@ function createCfgFile(cfgPath) {
 
 function cpPemFile () {
   shelljs.mkdir('-p', erraHomePath);
-  ['erra.crt.pem', 'erra.csr.pem', 'erra.key.pem'].forEach((name) => {
+  ['erra.crt.pem', 'erra.key.pem'].forEach((name) => {
       const targetPath = path.resolve(erraHomePath, name)
       if (!fs.existsSync(targetPath)) {
         shelljs.cp(path.resolve(erraPrjPath, `static/${name}`), targetPath)
