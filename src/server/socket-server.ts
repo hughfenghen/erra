@@ -6,6 +6,12 @@ import server from './server';
 const onlineSocketSet = new Set<socketIO.Socket>()
 const eventListeners: { [x: string]: SocketListener } = {}
 
+server.use((req) => {
+  // 返回false 表示当前请求被socket处理，其他插件忽略该请求
+  if (server.isLocalServer(req) && req.url.includes('/socket.io')) return false
+  return true
+})
+
 async function run() {
   const io = socketIO(await server.getHttpsServer());
 

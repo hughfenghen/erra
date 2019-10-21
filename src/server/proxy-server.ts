@@ -1,6 +1,7 @@
 import httpProxy from 'http-proxy';
-import URL from 'url';
 import ip from 'ip';
+import URL from 'url';
+import configManager from './manager/config-manager';
 import server from './server';
 
 let beforeProxyReqHandler: (req, resp) => Promise<void> = async () => { }
@@ -18,12 +19,8 @@ server.httpServer.on('upgrade', (req, socket, head) => {
 });
 
 server.use(async (req, resp) => {
-  // 跳过本地资源
-  if (
-    // req.headers.host.includes(`:${configManager.get('SERVICE_CONFIG').httpsPort}`)
-    ['localhost', '127.0.0.1', '0.0.0.0', ip.address()]
-      .some((host) => req.headers.host.includes(host))
-  ) return true
+  // 避免代理Erra资源，否则导致死循环
+  if (server.isLocalServer(req)) return true
   
   const url = URL.parse(req.url)
   await beforeProxyReqHandler(req, resp)

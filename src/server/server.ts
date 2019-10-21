@@ -4,17 +4,26 @@ import ip from 'ip';
 import net from 'net';
 import { createSecureContext } from 'tls';
 
+import configManager from './manager/config-manager';
 import { createCert } from '../lib/cert';
 
 const plugins = []
 
 async function httpHandler(req, resp) {
   try {
+    let handled = false
     for (let i in plugins) {
       // 某个插件返回false 表示中断，当前请求已被response.end()
-      if (!plugins[i](req, resp)) {
+      if (!await plugins[i](req, resp)) {
+        handled = true
         break;
       }
+    }
+
+    // 请求未被任何插件处理 返回404
+    if (!handled) {
+      resp.writeHead(404, { 'Content-Type': 'text/plain;charset=utf-8' });
+      resp.end();
     }
   } catch (err) {
     console.error(err);
@@ -82,4 +91,12 @@ export default {
   getHttpsServer,
   run,
   use,
+  isLocalServer(req) {
+    return req
+      .headers
+      .host
+      .includes(`:${configManager.get('SERVICE_CONFIG').httpsPort}`)
+      && ['localhost', '127.0.0.1', '0.0.0.0', ip.address()]
+        .some((host) => req.headers.host.includes(host))
+  },
 }

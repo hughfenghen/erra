@@ -1,18 +1,17 @@
-import { pick, getOr } from 'lodash/fp';
-import modifyResponse from 'node-http-proxy-text';
-import staticHandler from 'serve-handler';
-import path from 'path';
-import LRU from 'lru-cache';
 import fs from 'fs';
-
+import { pick } from 'lodash/fp';
+import LRU from 'lru-cache';
+import modifyResponse from 'node-http-proxy-text';
+import path from 'path';
 import { SimpleReq, SimpleResp } from '../lib/interface';
+import { safeJSONParse } from '../lib/utils';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
-import ss from './socket-server';
-import server from './server';
 import proxyServer from './proxy-server';
-import { safeJSONParse } from '../lib/utils';
+import server from './server';
+import ss from './socket-server';
+
 
 process.on('uncaughtException', function (err) {
   console.error(err);
@@ -29,7 +28,7 @@ const fileCache = new LRU({
 
 // 极简版静态服务器，将erra path下的请求映射到文件
 server.use((req, resp) => {
-  if (req.url.includes('/erra')) {
+  if (server.isLocalServer(req) && req.url.includes('/erra')) {
     const filePath = path.resolve(
       __dirname,
       '../../dist',
