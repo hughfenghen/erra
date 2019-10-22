@@ -1,11 +1,11 @@
-import { pick, constant, fromPairs, identity, isArray, isFunction, isPlainObject, map, mergeWith, pipe, toPairs, values, mapValues } from 'lodash/fp';
+import yaml from 'js-yaml';
+import { constant, filter, fromPairs, identity, isArray, isFunction, isPlainObject, isRegExp, map, mapValues, mergeWith, pick, pipe, toPairs, values, __ } from 'lodash/fp';
 import { mock } from 'mockjs';
-import yaml from 'js-yaml'
 import genUUID from 'uuid';
-
+import { ApiRecord, API_DATA_TYPE, Snippet, SnippetContent, SOCKET_MSG_TAG_API } from '../../lib/interface';
+import ss from '../socket-server';
 import configManager from './config-manager';
-import ss from '../socket-server'
-import { SOCKET_MSG_TAG_API, Snippet, SnippetContent } from '../../lib/interface';
+
 
 const snippetsFn: { [key: string]: Function } = {}
 const snippetsMeta: { [key: string]: Snippet} = {}
@@ -23,7 +23,11 @@ function getSnippetMetaList() {
   // 函数转换成字符串，负责不能通过socket传递
   return JSON.stringify(
     values(snippetsMeta),
-    (k, v) => isFunction(v) ? `!!js/function ${v.toString()}` : v
+    (k, v) => {
+      if (isFunction(v)) return `!!js/function ${v.toString()}`
+      if (isRegExp(v)) return `!!js/regexp ${v.toString()}`
+      return v
+    }
   );
 }
 
@@ -32,11 +36,12 @@ ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
 })
 
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
-  const { name, content } = yaml.load(code)
+  const { name, content, when } = yaml.load(code)
   const spId = id || genUUID()
   snippetsMeta[spId] = {
     id: spId,
     name,
+    when,
     content,
   }
 
@@ -186,4 +191,27 @@ export function getSnippetFn(id: string): Function {
   if (enableSnippet) return snippetsFn[id]
   // 关闭Snippet转换功能时，返回一个不对数据做任何处理的函数identity
   return identity
+}
+
+/**
+ * 获取满足触发的条件Snippet
+ * @param record ApiRecord
+ */
+export function matchedSnippetFns(record: ApiRecord): Function[] {
+  if (!enableSnippet) return []
+  const { req, resp, parsedUrl } = record
+  
+  // url前追加req|resp、method，让正则可以更精确地匹配
+  // 结构：[DataType]|[Method]|[Url]
+  const recordMeta = `[${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}]|[${req.method}]|${parsedUrl.href}`
+ 
+  return pipe(
+    values,
+    filter(({ when }) => (
+      when && (isRegExp(when) ? when.test(recordMeta) : when(record)))
+    ),
+    map('id'),
+    pick(__, snippetsFn),
+    values
+  )(snippetsMeta)
 }

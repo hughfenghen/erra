@@ -36,7 +36,15 @@ snippet:
 
 
 
+
+
+
+
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
+
+
+
+
 
 
 
@@ -45,18 +53,13 @@ snippet:
   f05e8851-d14f-4531-9dd7-8f941568e0e4:
     id: f05e8851-d14f-4531-9dd7-8f941568e0e4
     name: Inject Erra
+    when: !<tag:yaml.org,2002:js/undefined> ''
     content:
       body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
         /*``*/) {
 
-
-
-
-         return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
-
-
-
+          return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
 
         }
   22938ccb-880d-4ce0-8d96-4a881d32aa94:
@@ -66,6 +69,13 @@ snippet:
       body:
         data:
           errorMsg: acd;akd111
+  735215e6-5c00-4443-8ce9-83d7382e9e02:
+    id: 735215e6-5c00-4443-8ce9-83d7382e9e02
+    name: testWhen
+    when: !<tag:yaml.org,2002:js/regexp> '/[response].*baidu/'
+    content:
+      headers:
+        x-abc: '1'
 breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
@@ -80,4 +90,3 @@ apiBindSnippet:
   'http://lh:8890/access-permission': f05e8851-d14f-4531-9dd7-8f941568e0e4
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/pms/appInfo/host': 22938ccb-880d-4ce0-8d96-4a881d32aa94
   'https://zoom.test.meituan.com/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4
-  'https://www.baidu.com/': f05e8851-d14f-4531-9dd7-8f941568e0e4

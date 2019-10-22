@@ -4,7 +4,7 @@ import genUUID from 'uuid';
 import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/interface';
 import ss from '../socket-server';
 import configManager from './config-manager';
-import { getSnippetFn } from './snippet-manager';
+import { getSnippetFn, matchedSnippetFns } from './snippet-manager';
 import { parseUrl4Req } from '../../lib/utils';
 
 const apiSnippetPair: { [x: string]: string } = {}
@@ -79,6 +79,11 @@ export function handleReq(req: SimpleReq): ApiRecord | null {
     parsedUrl: parseUrl4Req(req),
   }
 
+  matchedSnippetFns(record)
+    .forEach((sfn) => {
+      record.req = sfn(record.req);
+    })
+
   apiRecords.push(record)
   ss.broadcast(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
 
@@ -99,9 +104,15 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord | null {
     return null
   }
 
+  let rs = resp
+  matchedSnippetFns(record)
+    .forEach((sfn) => {
+      rs = sfn(rs);
+    })
+
   const snippetId = apiSnippetPair[record.parsedUrl.shortHref]
   
-  const rs = snippetId ? getSnippetFn(snippetId)(resp) : resp
+  rs = snippetId ? getSnippetFn(snippetId)(rs) : rs
 
   let recordBody = rs.body
   const ct = rs.headers['content-type'] || rs.headers['Content-Type']

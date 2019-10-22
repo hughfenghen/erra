@@ -29,7 +29,7 @@ export interface SimpleReq {
 
 export interface SimpleResp {
   statusCode: number,
-  headers: Object,
+  headers: StrObj,
   body?: any,
 }
 
@@ -92,7 +92,9 @@ export interface Snippet {
   id: string,
   name: string,
   content: SnippetContent,
-  correlationApi?: RegExp,
+  // 当请求满足when的条件时，使用当前Snippet修改请求
+  when?: RegExp | ((data: SimpleReq | SimpleResp) => boolean),
+  // correlationApi?: RegExp,
 }
 
 export interface BPMsg {
