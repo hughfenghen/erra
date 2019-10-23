@@ -74,8 +74,9 @@ export enum SOCKET_MSG_TAG_API {
   SP_SAVE = 'snippet_manager-save',
   SP_UPDATE = 'snippet_manager-update',
   SP_DELETE = 'snippet_manager-delete',
-  SP_ENABLED = 'snippet_manager-enabled',
-  SP_SET_ENABLED = 'snippet_manager-set_enabled',
+  SP_MAIN_ENABLED = 'snippet_manager-main_enabled',
+  SP_SET_MAIN_ENABLED = 'snippet_manager-set_main_enabled',
+  SP_UPDAT_SINGLE_ENABLED = 'snippet_manager-update_single_enabled',
 }
 
 export enum API_DATA_TYPE {
@@ -95,6 +96,8 @@ export interface Snippet {
   content: SnippetContent,
   // 当请求满足when的条件时，使用当前Snippet修改请求
   when?: RegExp | ((data: SimpleReq | SimpleResp) => boolean),
+  // 对于按时机触发的Snippet（含有when字段），加一个开关控制是否启用
+  enabled?: boolean,
   // correlationApi?: RegExp,
 }
 

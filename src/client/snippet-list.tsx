@@ -10,13 +10,20 @@ import s from './style.less';
 import { omit } from 'lodash/fp';
 
 const snippetObjTpl = {
-  __all_comment__: '只有name、content两个字段有效，不必输入或编辑其他内容',
+  __all_comment__: '只有name、content、when三个字段有效，不必输入或编辑其他内容',
+
   __name_comment__: 'name字段为必填项',
   name: '',
-  __content_comment__: `1.必填项；
-2.content下的内容将被解析为Snippet，与接口原始返回值"合并"生成数据；
-3.如果作为顶级Snippet（Network页与请求绑定）时，content下只有"statusCode、headers、body"三个字段会对Response产生作用`,
+
+  __content_comment__: `1. content字段为必填项；
+2. content下的内容将被解析为Snippet，与接口原始返回值"合并"生成数据；
+3. 如果Snippet与Network页面的请求绑定时，content下只有"statusCode、headers、body"三个字段会对Response产生作用`,
   content: {},
+
+  __when_comment__: `1. when字段为【非必填项】；
+2. when字段表示该Snippet触发的时机；
+3. when允许正则或者一个返回boolean的函数（参数为Record类型）；
+4. 详情请参考文档`,
 }
 
 export default function Snippets() {
@@ -26,14 +33,14 @@ export default function Snippets() {
   const [snippetEnabled, setSnippetEnabled] = useState(true)
 
   useEffect(() => {
-    sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
+    sc.emit(SOCKET_MSG_TAG_API.SP_MAIN_ENABLED, (val) => {
       setSnippetEnabled(val)
     })
-    sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+    sc.on(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED, (val) => {
       setSnippetEnabled(val)
     })
     return () => {
-      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED)
     }
   }, [])
 
@@ -47,7 +54,7 @@ export default function Snippets() {
       <Checkbox
         checked={snippetEnabled}
         onChange={({ target: { checked } }) => {
-          sc.emit(SOCKET_MSG_TAG_API.SP_SET_ENABLED, checked)
+          sc.emit(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED, checked)
         }}
       >启用Snippet</Checkbox>
       <Divider type="vertical"></Divider>
@@ -55,16 +62,24 @@ export default function Snippets() {
         onClick={() => setActiveSnippet({ ...snippetObjTpl })}
       >新增Snippet</Button>
     </div>
-    <List dataSource={snippets} renderItem={(it) => <div
-      onClick={() => {
-        setActiveSnippet(it)
-      }}
+    <List dataSource={snippets} renderItem={(it) => <div 
       className={s.listItem}
       style={{ backgroundColor: it === activeSnippet ? '#eee' : '' }}
     >
-      <strong className={s.sptName}>{it.name}</strong>
+      <span className={s.sptEnabled}>{it.when && <Checkbox
+        checked={it.enabled}
+        onChange={({ target: { checked }}) => {
+          sc.emit(SOCKET_MSG_TAG_API.SP_UPDAT_SINGLE_ENABLED, it.id, checked)
+        }}
+      ></Checkbox>}</span>
       <Divider type="vertical"></Divider>
-      <span>{it.id}</span>
+      <strong className={s.sptName} onClick={() => {
+        setActiveSnippet(it)
+      }}>{it.name}</strong>
+      <Divider type="vertical"></Divider>
+      <span className={s.sptWhen} onClick={() => {
+        setActiveSnippet(it)
+      }}>{(it.when || '<不会自动触发>').toString()}</span>
       {/* <Divider type="vertical"></Divider> */}
       {/* <span>{it.correlationApi || '-'}</span> */}
       <Divider type="vertical"></Divider>

@@ -58,10 +58,10 @@ export default function ApiRecords() {
       )
     })
     // Snippet解析数据功能是否开启，未开启时禁止绑定Snippet
-    sc.emit(SOCKET_MSG_TAG_API.SP_ENABLED, (val) => {
+    sc.emit(SOCKET_MSG_TAG_API.SP_MAIN_ENABLED, (val) => {
       setSnippetEnabled(val)
     })
-    sc.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+    sc.on(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED, (val) => {
       setSnippetEnabled(val)
     })
     sc.emit(SOCKET_MSG_TAG_API.API_ENABLED, (val) => {
@@ -77,8 +77,8 @@ export default function ApiRecords() {
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_RECORD)
       sc.off(SOCKET_MSG_TAG_API.BP_UPDATE)
       sc.off(SOCKET_MSG_TAG_API.API_UPDATE_SNIPPET_RELATION)
-      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
-      sc.off(SOCKET_MSG_TAG_API.SP_SET_ENABLED)
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED)
+      sc.off(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED)
     }
   }, [])
 

@@ -20,7 +20,7 @@ configManager.on('afterConfigInit', () => {
 })
 
 function getSnippetMetaList() {
-  // 函数转换成字符串，负责不能通过socket传递
+  // 函数、正则转换成字符串，否则不能通过socket传递
   return JSON.stringify(
     values(snippetsMeta),
     (k, v) => {
@@ -58,13 +58,19 @@ ss.on(SOCKET_MSG_TAG_API.SP_DELETE, (id) => {
   ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
-ss.on(SOCKET_MSG_TAG_API.SP_ENABLED, (cb) => {
+ss.on(SOCKET_MSG_TAG_API.SP_MAIN_ENABLED, (cb) => {
   cb(enableSnippet)
 })
 
-ss.on(SOCKET_MSG_TAG_API.SP_SET_ENABLED, (val) => {
+ss.on(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED, (val) => {
   enableSnippet = !!val
-  ss.broadcast(SOCKET_MSG_TAG_API.SP_SET_ENABLED, enableSnippet)
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_SET_MAIN_ENABLED, enableSnippet)
+})
+
+ss.on(SOCKET_MSG_TAG_API.SP_UPDAT_SINGLE_ENABLED, (id, enableStatus) => {
+  snippetsMeta[id].enabled = enableStatus
+  configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
+  ss.broadcast(SOCKET_MSG_TAG_API.SP_UPDATE, getSnippetMetaList())
 })
 
 export enum PARSE_STRATEGY {
@@ -202,13 +208,14 @@ export function matchedSnippetFns(record: ApiRecord): Function[] {
   const { req, resp, parsedUrl } = record
   
   // url前追加req|resp、method，让正则可以更精确地匹配
-  // 结构：DataType#Method#Url
+  // 结构为：DataType#Method#Url
   const recordMeta = `${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}#${req.method}#${parsedUrl.href}`
   console.log(4455, recordMeta);
   return pipe(
     values,
-    filter(({ when }) => (
-      when && (isRegExp(when) ? when.test(recordMeta) : when(record)))
+    filter(({ enabled, when }) => (
+      enabled && when && 
+      (isRegExp(when) ? when.test(recordMeta) : when(record)))
     ),
     map('id'),
     pick(__, snippetsFn),

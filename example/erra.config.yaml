@@ -33,22 +33,7 @@ snippet:
         function anonymous(body
         /*``*/) {
 
-
-
-
-
-
-
-
           return body.replace(/(<\/body>)/, '<script src="//cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>$1')
-
-
-
-
-
-
-
-
         }
   f05e8851-d14f-4531-9dd7-8f941568e0e4:
     id: f05e8851-d14f-4531-9dd7-8f941568e0e4
@@ -77,6 +62,7 @@ snippet:
       statusCode: 500
       headers:
         x-abc: '1'
+    enabled: true
 breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
