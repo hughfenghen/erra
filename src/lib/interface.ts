@@ -37,6 +37,7 @@ export interface ApiRecord {
   uuid: string,
   parsedUrl: ParsedUrl,
   req: SimpleReq,
+  // resp有值，表示远程服务器已经返回，请求已经处于Response状态
   resp?: SimpleResp,
 }
 

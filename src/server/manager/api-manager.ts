@@ -105,7 +105,7 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord | null {
   }
 
   let rs = resp
-  matchedSnippetFns(record)
+  matchedSnippetFns({ ...record, resp })
     .forEach((sfn) => {
       rs = sfn(rs);
     })

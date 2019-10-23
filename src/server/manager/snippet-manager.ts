@@ -202,9 +202,9 @@ export function matchedSnippetFns(record: ApiRecord): Function[] {
   const { req, resp, parsedUrl } = record
   
   // url前追加req|resp、method，让正则可以更精确地匹配
-  // 结构：[DataType]|[Method]|[Url]
-  const recordMeta = `[${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}]|[${req.method}]|${parsedUrl.href}`
- 
+  // 结构：DataType#Method#Url
+  const recordMeta = `${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}#${req.method}#${parsedUrl.href}`
+  console.log(4455, recordMeta);
   return pipe(
     values,
     filter(({ when }) => (

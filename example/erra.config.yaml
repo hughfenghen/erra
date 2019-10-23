@@ -72,8 +72,9 @@ snippet:
   735215e6-5c00-4443-8ce9-83d7382e9e02:
     id: 735215e6-5c00-4443-8ce9-83d7382e9e02
     name: testWhen
-    when: !<tag:yaml.org,2002:js/regexp> '/[response].*baidu/'
+    when: !<tag:yaml.org,2002:js/regexp> '/response#.*baidu/'
     content:
+      statusCode: 500
       headers:
         x-abc: '1'
 breakpoint:
