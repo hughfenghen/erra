@@ -18,8 +18,11 @@ function parseSPJson (str) {
           delete window[fnName]
           return rs
         } else if (v.startsWith('!!js/regexp')) {
-          const [pattern, flag] = v.replace(/^\!\!js\/regexp\s*\//, '').split('/')
-          return new RegExp(pattern, flag)
+          const regStr = v.replace(/^\!\!js\/regexp\s*/, '')
+          return new RegExp(
+            /^\/(.+)\//.exec(regStr)[1], // pattern
+            regStr.replace(/^.*\//, '')  // flag
+          )
         }
       }
       return v
