@@ -46,7 +46,7 @@ export default function Snippets() {
 
   useEffect(() => {
     // id不可编辑
-    setCode(activeSnippet ? yaml.dump(omit('id', activeSnippet)) : '')
+    setCode(activeSnippet ? yaml.dump(omit(['id', 'enabled'], activeSnippet)) : '')
   }, [activeSnippet])
 
   return <section className={s.snippetList}>

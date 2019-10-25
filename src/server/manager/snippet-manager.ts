@@ -38,12 +38,12 @@ ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
   const { name, content, when } = yaml.load(code)
   const spId = id || genUUID()
-  snippetsMeta[spId] = {
+  snippetsMeta[spId] = Object.assign({}, snippetsMeta[spId], {
     id: spId,
     name,
     when,
     content,
-  }
+  })
 
   configManager.emit('update', configManager.key.SNIPPET, snippetsMeta)
   snippetsFn[spId] = parseSnippetContent(content)
@@ -210,7 +210,7 @@ export function matchedSnippetFns(record: ApiRecord): Function[] {
   // url前追加req|resp、method，让正则可以更精确地匹配
   // 结构为：DataType#Method#Url
   const recordMeta = `${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}#${req.method}#${parsedUrl.href}`
-  console.log(4455, recordMeta);
+
   return pipe(
     values,
     filter(({ enabled, when }) => (
