@@ -44,6 +44,9 @@ server.use((req, resp) => {
       content = fs.readFileSync(filePath)
       fileCache.set(filePath, content)
     }
+    if (/\.pem$/.test(req.url)) {
+      resp.writeHead(200, { 'Content-Type': 'application/x-pem-file' })
+    }
     resp.end(content, 'utf8');
     return false
   }
