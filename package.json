@@ -21,7 +21,7 @@
     "test:watch": "jest --watch",
     "test": "jest",
     "build:client": "parcel build ./src/client/index.html --public-url '/erra'",
-    "prepublishOnly": "yarn run test && build:client"
+    "prepublishOnly": "yarn run test && yarn run build:client"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
