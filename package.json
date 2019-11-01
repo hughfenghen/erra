@@ -1,6 +1,6 @@
 {
   "name": "erra",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "mock工具",
   "repository": "https://github.com/hughfenghen/Erra",
   "keywords": [
@@ -14,14 +14,15 @@
   "author": "fenghen",
   "license": "MIT",
   "scripts": {
-    "server:bin": "node -r ts-node/register ./src/server/index.ts -c ",
+    "server:bin": "node ./dist/server/server/index.js -c",
     "server:dev": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts -c ./example/erra.config.yaml",
     "client:bin": "http-server dist --ssl --cert static/erra.crt.pem --key static/erra.key.pem",
     "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
     "test": "jest",
-    "build:client": "parcel build ./src/client/index.html --public-url '/erra'",
-    "prepublishOnly": "yarn run test && yarn run build:client"
+    "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
+    "build:server": "tsc",
+    "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
@@ -69,7 +70,6 @@
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.2.1",
     "postcss-modules": "^1.4.1",
-    "selfsigned": "^1.10.7",
     "ts-node": "^8.1.1",
     "typescript": "^3.6.4",
     "typescript-plugin-css-modules": "^1.2.1"
