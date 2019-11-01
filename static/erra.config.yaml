@@ -22,11 +22,11 @@ snippet:
     id: f05e8851-d14f-4531-9dd7-8f941568e0e4
     name: Inject Erra
     content:
-      # 如果代理其他设备，主要修改script的src
+      # 替换后的代码将在浏览器中运行，如果是代理其他设备，注意修改script的src为本机的ip地址
       body: !<tag:yaml.org,2002:js/function> |-
         function anonymous(body
         /*``*/) {
-         return body.replace(/(<\/body>)/, '<script src="https://localhost:8080/erra-portal.js"></script>$1') 
+         return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra-portal.js"></script>$1') 
         }
 breakpoint:
 apiBindSnippet:

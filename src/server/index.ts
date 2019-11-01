@@ -30,8 +30,8 @@ const fileCache = new LRU({
 server.use((req, resp) => {
   if (server.isLocalServer(req) && req.url.includes('/erra')) {
     const filePath = path.resolve(
-      __dirname,
-      '../../dist',
+      process.cwd(),
+      './dist/client',
       req.url.replace(/^\/erra\/?/, '') || './index.html'
     )
     if (!fs.existsSync(filePath)) {
