@@ -1,6 +1,6 @@
 {
   "name": "erra",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "mock工具",
   "repository": "https://github.com/hughfenghen/Erra",
   "keywords": [
@@ -9,11 +9,12 @@
     "breakpoint",
     "tamper",
     "modify",
+    "proxy",
     "http"
   ],
   "main": "",
   "files": [
-    "dist/**/*"
+    "./**/*"
   ],
   "bin": "./bin/erra.js",
   "author": "fenghen",
@@ -24,7 +25,7 @@
     "client:bin": "http-server dist --ssl --cert static/erra.crt.pem --key static/erra.key.pem",
     "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
-    "test": "jest",
+    "test": "jest --silent",
     "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
     "build:server": "tsc",
     "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server"
