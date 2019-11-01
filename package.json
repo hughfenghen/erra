@@ -1,15 +1,20 @@
 {
   "name": "erra",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "mock工具",
   "repository": "https://github.com/hughfenghen/Erra",
   "keywords": [
     "mock",
     "debug",
     "breakpoint",
+    "tamper",
+    "modify",
     "http"
   ],
   "main": "",
+  "files": [
+    "dist/**/*"
+  ],
   "bin": "./bin/erra.js",
   "author": "fenghen",
   "license": "MIT",
