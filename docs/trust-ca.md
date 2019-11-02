@@ -1,6 +1,6 @@
 # 信任证书
-因https已经非常流行，代理（或篡改）https请求，必须信任一个Root证书。  
-Erra的默认Root证书、Key文件在`<home dir>/.erra`文件夹下。  
+https已经非常流行，代理（或篡改）https请求，必须信任一个Root证书。  
+Erra默认Root证书、Key文件在`<home dir>/.erra`文件夹下。  
 
 *若你对安全性比较敏感，可以使用openssl生成自己**Root证书**（非Root证书无法被新版安卓信任）和Key，并覆盖`<home dir>/.erra/erra.crt.pem`、`<home dir>/.erra/erra.key.pem`。*  
 
@@ -19,6 +19,7 @@ Erra的默认Root证书、Key文件在`<home dir>/.erra`文件夹下。
 ## Android信任证书
 Android系统繁杂，请Google、Baidu如何安装证书。  
 
-## 注意事项
+::: tip
 - 安装证书成功后，一定要**重启浏览器**，否则浏览器仍然提示“不是私密连接”。  
 - 有些Android手机安装证书时要求选择“VPN及应用”、“WALN”。请安装两次，分别选择两个类型。  
+:::

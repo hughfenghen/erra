@@ -29,8 +29,9 @@
     "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
     "build:server": "tsc",
     "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:dev": "cp README.md docs && vuepress dev docs",
+    "docs:build": "cp README.md docs && vuepress build docs",
+    "docs:deploy": "sh docs/deploy.sh"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",

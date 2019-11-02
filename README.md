@@ -1,6 +1,6 @@
 # Erra
 
-Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra有一个初步了解，阅读[启动文档](https://github.com/hughfenghen/Erra/wiki/Erra快速启动)可以快速体验Erra的功能。  
+Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra有一个初步了解，阅读<a href="https://hughfenghen.github.io/erra/start">启动文档</a>可以快速体验Erra的功能。  
 
 ## 目标
 - 提高接口调试效率  
@@ -17,7 +17,8 @@ Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra�
 - 本地开发时，代理/转发请求到远程服务器  
 - 针对接口编写多个场景的mock数据，快速切换覆盖业务场景  
 - 向移动端页面注入（无需项目接入）[Eruda](https://github.com/liriliri/eruda)，调试移动端页面  
-使用文档请查看: <文档编写中>
+
+详情请参阅<a href="https://hughfenghen.github.io/erra/guide">使用指南</a>
 
 ## 计划
 
