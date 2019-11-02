@@ -28,7 +28,9 @@
     "test": "jest --silent",
     "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
     "build:server": "tsc",
-    "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server"
+    "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
@@ -78,6 +80,7 @@
     "postcss-modules": "^1.4.1",
     "ts-node": "^8.1.1",
     "typescript": "^3.6.4",
-    "typescript-plugin-css-modules": "^1.2.1"
+    "typescript-plugin-css-modules": "^1.2.1",
+    "vuepress": "^1.2.0"
   }
 }
