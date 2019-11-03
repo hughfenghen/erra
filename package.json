@@ -1,6 +1,6 @@
 {
   "name": "erra",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "mock工具",
   "repository": "https://github.com/hughfenghen/Erra",
   "keywords": [
@@ -14,11 +14,11 @@
   ],
   "main": "",
   "files": [
-    "./src/**/*",
-    "./dist/**/*",
-    "./bin/**/*",
-    "./static/**/*",
-    "./example/**/*",
+    "./src",
+    "./dist",
+    "./bin",
+    "./static",
+    "./example",
     "./tsconfig.json",
     "./jest.config.js",
     "./.postcss",
@@ -37,10 +37,10 @@
     "test": "jest --silent",
     "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
     "build:server": "tsc",
-    "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server",
     "docs:dev": "cp README.md docs && vuepress dev docs",
     "docs:build": "cp README.md docs && vuepress build docs",
-    "docs:deploy": "sh docs/deploy.sh"
+    "docs:deploy": "sh docs/deploy.sh",
+    "prepublishOnly": "yarn run test && yarn run build:client && yarn run build:server"
   },
   "dependencies": {
     "@types/lodash": "^4.14.132",
