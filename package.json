@@ -22,6 +22,7 @@
     "./tsconfig.json",
     "./jest.config.js",
     "./.postcss",
+    "./preview.gif",
     "./README.md"
   ],
   "bin": "./bin/erra.js",
