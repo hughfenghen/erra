@@ -1,6 +1,6 @@
 {
   "name": "erra",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "mock工具",
   "repository": "https://github.com/hughfenghen/Erra",
   "keywords": [
@@ -14,7 +14,15 @@
   ],
   "main": "",
   "files": [
-    "./**/*"
+    "./src/**/*",
+    "./dist/**/*",
+    "./bin/**/*",
+    "./static/**/*",
+    "./example/**/*",
+    "./tsconfig.json",
+    "./jest.config.js",
+    "./.postcss",
+    "./README.md"
   ],
   "bin": "./bin/erra.js",
   "author": "fenghen",
