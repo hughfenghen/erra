@@ -1,4 +1,4 @@
-# 配置文件说明
+# 配置说明
 
 ## SERVICE_CONFIG
 

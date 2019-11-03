@@ -9,7 +9,7 @@ Erra默认Root证书、Key文件在`<home dir>/.erra`文件夹下。
 2. 选择`系统 -> 证书`，双击`erra`，选择`始终信任`，关闭弹窗，输入用户密码确认  
 <img src="./assets/add-ca.png" width="500">
 <img src="./assets/trust-ca.png" width="500">
-3. **重启浏览器**访问Erra管理页面[https://localhost:4455/erra](https://localhost:4455/erra)，参阅[使用指南](./guide.html)了解更多功能。  
+3. **重启浏览器**访问Erra管理页面[https://localhost:4455/erra](https://localhost:4455/erra)，参阅[使用指南](./guide.md)了解更多功能。  
 
 ## iOS信任证书
 1. 下载证书，Safari访问`https://<your ip>:4455/erra/erra.crt.pem`  

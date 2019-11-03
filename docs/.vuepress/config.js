@@ -3,6 +3,7 @@ module.exports = {
   description: 'Erra文档',
   base: '/erra/',
   themeConfig: {
+    sidebarDepth: 2,
     sidebar: [
       '/',
       '/start',

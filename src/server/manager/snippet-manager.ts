@@ -8,7 +8,7 @@ import configManager from './config-manager';
 
 
 const snippetsFn: { [key: string]: Function } = {}
-const snippetsMeta: { [key: string]: Snippet} = {}
+const snippetsMeta: { [key: string]: Snippet } = {}
 let enableSnippet = true
 
 configManager.on('afterConfigInit', () => {
@@ -86,11 +86,9 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
       return constant(value)
     case PARSE_STRATEGY.MOCKJS:
       if (key) {
-        return constant(
-          // transDesc是一个`返回value的函数`，所以此处只取mock的值
-          // key 与 该函数 在上层关联
-          values(mock({ [key]: value }))[0]
-        )
+        // transDesc是一个`返回value的函数`，所以此处只取mock的值
+        // key 与 该函数 在上层关联
+        return () => values(mock({ [key]: value }))[0]
       }
       return constant(mock(value))
     case PARSE_STRATEGY.SNIPPET:
@@ -206,7 +204,7 @@ export function getSnippetFn(id: string): Function {
 export function matchedSnippetFns(record: ApiRecord): Function[] {
   if (!enableSnippet) return []
   const { req, resp, parsedUrl } = record
-  
+
   // url前追加req|resp、method，让正则可以更精确地匹配
   // 结构为：DataType#Method#Url
   const recordMeta = `${resp ? API_DATA_TYPE.RESPONSE : API_DATA_TYPE.REQUEST}#${req.method}#${parsedUrl.href}`
@@ -214,7 +212,7 @@ export function matchedSnippetFns(record: ApiRecord): Function[] {
   return pipe(
     values,
     filter(({ enabled, when }) => (
-      enabled && when && 
+      enabled && when &&
       (isRegExp(when) ? when.test(recordMeta) : when(record)))
     ),
     map('id'),

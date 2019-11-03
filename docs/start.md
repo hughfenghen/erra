@@ -22,7 +22,7 @@ erra create
 # 配置文件创建成功：<your project directory>/erra.config.yaml
 ```
 *这是一个可选步骤，在项目目录下执行该命令，将自定义配置提交到git，可以将增强的能力共享给团队其他同学。*  
-配置文件内容说明请参阅[配置文件说明](./config-desc)
+配置文件内容说明请参阅[配置文件说明](./config-desc.md)
 
 4. 访问[Erra管理页面](https://localhost:4455/erra)，此时浏览器会提示“您的连接不是私密连接”，可以暂时点击“高级”跳过。  
 
@@ -41,4 +41,4 @@ Erra的核心是一个http(s)代理服务器，请求数据经过代理服务器
 
 -------
 
-参阅[使用指南](./guide)了解更多Erra功能。  
+参阅[使用指南](./guide.md)了解更多Erra功能。  
