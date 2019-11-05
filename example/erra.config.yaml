@@ -15,7 +15,11 @@ snippet:
 
 
 
-          return body.replace(/(<\/body>)/, '<script src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
+
+
+          return body.replace(/(<\/body>)/, '<script>window.define=undefined</script><script src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
+
+
 
 
 
@@ -34,7 +38,9 @@ snippet:
 
 
 
+
           return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
+
 
 
 
@@ -50,7 +56,9 @@ snippet:
         function anonymous(
         ) {
 
+
         return '/v2/5185415ba171ea3a00704eed'
+
 
         }
     enabled: false

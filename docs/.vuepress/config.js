@@ -3,6 +3,10 @@ module.exports = {
   description: 'Erra文档',
   base: '/erra/',
   themeConfig: {
+    nav: [{
+      text: 'GitHub',
+      link: 'https://github.com/hughfenghen/erra',
+    }],
     sidebarDepth: 2,
     sidebar: [
       '/',

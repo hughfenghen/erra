@@ -34,6 +34,7 @@
     "client:bin": "http-server dist --ssl --cert static/erra.crt.pem --key static/erra.key.pem",
     "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "test": "jest --silent",
     "build:client": "parcel build ./src/client/index.html --out-dir dist/client --public-url '/erra'",
     "build:server": "tsc",
