@@ -22,6 +22,14 @@ Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra�
 
 详情请参阅<a href="https://hughfenghen.github.io/erra/guide">使用指南</a>
 
+## 贡献
+1. 克隆代码到本地
+2. 安装依赖 `yarn`
+3. 启动本地代理服务 `yarn server:dev`
+4. 启动本地UI服务 `yarn client:dev`
+5. <a href="https://hughfenghen.github.io/erra/trust-ca.html">信任证书</a>`static`目录下的证书
+6. <a href="https://hughfenghen.github.io/erra/start.html#%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE">配置代理</a>
+
 ## 计划
 
 编辑器优化  
