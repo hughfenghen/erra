@@ -75,9 +75,9 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
   // proxyRes 是Erra跟远程服务器的连接
   modifyResponse(resp, proxyRes, async function (originBody) {
     const record = handleResp(
-      <SimpleResp><unknown>
+      <SimpleResp>
       Object.assign(
-        pick(['statusCode', 'headers',])(proxyRes),
+        pick(['statusCode', 'headers'])(proxyRes),
         { body: safeJSONParse(originBody) }
       ),
       req as SimpleReq

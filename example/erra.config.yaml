@@ -17,7 +17,9 @@ snippet:
 
 
 
+
           return body.replace(/(<\/body>)/, '<script>window.define=undefined</script><script src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
+
 
 
 
@@ -39,7 +41,9 @@ snippet:
 
 
 
+
           return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
+
 
 
 
@@ -57,7 +61,9 @@ snippet:
         ) {
 
 
+
         return '/v2/5185415ba171ea3a00704eed'
+
 
 
         }
@@ -89,6 +95,8 @@ breakpoint:
     - response
   'http://iamsrv.it.dev.sankuai.com/dc/qy/accounts/1/applyAccount/applied/page':
     - response
+  'https://www.mocky.io/v2/5185415ba171ea3a00704eed':
+    - response
 apiBindSnippet:
   'http://zoom.test.meituan.com/api/ifUserInMeeting': d0a5315e-494f-4760-8859-be42d3e26e8c
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/agent/blacklist/reasons': 97423a98-30c5-479d-8a34-0f7bfcf1ae7d
@@ -98,7 +106,8 @@ apiBindSnippet:
   'http://lh:8890/access-permission': f05e8851-d14f-4531-9dd7-8f941568e0e4
   'http://iamsrv.it.dev.sankuai.com/dc/qy/1/pms/appInfo/host': 22938ccb-880d-4ce0-8d96-4a881d32aa94
   'https://zoom.test.meituan.com/zoom-manage-web/user/meeting-entry': f05e8851-d14f-4531-9dd7-8f941568e0e4
-  'https://www.mocky.io/v2/5185415ba171ea3a00704eed': 594f64b2-e795-4c15-9359-5da8e2b5c800
+  'https://www.mocky.io/v2/5185415ba171ea3a00704eed': fa48a039-7186-4308-b32a-21aa268fddc4
   'http://i.meituan.com/': fe550821-92a2-46c8-80ed-9047cbfa859f
   'https://i.meituan.com/': fe550821-92a2-46c8-80ed-9047cbfa859f
   'https://sh.meituan.com/': f05e8851-d14f-4531-9dd7-8f941568e0e4
+  'https://www.baidu.com/': fe550821-92a2-46c8-80ed-9047cbfa859f

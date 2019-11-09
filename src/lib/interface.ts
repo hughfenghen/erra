@@ -98,7 +98,6 @@ export interface Snippet {
   when?: RegExp | ((data: SimpleReq | SimpleResp) => boolean),
   // 对于按时机触发的Snippet（含有when字段），加一个开关控制是否启用
   enabled?: boolean,
-  // correlationApi?: RegExp,
 }
 
 export interface BPMsg {

@@ -26,17 +26,16 @@ Erra界面由三个Tab页组成：
 此外你还可以选择跳过、中断当前请求；开关断点功能、跳过所有断点消息；勾选“自动开始下一个”表示处理完当前消息会马上激活下一条消息。  
 ![断点编辑](./assets/bp-edit.png)
 
-## 编写Snippet
-如果不理解Snippet的含义可以参阅[Snippet解释](./design.md#Snippet解释)，Snippet字段含义参阅[配置说明](./config-desc.md#snippet)。  
-
+## 使用Snippet
 到这里，我们已经拥有了随意编辑Http请求的能力，但是断点编辑的效率很低。  
-开发调式阶段，同一个请求很可能会被发起多次，如果每次请求都需要断点编辑，这是无法忍受的。  
+开发调式阶段，同一个请求很可能会被发起多次，如果每次请求都需要断点编辑，这是无法忍受的。接口绑定Snippet后，后续该接口的数据会自动被Snippet修改。  
 
-Erra初始时创建了几个Snippet Demo，你可以参考Demo学习简单用法。  
-
-### 修改返回值
+:::tip
+如果不理解Snippet的含义可以参阅[Snippet解释](./design.md#Snippet解释)，Snippet字段含义参阅[配置说明](./config-desc.md#snippet)。  
 *若你还没有安装SwitchyOmega插件、信任证书，请参阅[代理配置](./start.md#代理配置)、[信任证书](./trust-ca.md)*
+:::
 
+### 接口绑定Snippet
 1. 使用Chrome访问[mocky test api](https://www.mocky.io/v2/5185415ba171ea3a00704eed)可以得到返回值：
 ```json
 {
@@ -55,6 +54,49 @@ Erra初始时创建了几个Snippet Demo，你可以参考Demo学习简单用法
   "hello": "Erra!"
 }
 ```
+
+## 编写Snippet
+Erra初始时创建了几个Snippet Demo，你可以参考Demo学习简单用法。  
+可以尝试点击Snippet标签页下的“新增Snippet”按钮
+![新增Snippet入口](./assets/new-snippet.png)
+
+### 修改返回值
+
+使用Snippet自动修改http内容，需要对http数据结构有些许了解。Erra将http结构简化为：    
+```ts
+interface SimpleReq {
+  url: string,
+  method: HttpMethod,
+  headers: StrObj,
+  body?: any,
+}
+
+interface SimpleResp {
+  statusCode: number,
+  headers: StrObj,
+  body?: any,
+}
+```
+以最简单的自动[修改返回值](./guide.md#修改返回值)为例，将Http Response body内容`{ hello: 'world!' }`修改为`{ hello: Erra! }`。  
+Http Response对应的数据结构为：  
+```js
+{
+  statusCode: 200,
+  headers: {/*...*/},
+  body: {
+    hello: 'world!'
+  }
+}
+```
+`Simple-Demo`对应的Snippet配置如下：  
+```yaml
+id: 6353c69c-e1e6-4b34-a61a-c44271fce483
+name: Simple-Demo
+content:
+  body:
+    hello: Erra!
+```
+我们可以看到，修改（或者说“覆盖”）Http请求中的某个值，只需要`content`内容的层级结构与之保持一致即可，不需要修改的字段（statusCode、headers）可以省略。  
 
 ### 集成mockjs，生成随机数
 Snippet集成了Mockjs，用来快速生成mock数据。参考Erra自带的Snippet：`Mockjs-Random`  
