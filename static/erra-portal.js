@@ -1,5 +1,6 @@
 // 通过snippet网html中注入该js，可以将Erra嵌入到某个网页中，方便使用Erra功能
-;(() => {
+; (() => {
+  // 创建erra元素
   const entryEl = document.createElement('div');
   entryEl.innerHTML = 'E'
   Object.assign(entryEl.style, {
@@ -19,7 +20,24 @@
     cursor: 'pointer',
     userSelect: 'none',
   })
-
+  // 创建动画style，断点消息时生效
+  const keyFramesStyle = document.createElement('style');
+  keyFramesStyle.type = 'text/css';
+  keyFramesStyle.innerHTML = `
+    @keyframes erra-bpmsg {
+      0% { 
+        background-color: #fff;
+      }
+      50% {
+        background-color: rgb(179, 127, 235);
+      }
+      100% { 
+        background-color: #fff;
+      }
+    }
+  `
+  
+  // 创建iframe，向页面注入erra页面
   let showIFrame = false
   const iframeEl = document.createElement('iframe')
 
@@ -44,6 +62,18 @@
     entryEl.innerHTML = showIFrame ? 'X' : 'E'
   })
 
+  // 有断点消息时添加动画
+  const msgRegex = /^\[\[erra-msg:(.+)\]\]/
+  window.addEventListener('message', (evt) => {
+    if (!msgRegex.test(evt.data)) return
+    const msgType = msgRegex.exec(evt.data)[1]
+    const msgBody = evt.data.replace(msgRegex, '')
+    if (msgType === 'onMsgCountChange') {
+      entryEl.style.animation = msgBody === '0' ? '' : 'erra-bpmsg 2s infinite'
+    }
+  })
+
+  document.getElementsByTagName('head')[0].appendChild(keyFramesStyle);
   document.body.appendChild(entryEl)
   document.body.appendChild(iframeEl)
 })()

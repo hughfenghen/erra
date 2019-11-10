@@ -32,7 +32,7 @@
     "server:bin": "node ./dist/server/server/index.js -c",
     "server:dev": "nodemon --watch 'src/**/*.ts' --ignore 'test/**/*.test.ts' --exec node --inspect -r ts-node/register ./src/server/index.ts -c ./example/erra.config.yaml",
     "client:bin": "http-server dist --ssl --cert static/erra.crt.pem --key static/erra.key.pem",
-    "client:dev": "parcel ./src/client/index.html --cert static/erra.crt.pem --key static/erra.key.pem",
+    "client:dev": "parcel ./src/client/index.html --out-dir dist/client --public-url '/erra' --cert static/erra.crt.pem --key static/erra.key.pem",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test": "jest --silent",
@@ -90,7 +90,7 @@
     "parcel-plugin-static-files-copy": "^2.2.1",
     "postcss-modules": "^1.4.1",
     "ts-node": "^8.1.1",
-    "typescript": "^3.6.4",
+    "typescript": "^3.7.2",
     "typescript-plugin-css-modules": "^1.2.1",
     "vuepress": "^1.2.0"
   }

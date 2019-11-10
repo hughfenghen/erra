@@ -6,7 +6,7 @@ import { BPMsg, SOCKET_MSG_TAG_API } from '../lib/interface';
 import sc from './common/socket-client';
 import Editor from './common/editor';
 
-export default function BreakpointQueue() {
+export default function BreakpointQueue({ onMsgCountChange }) {
   const [bpMsgs, setBPMsgs] = useState<BPMsg[]>([])
   const [activeMsg, setActiveMsg] = useState<BPMsg>(null)
   const [code, setCode] = useState('')
@@ -44,6 +44,11 @@ export default function BreakpointQueue() {
       sc.off(SOCKET_MSG_TAG_API.BP_MSG_SET_ENABLED)
     }
   }, [])
+
+  useEffect(() => {
+    onMsgCountChange(bpMsgs.length)
+    window.parent && window.parent.postMessage(`[[erra-msg:onMsgCountChange]]${bpMsgs.length}`, '*')
+  }, [bpMsgs])
 
   useEffect(() => {
     // id不可编辑

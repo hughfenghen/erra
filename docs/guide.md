@@ -163,7 +163,8 @@ content:
 <img src="./assets/mt-eruda.png" alt="美团-Eruda" width="400" />  
 
 ### 注入Erra界面
-将Erra UI注入到调试的网页，所有Erra操作可以在当前页面完成，不需要切换浏览器Tab了，提高效率和体验。操作方式与[注入Eruda](./guide.md#注入Eruda)一样。  
+将Erra UI注入到调试的网页，所有Erra操作可以在当前页面完成，不需要切换浏览器Tab了，提高效率和体验。当有新的断点消息需要处理时，入口图标会闪烁。  
+注入方式与[注入Eruda](./guide.md#注入Eruda)的步骤一致。  
 <img src="./assets/mt-erra.png" alt="美团-Erra" width="400" />  
 
 ::: tip

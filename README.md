@@ -42,9 +42,7 @@ Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra�
 - [] API List 倒序  
 - [] 一键保存请求Response为Snippet  
 - [] API List快速过滤  
-- [] 激活断点 发送浏览器消息  
 - [] 资源映射（charles中的mapping）  
-- [] 断点提醒（浏览器消息、气泡、iframe入口闪烁）  
 - [] API List最多展示200条数据  
 
 
