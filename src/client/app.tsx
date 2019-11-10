@@ -4,13 +4,9 @@ import { Tabs, Button } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ApiRecords from './api-record';
-import { SOCKET_MSG_TAG_API } from '../lib/interface';
 import Snippets from './snippet-list';
 import BreakpointQueue from './breakpoint-queue';
 import s from './style.less';
-import sc from './common/socket-client';
-
-// import '../../static/erra-portal.js'
 
 function App() {
   return <div className={s.app}>
