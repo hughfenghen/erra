@@ -4,3 +4,4 @@ dist
 yarn-error.log
 coverage
 package-lock.json
+.VSCodeCounter
