@@ -7,7 +7,7 @@ import ss from '../socket-server';
 import configManager from './config-manager';
 
 
-const snippetsFn: { [key: string]: Function } = {}
+const snippetsFn: { [key: string]: (data: any) => any } = {}
 const snippetsMeta: { [key: string]: Snippet } = {}
 let enableSnippet = true
 
@@ -80,7 +80,7 @@ export enum PARSE_STRATEGY {
 }
 
 // 将策略解析成函数
-function parseStrategy({ strategy = 'fixed', value, key = null }): Function {
+function parseStrategy({ strategy = 'fixed', value, key = null }): (data: any) => any {
   switch (strategy) {
     case PARSE_STRATEGY.FIXED:
       return constant(value)
@@ -191,7 +191,7 @@ export function parseSnippetContent(snippet: SnippetContent): (data: any) => any
  * @param id snippetId
  * @return Function 按配置策略处理传入的参数后返回
  */
-export function getSnippetFn(id: string): Function {
+export function getSnippetFn(id: string): (data: any) => any {
   if (enableSnippet) return snippetsFn[id]
   // 关闭Snippet转换功能时，返回一个不对数据做任何处理的函数identity
   return identity
