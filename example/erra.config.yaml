@@ -41,16 +41,17 @@ snippet:
       headers:
         content-security-policy: ''
       body: !<!expression> >-
-        V.replace(/(<\/body>)/, '<script>window.define=undefined</script><script
-        src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
+        V.replace(/(<body.*?>)/,
+        '$1<script>window.define=undefined</script><script
+        src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>')
   4df3f3ae-7b3f-41fe-b62b-e34c58177eb9:
     id: 4df3f3ae-7b3f-41fe-b62b-e34c58177eb9
     name: Inject-Erra
     when: !<tag:yaml.org,2002:js/undefined> ''
     content:
       body: !<!expression> >-
-        V.replace(/(<\/body>)/, '<script
-        src="https://localhost:4455/erra/erra-portal.js"></script>$1')
+        V.replace(/(<body.*?>)/, '$1<script
+        src="https://localhost:1234/erra/erra-portal.js"></script>')
 breakpoint:
   'http://yapi.sankuai.com/mock/2841/api/getmeetings':
     - response
@@ -68,5 +69,5 @@ apiBindSnippet:
   'https://www.mocky.io/v2/5185415ba171ea3a00704eed': fa48a039-7186-4308-b32a-21aa268fddc4
   'http://i.meituan.com/': fe550821-92a2-46c8-80ed-9047cbfa859f
   'https://i.meituan.com/': fe550821-92a2-46c8-80ed-9047cbfa859f
-  'https://www.baidu.com/': fe550821-92a2-46c8-80ed-9047cbfa859f
   'https://sh.meituan.com/': a1a16ba9-7fb8-4fd3-9fa2-cfac11301846
+  'https://www.baidu.com/': a1a16ba9-7fb8-4fd3-9fa2-cfac11301846
