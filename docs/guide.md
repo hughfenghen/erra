@@ -144,23 +144,28 @@ yaml的函数、正则支持参考[js-yaml](https://github.com/nodeca/js-yaml)�
 4. 可以看到美团首页返回了一个json `{ "hello": "world" }`  
 
 ### 注入Eruda
-[Eruda](https://github.com/liriliri/eruda)是一款优秀的移动端Console工具，参考Erra自带的Snippet`Inject Eruda`，原理就是向html中插入Eruda的启动代码。  
+[Eruda](https://github.com/liriliri/eruda)是一款优秀的移动端Console工具，参考Erra自带的Snippet`Inject-Eruda`，原理就是向html中插入Eruda的启动代码。  
 ```yaml 
-name: Inject Eruda
+name: Inject-Eruda
 content:
   headers:
+    # 避免被资源被CSP拦截
     content-security-policy: ''
-  body: !<tag:yaml.org,2002:js/function> |-
-    function anonymous(body
-    ) {
-      return body.replace(/(<\/body>)/, '<script src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
-    }
+  # Snippet除了简单值之外还支持“表达式”，变量“V”是对原始值中当前字段的引用
+  body: !<!expression> >-
+    V.replace(/(<body.*?>)/,
+    '$1<script>window.define=undefined</script><script
+    src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>')
 ```
 1. 去掉`Forward-Meituan`的勾选状态
 2. 访问[美团首页](https://sh.meituan.com)  
-3. Network页给请求`https://sh.meituan.com/`绑定`Inject Eruda`  
+3. Network页给请求`https://sh.meituan.com/`绑定`Inject-Eruda`  
 4. 刷新美团首页  
 <img src="./assets/mt-eruda.png" alt="美团-Eruda" width="400" />  
+:::tip
+Snippet除了简单值之外还支持“表达式”，变量“V”是对原始值中当前字段的引用。  
+Inject-Eruda作用于html，所以“V”的值类似：&lt;html&gt;&lt;body&gt;...&lt;/body&gt;&lt;/html&gt;`  
+:::
 
 ### 注入Erra界面
 将Erra UI注入到调试的网页，所有Erra操作可以在当前页面完成，不需要切换浏览器Tab了，提高效率和体验。当有新的断点消息需要处理时，入口图标会闪烁。  
@@ -171,13 +176,11 @@ content:
 注意第六行的script src，如果被注入的页面在其他设备上打开，此时两台设备必须在同一个局域网内，然后将**localhost改为当前设备的ipv4**（如192.168.1.4）
 :::
 ```yaml {6}
-name: Inject Erra
+name: Inject-Erra
 content:
-  body: !<tag:yaml.org,2002:js/function> |-
-    function anonymous(body
-    ) {
-      return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
-    }
+  body: !<!expression> >-
+    V.replace(/(<body.*?>)/, '$1<script
+    src="https://localhost:4455/erra/erra-portal.js"></script>')
 ```
 
 ### Snippet引用

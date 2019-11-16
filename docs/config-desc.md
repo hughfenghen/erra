@@ -11,7 +11,7 @@
 
 #### SERVICE_CONFIG.httpsPort
 **默认值**：`4455`  
-**说明**：Erra UI的访问地址，默认[https://localhost:4455](https://localhost:4455)。同时影响官方自带的Snippet：`Inject Erra`，参考[注入Erra](./guide.md#注入erra界面)  
+**说明**：Erra UI的访问地址，默认[https://localhost:4455](https://localhost:4455)。同时影响官方自带的Snippet：`Inject-Erra`，参考[注入Erra](./guide.md#注入erra界面)  
 
 ## snippet
 snippet是一个对象类型，key为Snippet的唯一标识，其作用参阅[Snippet解释](./design.md#snippet解释)。  
