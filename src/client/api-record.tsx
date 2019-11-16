@@ -8,6 +8,7 @@ import { useSnippets } from './common/custom-hooks';
 import Editor from './common/editor';
 import sc from './common/socket-client';
 import s from './style.less';
+import { ExpSchema } from '../lib/exp-yaml';
 
 
 export default function ApiRecords() {
@@ -109,7 +110,7 @@ export default function ApiRecords() {
       ...omit('__erra_uuid__', httpDetail),
       // 解析成json对象，yaml语法阅读优化
       ...(httpDetail.body ? { body: safeJSONParse(httpDetail.body) } : {}),
-    }))
+    }, { schema: ExpSchema }))
   }, [httpDetail])
 
   const debugColor = useCallback((bpTypes = []) => {

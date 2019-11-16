@@ -2,6 +2,7 @@ import { SOCKET_MSG_TAG_API, Snippet } from "../../lib/interface";
 import { useState, useEffect } from "react";
 import sc from './socket-client'
 import { isString } from "lodash/fp";
+import { Expression } from "../../lib/exp-yaml";
 
 function parseSPJson (str) {
   return JSON.parse(
@@ -23,6 +24,8 @@ function parseSPJson (str) {
             /^\/(.+)\//.exec(regStr)[1], // pattern
             regStr.replace(/^.*\//, '')  // flag
           )
+        } else if (v.startsWith('!expression')) {
+          return new Expression(v.replace(/\!expression\s+/, ''))
         }
       }
       return v

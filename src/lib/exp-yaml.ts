@@ -1,15 +1,14 @@
 import yaml from 'js-yaml';
 
-class Expression {
+export class Expression {
   fn: Function
-  body: string
+  primitive: string
 
   constructor(data) {
     if (typeof data !== 'string' || !data) throw new Error('Expression 必须是string类型')
 
-    this.body = data
-    this.fn = new Function('req', 'resp', 'return ' + data)
-    Object.assign(this.fn, { body: data })
+    this.primitive = data
+    this.fn = new Function('V', 'return ' + data)
   }
 }
 
@@ -19,8 +18,8 @@ export const ExpType = new yaml.Type('!expression', {
   construct: function (data) {
     return new Expression(data);
   },
-  represent(exp) {
-    return exp.body
+  represent(exp: Expression) {
+    return exp.primitive
   }
 })
 

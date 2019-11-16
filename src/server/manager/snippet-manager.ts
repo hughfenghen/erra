@@ -1,8 +1,9 @@
 import yaml from 'js-yaml';
-import { constant, filter, fromPairs, identity, isArray, isFunction, isPlainObject, isRegExp, map, mapValues, mergeWith, pick, pipe, toPairs, values, __ } from 'lodash/fp';
+import { constant, filter, fromPairs, identity, isArray, isFunction, isPlainObject, isRegExp, map, mapValues, mergeWith, pick, pipe, toPairs, values, __, isObject } from 'lodash/fp';
 import { mock } from 'mockjs';
 import genUUID from 'uuid';
 import { ApiRecord, API_DATA_TYPE, Snippet, SnippetContent, SOCKET_MSG_TAG_API } from '../../lib/interface';
+import { Expression, ExpSchema } from '../../lib/exp-yaml';
 import ss from '../socket-server';
 import configManager from './config-manager';
 
@@ -24,6 +25,7 @@ function getSnippetMetaList() {
   return JSON.stringify(
     values(snippetsMeta),
     (k, v) => {
+      if (v instanceof Expression) return `!expression ${v.primitive}`
       if (isFunction(v)) return `!!js/function ${v.toString()}`
       if (isRegExp(v)) return `!!js/regexp ${v.toString()}`
       return v
@@ -36,7 +38,7 @@ ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
 })
 
 ss.on(SOCKET_MSG_TAG_API.SP_SAVE, ({ id, code }, cb) => {
-  const { name, content, when } = yaml.load(code)
+  const { name, content, when } = yaml.load(code, { schema: ExpSchema })
   const spId = id || genUUID()
   snippetsMeta[spId] = Object.assign({}, snippetsMeta[spId], {
     id: spId,
@@ -110,7 +112,11 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): (data: any) =
 }
 
 function parse(snippet: SnippetContent) {
-  if (isPlainObject(snippet)) {
+  if (isArray(snippet)) {
+    return map(parse)(snippet)
+  } else if (isFunction(snippet)) {
+    return snippet
+  } else if (isObject(snippet)) {
     const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
     const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
     const snippetRegx = new RegExp(`^\\$${PARSE_STRATEGY.SNIPPET}\\s+`)
@@ -137,16 +143,14 @@ function parse(snippet: SnippetContent) {
             strategy: PARSE_STRATEGY.SNIPPET,
             value,
           })]
+        } else if (value instanceof Expression) {
+          return [key, value.fn]
         }
 
         return [key, parse(value)]
       }),
       fromPairs,
     )(snippet)
-  } else if (isArray(snippet)) {
-    return map(parse)(snippet)
-  } else if (isFunction(snippet)) {
-    return snippet
   }
   return parseStrategy({ value: snippet })
 }

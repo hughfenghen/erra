@@ -1,30 +1,7 @@
-# ERRA服务配置，可指定 httpPort, httpsPort
 SERVICE_CONFIG:
   httpPort: 3344
   httpsPort: 4455
 snippet:
-  fe550821-92a2-46c8-80ed-9047cbfa859f:
-    id: fe550821-92a2-46c8-80ed-9047cbfa859f
-    name: Inject Eruda
-    content:
-      headers:
-        content-security-policy: ''
-      body: !<tag:yaml.org,2002:js/function> |-
-        function anonymous(body
-        ) {
-          return body.replace(/(<\/body>)/, '<script src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
-        }
-    when: !<tag:yaml.org,2002:js/undefined> ''
-  f05e8851-d14f-4531-9dd7-8f941568e0e4:
-    id: f05e8851-d14f-4531-9dd7-8f941568e0e4
-    name: Inject Erra
-    when: !<tag:yaml.org,2002:js/undefined> ''
-    content:
-      body: !<tag:yaml.org,2002:js/function> |-
-        function anonymous(body
-        ) {
-          return body.replace(/(<\/body>)/, '<script src="https://localhost:4455/erra/erra-portal.js"></script>$1') 
-        }
   735215e6-5c00-4443-8ce9-83d7382e9e02:
     id: 735215e6-5c00-4443-8ce9-83d7382e9e02
     name: Forward-Meituan
@@ -32,11 +9,7 @@ snippet:
     content:
       headers:
         host: www.mocky.io
-      url: !<tag:yaml.org,2002:js/function> |-
-        function anonymous(
-        ) {
-        return '/v2/5185415ba171ea3a00704eed'
-        }
+      url: /v2/5185415ba171ea3a00704eed
     enabled: false
   6353c69c-e1e6-4b34-a61a-c44271fce483:
     id: 6353c69c-e1e6-4b34-a61a-c44271fce483
@@ -60,5 +33,23 @@ snippet:
       body:
         code: 200
         $snippet include: Simple-Demo|6353c69c-e1e6-4b34-a61a-c44271fce483
+  a1a16ba9-7fb8-4fd3-9fa2-cfac11301846:
+    id: a1a16ba9-7fb8-4fd3-9fa2-cfac11301846
+    name: Inject-Eruda
+    when: !<tag:yaml.org,2002:js/undefined> ''
+    content:
+      headers:
+        content-security-policy: ''
+      body: !<!expression> >-
+        V.replace(/(<\/body>)/, '<script>window.define=undefined</script><script
+        src="//cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script><script>eruda.init();</script>$1')
+  4df3f3ae-7b3f-41fe-b62b-e34c58177eb9:
+    id: 4df3f3ae-7b3f-41fe-b62b-e34c58177eb9
+    name: Inject-Erra
+    when: !<tag:yaml.org,2002:js/undefined> ''
+    content:
+      body: !<!expression> >-
+        V.replace(/(<\/body>)/, '<script
+        src="https://localhost:4455/erra/erra-portal.js"></script>$1')
 breakpoint:
 apiBindSnippet:

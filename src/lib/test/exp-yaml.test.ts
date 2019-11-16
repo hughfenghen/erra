@@ -2,16 +2,15 @@ import yaml from 'js-yaml';
 import { ExpSchema } from '../exp-yaml';
 
 test('yaml load 自定义`Expression`类型', () => {
-  const body = '[req, resp]'
-  const str = `!expression '${body}'`
+  const fnBody = 'V * 2'
+  const str = `!expression '${fnBody}'`
   const exp = yaml.load(
     str,
     { schema: ExpSchema }
   )
-
   expect(exp.fn).toBeInstanceOf(Function)
-  expect(exp.fn(1, 2)).toEqual([1, 2])
-  expect(exp.body).toEqual(body)
+  expect(exp.fn(1)).toEqual(2)
+  expect(exp.primitive).toEqual(fnBody)
 })
 
 test('yaml dump 自定义`Expression`类型', () => {

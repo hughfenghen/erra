@@ -8,6 +8,7 @@ import Editor from './common/editor';
 import sc from './common/socket-client';
 import s from './style.less';
 import { omit } from 'lodash/fp';
+import { ExpSchema } from '../lib/exp-yaml';
 
 const snippetObjTpl = {
   __all_comment__: '只有name、content、when三个字段有效，不必输入或编辑其他内容',
@@ -46,7 +47,7 @@ export default function Snippets() {
 
   useEffect(() => {
     // id不可编辑
-    setCode(activeSnippet ? yaml.dump(omit(['id', 'enabled'], activeSnippet)) : '')
+    setCode(activeSnippet ? yaml.dump(omit(['id', 'enabled'], activeSnippet), { schema: ExpSchema }) : '')
   }, [activeSnippet])
 
   return <section className={s.snippetList}>

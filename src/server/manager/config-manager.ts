@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import path from 'path';
 import fs from 'fs'
 import yaml from 'js-yaml'
+import { ExpSchema } from '../../lib/exp-yaml';
 
 const ee = new EventEmitter()
 let config: { [key: string]: any } = {}
@@ -39,7 +40,7 @@ function init (cfgPath) {
       console.error(err);
       return 
     }
-    config = yaml.load(data) || {}
+    config = yaml.load(data, { schema: ExpSchema }) || {}
     // 默认端口号
     config.SERVICE_CONFIG = Object.assign({
       httpPort: 3344,
@@ -53,7 +54,7 @@ exps.on('update', async (key: string, value: any) => {
   config[key] = value
   
   if (!cofnigPath) return
-  fs.writeFile(cofnigPath, yaml.dump(config), (err) => {
+  fs.writeFile(cofnigPath, yaml.dump(config, { schema: ExpSchema }), (err) => {
     if (err) {
       console.error(err);
       return

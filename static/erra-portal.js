@@ -5,7 +5,7 @@
   entryEl.innerHTML = 'E'
   Object.assign(entryEl.style, {
     position: 'fixed',
-    zIndex: 100,
+    zIndex: 1000,
     right: '30px',
     bottom: '30px',
     width: '50px',
@@ -76,4 +76,4 @@
   document.getElementsByTagName('head')[0].appendChild(keyFramesStyle);
   document.body.appendChild(entryEl)
   document.body.appendChild(iframeEl)
-})()
+})();

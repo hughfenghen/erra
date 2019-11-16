@@ -5,6 +5,7 @@ import s from './style.less'
 import { BPMsg, SOCKET_MSG_TAG_API } from '../lib/interface';
 import sc from './common/socket-client';
 import Editor from './common/editor';
+import { ExpSchema } from '../lib/exp-yaml';
 
 export default function BreakpointQueue({ onMsgCountChange }) {
   const [bpMsgs, setBPMsgs] = useState<BPMsg[]>([])
@@ -52,7 +53,7 @@ export default function BreakpointQueue({ onMsgCountChange }) {
 
   useEffect(() => {
     // id不可编辑
-    setCode(activeMsg ? yaml.dump(activeMsg.httpDetail) : '')
+    setCode(activeMsg ? yaml.dump(activeMsg.httpDetail, { schema: ExpSchema }) : '')
   }, [activeMsg])
 
   function getNextMsg() {
