@@ -21,16 +21,7 @@ configManager.on('afterConfigInit', () => {
 })
 
 function getSnippetMetaList() {
-  // 函数、正则转换成字符串，否则不能通过socket传递
-  return JSON.stringify(
-    values(snippetsMeta),
-    (k, v) => {
-      if (v instanceof Expression) return `!expression ${v.primitive}`
-      if (isFunction(v)) return `!!js/function ${v.toString()}`
-      if (isRegExp(v)) return `!!js/regexp ${v.toString()}`
-      return v
-    }
-  );
+  return yaml.dump(values(snippetsMeta), { schema: ExpSchema })
 }
 
 ss.on(SOCKET_MSG_TAG_API.SP_GET, (cb) => {
