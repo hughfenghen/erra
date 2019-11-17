@@ -3,7 +3,7 @@ import { pick } from 'lodash/fp';
 import LRU from 'lru-cache';
 import modifyResponse from 'node-http-proxy-text';
 import path from 'path';
-import { SimpleReq, SimpleResp } from '../lib/interface';
+import { SimpleReq, SimpleResp, ApiRecord } from '../lib/interface';
 import { safeJSONParse, isTextResp } from '../lib/utils';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
@@ -107,13 +107,12 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
   }
 });
 
-proxyServer.beforeProxyReq(async (req) => {
+proxyServer.beforeProxyReq((req): Promise<ApiRecord | null> => {
   // 不记录map请求
   if (!/\.map$/.test(req.url)) {
     const record = handleReq(req)
-    if (!record) return
+    if (!record) return Promise.resolve(null)
 
-    const { req: mReq } = await throughBP4Req(record)
-    Object.assign(req, mReq)
+    return throughBP4Req(record)
   }
 })
