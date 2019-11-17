@@ -5,7 +5,7 @@ import { ApiRecord, SimpleReq, SimpleResp, SOCKET_MSG_TAG_API } from '../../lib/
 import ss from '../socket-server';
 import configManager from './config-manager';
 import { getSnippetFn, matchedSnippetFns } from './snippet-manager';
-import { parseUrl4Req } from '../../lib/utils';
+import { parseUrl4Req, isTextResp } from '../../lib/utils';
 
 const apiSnippetPair: { [x: string]: string } = {}
 let apiRecords: ApiRecord[] = []
@@ -115,9 +115,8 @@ export function handleResp(resp: SimpleResp, req: SimpleReq): ApiRecord | null {
   rs = snippetId ? getSnippetFn(snippetId)(rs) : rs
 
   let recordBody = rs.body
-  const ct = rs.headers['content-type'] || rs.headers['Content-Type']
   // 非文本时，编辑其中的内容用占位符代替
-  if (ct && !/text|json|javascript|xml|svg|csv|html?|css/.test(ct)) {
+  if (!isTextResp(rs)) {
     recordBody = '<non text>'
   } if (isString(rs.body) && rs.body.length > 1e5) {
     // 避免Response太长，导致浏览器卡死，超过10w长度则替换

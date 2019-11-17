@@ -4,7 +4,7 @@ import LRU from 'lru-cache';
 import modifyResponse from 'node-http-proxy-text';
 import path from 'path';
 import { SimpleReq, SimpleResp } from '../lib/interface';
-import { safeJSONParse } from '../lib/utils';
+import { safeJSONParse, isTextResp } from '../lib/utils';
 import { handleReq, handleResp } from './manager/api-manager';
 import { throughBP4Req, throughBP4Resp } from './manager/breakpoint-manager';
 import configManager from './manager/config-manager';
@@ -14,7 +14,7 @@ import ss from './socket-server';
 
 
 process.on('uncaughtException', function (err) {
-  console.error(err);
+  console.error('---uncaughtException', err);
 })
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -65,15 +65,23 @@ configManager.on('afterConfigInit', (cfg) => {
 })
 
 proxyServer.afterProxyResp((proxyRes, req, resp) => {
-  // 不处理map请求
-  if (/\.map$/.test(req.url)) return
-
   const _writeHead = resp.writeHead;
   const _end = resp.end;
 
-  // resp 是浏览器跟Erra的链接
-  // proxyRes 是Erra跟远程服务器的连接
-  modifyResponse(resp, proxyRes, async function (originBody) {
+  // 不处理sourcemap请求
+  if (/\.map$/.test(req.url)) return
+
+  if (isTextResp(proxyRes)) {
+    // resp 是浏览器跟Erra的链接, proxyRes 是Erra跟远程服务器的连接
+    // 如果是文本则 解压后再处理
+    modifyResponse(resp, proxyRes, processResp);
+    return
+  } else {
+    processResp()
+    return
+  }
+
+  async function processResp(originBody = '') {
     const record = handleResp(
       <SimpleResp>
       Object.assign(
@@ -96,7 +104,7 @@ proxyServer.afterProxyResp((proxyRes, req, resp) => {
       _end.call(resp, err.toString());
       throw err
     }
-  });
+  }
 });
 
 proxyServer.beforeProxyReq(async (req) => {

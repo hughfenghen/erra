@@ -1,15 +1,15 @@
 import URL from 'url';
-import { SimpleReq, ParsedUrl } from './interface';
+import { SimpleReq, ParsedUrl, SimpleResp } from './interface';
 import { isString } from 'lodash/fp';
 
-export function sleep(millisecond) {
+export function sleep(millisecond: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, millisecond);
   })
 }
 
 // 从req中解析处完整的 url 信息
-export function parseUrl4Req(req: SimpleReq) {
+export function parseUrl4Req(req: SimpleReq): ParsedUrl {
   const u = URL.parse(req.url)
   // 添加origin字段
   const url: ParsedUrl = { origin: null, ...u }
@@ -42,4 +42,14 @@ export function safeJSONParse(val) {
   } catch (e) {
     return val
   }
+}
+
+/**
+ * 判断当前返回类型是否是文本
+ * @param resp SimpleResp
+ */
+export function isTextResp(resp: SimpleResp): boolean {
+  const ct = resp.headers['content-type'] || resp.headers['Content-Type']
+  if (!ct) return false
+  return /text|json|javascript|xml|svg|csv|html?|css/.test(ct)
 }
