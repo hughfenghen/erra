@@ -45,7 +45,7 @@
   iframeEl.src = new URL(document.querySelector('script[src$="/erra-portal.js"]').getAttribute('src')).origin + '/erra'
   Object.assign(iframeEl.style, {
     position: 'fixed',
-    zIndex: 100,
+    zIndex: 1000,
     right: '30px',
     bottom: '90px',
     width: '700px',

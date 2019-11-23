@@ -52,6 +52,7 @@ export enum SOCKET_MSG_TAG_API {
   API_GET_HISTORY = 'api_manager-get_history',
   API_GET_RECORD_DETAIL = 'api_manager-get_detail',
   API_NEW_RECORD = 'api_manager-new_record',
+  API_DEL_RECORD = 'api_manager-delete_record',
   API_REPLACE_RECORD = 'api_manager-replace_record',
   API_CLEAR_RECORD = 'api_manager-clear_record',
   API_UPDATE_RECORD = 'api_manager-update_record',
