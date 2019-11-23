@@ -50,7 +50,7 @@ export default function ApiRecords() {
     })
     // 新的代理纪录
     sc.on(SOCKET_MSG_TAG_API.API_NEW_RECORD, (record: ApiRecord) => {
-      setApiList(list => list.concat(record))
+      setApiList(list => [record].concat(list))
     })
     // 移除记录，超过上限
     sc.on(SOCKET_MSG_TAG_API.API_DEL_RECORD, (delId: string) => {

@@ -41,9 +41,7 @@ Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra�
 - [] 界面美化  
 - [] API List 倒序  
 - [] 一键保存请求Response为Snippet  
-- [] API List快速过滤  
 - [] 资源映射（charles中的mapping）  
-- [] API List最多展示200条数据  
 
 ## 名称含义
 `Erra`并没有什么特殊含义，项目开始的时候想了很久都没有想到好名字，（有点生气）就双手往键盘上一拍。  

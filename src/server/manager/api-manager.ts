@@ -84,10 +84,10 @@ export function handleReq(req: SimpleReq): ApiRecord | null {
       record.req = sfn(record.req);
     })
 
-  apiRecords.push(record)
+  apiRecords.unshift(record)
   ss.broadcast(SOCKET_MSG_TAG_API.API_NEW_RECORD, record)
   if (apiRecords.length > 200) {
-    const delIt = apiRecords.shift()
+    const delIt = apiRecords.pop()
     ss.broadcast(SOCKET_MSG_TAG_API.API_DEL_RECORD, delIt.uuid)
   }
 
