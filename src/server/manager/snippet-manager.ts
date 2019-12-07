@@ -103,7 +103,9 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): (data: any) =
 }
 
 function parse(snippet: SnippetContent) {
-  if (isArray(snippet)) {
+  if (snippet instanceof Expression) {
+    return snippet.fn
+  } else if (isArray(snippet)) {
     return map(parse)(snippet)
   } else if (isFunction(snippet)) {
     return snippet
@@ -134,8 +136,6 @@ function parse(snippet: SnippetContent) {
             strategy: PARSE_STRATEGY.SNIPPET,
             value,
           })]
-        } else if (value instanceof Expression) {
-          return [key, value.fn]
         }
 
         return [key, parse(value)]
