@@ -60,6 +60,10 @@ Erra初始时创建了几个Snippet Demo，你可以参考Demo学习简单用法
 可以尝试点击Snippet标签页下的“新增Snippet”按钮
 ![新增Snippet入口](./assets/new-snippet.png)
 
+::: tip
+如果你要尝试学习本节内容，强烈建议参考[前文](./start.md)启动Erra，从自带的Demo开始入手。
+:::
+
 ### 修改返回值
 
 使用Snippet自动修改http内容，需要对http数据结构有些许了解。Erra将http结构简化为：    
@@ -184,12 +188,15 @@ content:
 ```
 
 ### Snippet引用
-这是Snippet高级功能，mock数据复用的问题。参考Erra自带的Snippet`Include-Snippet`，`$snippet `前缀表示该字段的值交给另一个Snippet去修改。  
+这是Snippet高级功能，为解决mock数据复用的问题而设计。  
+参考Erra自带的Snippet`Include-Snippet`，`$snippet `前缀表示该字段的值交给另一个Snippet去修改。  
+
 ```yaml
 name: Include-Snippet
 content:
   body:
     code: 200
+    # “|”前面的名称是为了方便记忆，忽略名称不会导致错误
     $snippet include: Simple-Demo|6353c69c-e1e6-4b34-a61a-c44271fce483
 ```
 Snippet名称后面的id不需要手动输入，输入名称第一个字母后编辑器会自动补全。  
@@ -207,3 +214,9 @@ Snippet名称后面的id不需要手动输入，输入名称第一个字母后�
   }
 }
 ```
+
+::: tip
+在展开在Array、Object中引用的Snippet时，参考单测用例  
+[展开Object中的snippet引用](https://github.com/hughfenghen/erra/blob/master/src/server/manager/test/snippet-manager.test.ts#L107)  
+[展开Array中的snippet引用](https://github.com/hughfenghen/erra/blob/master/src/server/manager/test/snippet-manager.test.ts#L130)   
+:::
