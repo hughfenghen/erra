@@ -57,8 +57,14 @@ test('init config，文件读取错误', () => {
   const onAfterConfigInit = jest.fn()
   configManager.on('afterConfigInit', onAfterConfigInit)
 
+  const originalError = console.error;
+  console.error = jest.fn();
+
   configManager.init('/anypath')
   expect(onAfterConfigInit).not.toBeCalled()
+  expect(console.error).toBeCalled()
+
+  console.error = originalError;
 })
 
 test('更新配置', () => {
