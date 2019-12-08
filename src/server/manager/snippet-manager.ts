@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { constant, filter, fromPairs, identity, isArray, isFunction, isPlainObject, isRegExp, map, mapValues, mergeWith, pick, pipe, toPairs, values, __, isObject } from 'lodash/fp';
+import { keys, reduce, constant, filter, tap, identity, isArray, isFunction, isPlainObject, isRegExp, map, mapValues, mergeWith, pick, pipe, toPairs, values, __, isObject } from 'lodash/fp';
 import { mock } from 'mockjs';
 import genUUID from 'uuid';
 import { ApiRecord, API_DATA_TYPE, Snippet, SnippetContent, SOCKET_MSG_TAG_API } from '../../lib/interface';
@@ -79,7 +79,7 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): (data: any) =
       return constant(value)
     case PARSE_STRATEGY.MOCKJS:
       if (key) {
-        // transDesc是一个`返回value的函数`，所以此处只取mock的值
+        // parseStrategy`返回value的函数`，所以此处只取mock的值
         // key 与 该函数 在上层关联
         return () => values(mock({ [key]: value }))[0]
       }
@@ -103,17 +103,34 @@ function parseStrategy({ strategy = 'fixed', value, key = null }): (data: any) =
 }
 
 function parse(snippet: SnippetContent) {
+  const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
+  const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
+  const snippetRegx = new RegExp(`^\\$${PARSE_STRATEGY.SNIPPET}\\s+`)
+  // 展开对象 { a: 1, ...$snippet: snippetId, b: 3}
+  // 展开数组 [1, ...$snippet: abc, 3]
+  const expSnippetRegx = new RegExp(`^\.{3}\\$${PARSE_STRATEGY.SNIPPET}$`)
+
   if (snippet instanceof Expression) {
     return snippet.fn
   } else if (isArray(snippet)) {
-    return map(parse)(snippet)
+    let rs = []
+    for (let s of snippet) {
+      // 如果当前元素为 需要展开的数组
+      if (
+        isPlainObject(s)
+        && keys(s).length === 1
+        && expSnippetRegx.test(keys(s)[0])
+      ) {
+        // ...$snippet: snippetId 会被解析为 { 0: v1, 1: v2}
+        rs.push(...values(parse(s)))
+      } else {
+        rs.push(parse(s))
+      }
+    }
+    return rs
   } else if (isFunction(snippet)) {
     return snippet
   } else if (isObject(snippet)) {
-    const fixedRegx = new RegExp(`^\\$${PARSE_STRATEGY.FIXED}\\s+`)
-    const mockjsRegx = new RegExp(`^\\$${PARSE_STRATEGY.MOCKJS}\\s+`)
-    const snippetRegx = new RegExp(`^\\$${PARSE_STRATEGY.SNIPPET}\\s+`)
-
     return pipe(
       toPairs,
       map(([key, value]) => {
@@ -136,11 +153,23 @@ function parse(snippet: SnippetContent) {
             strategy: PARSE_STRATEGY.SNIPPET,
             value,
           })]
+        } else if (expSnippetRegx.test(key)) {
+          return [expSnippetRegx.source, parseStrategy({
+            strategy: PARSE_STRATEGY.SNIPPET,
+            value,
+          })(null)]
         }
 
         return [key, parse(value)]
       }),
-      fromPairs,
+      // 序对合并为对象
+      reduce(
+        (sum, [k, v]) => k === expSnippetRegx.source
+          ? ({ ...sum, ...v })
+          : ({ ...sum, [k]: v })
+        ,
+        {}
+      ),
     )(snippet)
   }
   return parseStrategy({ value: snippet })

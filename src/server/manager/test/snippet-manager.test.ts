@@ -89,12 +89,10 @@ test('解析snippet引用', () => {
       id: snippetIdaaa
       name: aaa
       content:
-        $mockjs book|10:
-          - item
         $snippet code: snippetIdCode200
     snippetIdCode200:
       id: snippetIdCode200
-      name: aaa
+      name: code200
       content: 200
   `)
 
@@ -103,8 +101,55 @@ test('解析snippet引用', () => {
 
   const linkSnippet = getSnippetFn('snippetIdaaa')({ ttt: 111, code: 'abc' })
   expect(linkSnippet.ttt).toBe(111)
-  expect(linkSnippet.book.length).toBe(10)
   expect(linkSnippet.code).toBe(200)
+})
+
+test('展开Object中的snippet引用', () => {
+  const snippets = yaml.load(`
+    snippetIdbbb:
+      id: snippetIdbbb
+      name: bbb
+      content:
+        ...$snippet: snippetIdccc
+        b: 3
+    snippetIdccc:
+      id: snippetIdccc
+      name: ccc
+      content:
+        a: 1
+        b: 2
+  `)
+
+  configManager.get = jest.fn(() => snippets)
+  configManager.emit('afterConfigInit')
+
+  const linkSnippet = getSnippetFn('snippetIdbbb')({})
+  expect(linkSnippet).toEqual({ a: 1, b: 3})
+})
+
+test('展开Array中的snippet引用', () => {
+  const snippets = yaml.load(`
+    snippetIdddd:
+      id: snippetIdddd
+      name: ddd
+      content:
+       - 1
+       - ...$snippet: snippetIdeee
+       - 2
+    snippetIdeee:
+      id: snippetIdeee
+      name: eee
+      content:
+        - 9
+        - 8
+        - { x: 7 }
+  `)
+
+  configManager.get = jest.fn(() => snippets)
+  configManager.emit('afterConfigInit')
+
+  const linkSnippet = getSnippetFn('snippetIdddd')({})
+  expect(linkSnippet).toEqual([1, 9, 8, { x: 7 }, 2])
 })
 
 test('展开与源数据不匹配的snippet层级', () => {
@@ -113,10 +158,10 @@ test('展开与源数据不匹配的snippet层级', () => {
 
 test('解析expression，向html中注入脚本', () => {
   const exp = yaml.load(
-    `!expression V.replace(/(<\\/body>)/, '<script>alert("yoyoyo")</script>$1')`, 
+    `!expression V.replace(/(<\\/body>)/, '<script>alert("yoyoyo")</script>$1')`,
     { schema: ExpSchema }
   )
-  
+
   expect(parseSnippetContent(exp)(`
     <html>
       <body>Hello Erra</body>
