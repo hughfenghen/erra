@@ -89,6 +89,7 @@
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.2.1",
     "postcss-modules": "^1.4.1",
+    "ts-jest": "^24.2.0",
     "ts-node": "^8.1.1",
     "typescript": "^3.7.2",
     "typescript-plugin-css-modules": "^1.2.1",
