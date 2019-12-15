@@ -15,7 +15,7 @@ jobs:
       with:
         node-version: 12.13.0
     - name: yarn install
-        run: yarn install
+      run: yarn install
     - name: Publish to npm
       uses: pascalgn/npm-publish-action@1.1.0
       with: # All of theses inputs are optional
