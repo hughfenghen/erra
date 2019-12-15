@@ -64,20 +64,30 @@ configManager.on('afterConfigInit', (cfg) => {
   ss.run()
 })
 
-proxyServer.afterProxyResp((proxyRes, req, resp) => {
-  const _writeHead = resp.writeHead;
-  const _end = resp.end;
-
+proxyServer.afterProxyResp(async (proxyRes, req, resp) => {
   // 不处理sourcemap请求
   if (/\.map$/.test(req.url)) return
 
+  const _writeHead = resp.writeHead;
+  const _end = resp.end;
+  const _write = resp.write
   if (isTextResp(proxyRes)) {
     // resp 是浏览器跟Erra的链接, proxyRes 是Erra跟远程服务器的连接
-    // 如果是文本则 解压后再处理
+    // 如果是文本则使用node-http-proxy-text模块提供的能力，拦截并对内容进行处理
     modifyResponse(resp, proxyRes, processResp);
     return
   } else {
-    processResp()
+    const task = processResp()
+    // 非文本请求使用write将数据写入浏览器，
+    // 在执行write前等待 Erra的前序步骤完成
+    resp.write = async (data) => {
+      await task
+      _write.call(resp, data)
+    }
+    resp.end = async () => {
+      await task
+      _end.call(resp)
+    }
     return
   }
 
