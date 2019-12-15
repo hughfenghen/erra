@@ -14,8 +14,8 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 12.13.0
-    - name: yarn install
-      run: yarn install
+    - name: NPM or Yarn install with caching
+      uses: bahmutov/npm-install@v1.1.0
     - name: Publish to npm
       uses: pascalgn/npm-publish-action@1.1.0
       with: # All of theses inputs are optional
