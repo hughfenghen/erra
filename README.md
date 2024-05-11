@@ -1,3 +1,8 @@
+# 该项目探索新的代理方案失败，暂停维护。  
+推荐笔者的文章：[自集成式 HTTP 代理方案](https://hughfenghen.github.io/posts/2024/05/08/ff-proxy/)，基本实现了期望。
+
+--- 
+
 # Erra
 
 Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra有一个初步了解，阅读<a href="https://hughfenghen.github.io/erra/start">启动文档</a>可以快速体验Erra的功能。  
@@ -29,21 +34,6 @@ Erra是一个非常便捷的http接口调试工具。阅读下文可以对Erra�
 4. 启动本地UI服务 `yarn client:dev`
 5. <a href="https://hughfenghen.github.io/erra/trust-ca.html">信任证书</a>`static`目录下的证书
 6. <a href="https://hughfenghen.github.io/erra/start.html#%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE">配置代理</a>
-
-## 计划
-
-功能  
-- [] 支持场景，即一次操作使多个【接口-Snippet】绑定同时生效/失效，快速覆盖某个需要多次调用接口才能触发的场景  
-
-编辑器优化  
-- [] 更智能的自动补全、错误提示  
-- [] 更丰富的yaml语法高亮  
-- [] 图片文件支持预览  
-
-效率、体验优化  
-- [] 界面美化  
-- [] 一键保存请求Response为Snippet  
-- [] 资源映射（charles中的mapping）  
 
 ## 名称含义
 `Erra`并没有什么特殊含义，项目开始的时候想了很久都没有想到好名字，（有点生气）就双手往键盘上一拍。  
